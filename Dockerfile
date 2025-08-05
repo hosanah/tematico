@@ -21,8 +21,7 @@ FROM base AS build
 COPY frontend/ ./
 
 # Gerar build de produção do Angular
-# (Isso vai usar o projeto definido no angular.json automaticamente)
-RUN npm run build --configuration production
+RUN npm run build
 
 # ================================
 # Etapa final: Nginx para servir a aplicação
