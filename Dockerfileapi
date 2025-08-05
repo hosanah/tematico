@@ -1,0 +1,48 @@
+# Estágio de build
+FROM node:20-alpine AS builder
+
+# Instalar dependências do sistema para build
+RUN apk add --no-cache openssl openssl-dev lz4-libs lz4-dev musl-dev
+
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY backend/package*.json ./
+
+# Instalar dependências
+RUN npm install
+
+# Copiar restante do código
+COPY backend ./
+
+# Estágio de produção
+FROM node:20-alpine
+
+# Instalar dependências mínimas para produção
+RUN apk add --no-cache openssl lz4-libs
+
+WORKDIR /app
+
+# Copiar dependências e app do builder
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/.env ./
+
+# Criar diretório para banco SQLite
+RUN mkdir -p ./database && \
+    chown -R node:node /app && \
+    chmod -R 755 /app
+
+# Variáveis de ambiente padrão (podem ser sobrescritas pelo EasyPanel)
+ENV PORT=3001 \
+    DATABASE_URL="file:/app/src/database/database.sqlite" \
+    NODE_ENV="production"
+
+# Executar como usuário seguro
+USER node
+
+EXPOSE 3001
+
+# Iniciar aplicação
+CMD ["npm", "start"]
