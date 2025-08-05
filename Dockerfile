@@ -14,8 +14,8 @@ RUN npx ng build --configuration production
 
 FROM nginx:alpine AS production
 
-# Copiar apenas o conteúdo de "browser" para a raiz do nginx
-COPY --from=build /app/frontend/dist/browser/ /usr/share/nginx/html/
+# Copiar apenas o conteúdo final para o Nginx
+COPY --from=build /app/frontend/dist/frontend/browser/ /usr/share/nginx/html/
 
 RUN echo 'server { \
     listen 80; \
