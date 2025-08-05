@@ -1,41 +1,44 @@
-# Dockerfile multi-estágio para ambiente de desenvolvimento e produção
-# Imagem base para ambos os ambientes
+# ================================
+# Etapa base: Node para build
+# ================================
 FROM node:18-alpine AS base
 
 # Diretório de trabalho
 WORKDIR /app
 
 # Copiar arquivos de configuração
-COPY frontend/package.json ./
-COPY frontend/pnpm-lock.yaml ./
+COPY frontend/package*.json ./
 
-# Instalar pnpm e dependências
-RUN npm i --force
+# Instalar dependências (somente as necessárias para build)
+RUN npm install --force
 
-# Estágio de build
+# ================================
+# Etapa de build
+# ================================
 FROM base AS build
-WORKDIR /app
 
 # Copiar todo o código fonte
 COPY frontend/ ./
 
-# Construir a aplicação
-RUN npm run build
+# Gerar build de produção do Angular
+RUN npm run build -- --configuration production
 
-# Estágio de produção
+# ================================
+# Etapa final: Nginx para servir a aplicação
+# ================================
 FROM nginx:alpine AS production
 
-# Copiar arquivos estáticos da build para o Nginx
+# Copiar build do Angular para a pasta pública do Nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Verificar se os arquivos foram copiados corretamente
+# Verificar se o index.html existe
 RUN ls -la /usr/share/nginx/html && \
     if [ ! -f /usr/share/nginx/html/index.html ]; then \
       echo "ERRO: index.html não encontrado na pasta de build!" && \
       exit 1; \
     fi
 
-# Configuração do Nginx para SPA (Single Page Application)
+# Configuração do Nginx para SPA Angular
 RUN echo 'server { \
     listen 80; \
     root /usr/share/nginx/html; \
@@ -45,8 +48,8 @@ RUN echo 'server { \
     } \
 }' > /etc/nginx/conf.d/default.conf
 
-# Expor porta para produção
+# Porta exposta
 EXPOSE 80
 
-# Comando para iniciar o Nginx
+# Iniciar Nginx
 CMD ["nginx", "-g", "daemon off;"]
