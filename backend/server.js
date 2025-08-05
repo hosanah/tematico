@@ -9,6 +9,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 
 // Importar rotas
 const authRoutes = require('./routes/auth');
@@ -72,6 +74,9 @@ app.get('/health', (req, res) => {
     uptime: process.uptime()
   });
 });
+
+// Documentação Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Rotas de autenticação (aplicar rate limiting específico)
 app.use('/auth/login', loginLimiter);
