@@ -1,7 +1,8 @@
-# ================================
-# Etapa base: Node para build
-# ================================
-FROM node:18-alpine AS base
+# Imagem base Node
+FROM node:18-alpine
+
+# Instalar dependências do sistema necessárias
+RUN apk add --no-cache python3 make g++
 
 # Diretório de trabalho
 WORKDIR /app
@@ -9,40 +10,17 @@ WORKDIR /app
 # Copiar arquivos de configuração
 COPY frontend/package*.json ./
 
-# Instalar dependências
-RUN npm install --force
+# Instalar dependências e servidor estático
+RUN npm install --force && npm install -g http-server
 
-# ================================
-# Etapa de build
-# ================================
-FROM base AS build
-
-# Copiar todo o código fonte do frontend
+# Copiar código
 COPY frontend/ ./
 
-# Gerar build de produção do Angular
-RUN npm run build
+# Rodar build do Angular
+RUN npx ng build --configuration production
 
-# ================================
-# Etapa final: Nginx para servir a aplicação
-# ================================
-FROM nginx:alpine AS production
+# Expor porta para servir
+EXPOSE 8080
 
-# Copiar build para a pasta pública do Nginx
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Configuração SPA Angular no Nginx
-RUN echo 'server { \
-    listen 80; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    location / { \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
-
-# Porta exposta
-EXPOSE 80
-
-# Iniciar Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Servir a aplicação com http-server
+CMD ["http-server", "dist/frontend", "-p", "8080", "-a", "0.0.0.0"]
