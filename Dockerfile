@@ -9,7 +9,7 @@ WORKDIR /app
 # Copiar arquivos de configuração
 COPY frontend/package*.json ./
 
-# Instalar dependências
+# Instalar dependências (somente as necessárias para build)
 RUN npm install --force
 
 # ================================
@@ -17,21 +17,28 @@ RUN npm install --force
 # ================================
 FROM base AS build
 
-# Copiar todo o código fonte do frontend
+# Copiar todo o código fonte
 COPY frontend/ ./
 
 # Gerar build de produção do Angular
-RUN npm run build
+RUN npm run build -- --configuration production
 
 # ================================
 # Etapa final: Nginx para servir a aplicação
 # ================================
 FROM nginx:alpine AS production
 
-# Copiar build para a pasta pública do Nginx
+# Copiar build do Angular para a pasta pública do Nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Configuração SPA Angular no Nginx
+# Verificar se o index.html existe
+RUN ls -la /usr/share/nginx/html && \
+    if [ ! -f /usr/share/nginx/html/index.html ]; then \
+      echo "ERRO: index.html não encontrado na pasta de build!" && \
+      exit 1; \
+    fi
+
+# Configuração do Nginx para SPA Angular
 RUN echo 'server { \
     listen 80; \
     root /usr/share/nginx/html; \
