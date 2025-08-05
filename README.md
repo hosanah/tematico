@@ -95,6 +95,12 @@ DB_PATH=./database/users.db
 CORS_ORIGIN=http://localhost:4200
 ```
 
+Para o frontend, crie um arquivo `.env` dentro da pasta `frontend/` definindo a URL da API:
+
+```env
+NG_APP_API_URL=http://localhost:3000
+```
+
 ## 🚀 Executando o Projeto
 
 ### Opção 1: Executar frontend e backend juntos (Recomendado)
