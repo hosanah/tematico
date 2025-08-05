@@ -23,6 +23,9 @@ const { authenticateToken } = require('./middleware/auth');
 const { initDatabase } = require('./config/database');
 
 const app = express();
+// Confiar no primeiro proxy para que o express-rate-limit
+// identifique corretamente o IP do cliente quando X-Forwarded-For estiver presente
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 
 // Configurações de segurança
