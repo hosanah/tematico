@@ -9,12 +9,12 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 // PrimeNG imports
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card/card';
+import { ButtonModule } from 'primeng/button/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { ToastModule } from 'primeng/toast';
+import { ToastModule } from 'primeng/toast/toast';
 import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
