@@ -99,11 +99,8 @@ DB_PASSWORD=postgres
 CORS_ORIGIN=http://localhost:4200
 ```
 
-Para o frontend, crie um arquivo `.env` dentro da pasta `frontend/` definindo a URL da API:
-
-```env
-NG_APP_API_URL=http://localhost:3000
-```
+Para o frontend em produção, defina a variável de ambiente `NG_APP_API_URL` com a URL da API antes de executar o build.
+Em desenvolvimento, o arquivo `src/environments/environment.ts` já utiliza `http://localhost:3000` por padrão.
 
 ## 🚀 Executando o Projeto
 
