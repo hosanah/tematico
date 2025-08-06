@@ -9,8 +9,8 @@ import { Router } from '@angular/router';
 
 // PrimeNG
 import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button/button';
-import { ToastModule } from 'primeng/toast/toast';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 import { UserService, AppUser } from '../../services/users';
