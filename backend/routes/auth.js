@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
     const db = getDatabase();
     
     db.get(
-      'SELECT id, username, email, password, full_name, is_active FROM users WHERE (username = ? OR email = ?) AND is_active = 1',
+      'SELECT id, username, email, password, full_name, is_active FROM users WHERE (username = ? OR email = ?) AND is_active = TRUE',
       [username, username],
       async (err, user) => {
         if (err) {
@@ -245,7 +245,7 @@ router.post('/register', async (req, res) => {
 
           // Inserir novo usuário
           db.run(
-            'INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)',
+            'INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?) RETURNING id',
             [username, email, hashedPassword, fullName || username],
             function(err) {
               if (err) {

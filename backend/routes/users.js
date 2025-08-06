@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
         return res.status(409).json({ error: 'Usuário ou email já existe' });
       }
       const hashed = await bcrypt.hash(password, 12);
-      db.run('INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)', [username, email, hashed, fullName || username], function(err) {
+      db.run('INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?) RETURNING id', [username, email, hashed, fullName || username], function(err) {
         if (err) {
           console.error('❌ Erro ao inserir usuário:', err.message);
           return res.status(500).json({ error: 'Erro ao criar usuário' });

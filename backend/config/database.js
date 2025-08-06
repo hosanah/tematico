@@ -1,180 +1,158 @@
 /**
- * Configuração do banco de dados SQLite
+ * Configuração do banco de dados PostgreSQL
  * Inclui inicialização e operações básicas
  */
 
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
-// Caminho do banco de dados
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../database/users.db');
+let pool = null;
 
-let db = null;
+function getConfig() {
+  return {
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT) || 5432,
+    database: process.env.DB_NAME || 'tematico',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres'
+  };
+}
 
 /**
- * Conectar ao banco de dados SQLite
+ * Conectar ao banco de dados PostgreSQL
  */
-function connectDatabase() {
-  return new Promise((resolve, reject) => {
-    db = new sqlite3.Database(DB_PATH, (err) => {
-      if (err) {
-        console.error('❌ Erro ao conectar com o banco de dados:', err.message);
-        reject(err);
-      } else {
-        console.log('✅ Conectado ao banco de dados SQLite');
-        resolve(db);
-      }
-    });
-  });
+async function connectDatabase() {
+  pool = new Pool(getConfig());
+  try {
+    await pool.query('SELECT 1');
+    console.log('✅ Conectado ao banco de dados PostgreSQL');
+  } catch (err) {
+    console.error('❌ Erro ao conectar com o banco de dados:', err.message);
+    throw err;
+  }
+}
+
+/**
+ * Converter placeholders estilo `?` para `$1, $2, ...`
+ */
+function convertPlaceholders(sql) {
+  let index = 1;
+  return sql.replace(/\?/g, () => `$${index++}`);
 }
 
 /**
  * Criar tabelas necessárias
  */
-function createTables() {
-  return new Promise((resolve, reject) => {
-    const createUsersTable = `
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        full_name TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        is_active BOOLEAN DEFAULT 1
-      )
-    `;
+async function createTables() {
+  const createUsersTable = `
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      username VARCHAR(255) UNIQUE NOT NULL,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      full_name VARCHAR(255),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      is_active BOOLEAN DEFAULT TRUE
+    )
+  `;
 
-    const createSessionsTable = `
-      CREATE TABLE IF NOT EXISTS sessions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        token_hash TEXT NOT NULL,
-        expires_at DATETIME NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-      )
-    `;
+  const createSessionsTable = `
+    CREATE TABLE IF NOT EXISTS sessions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      token_hash TEXT NOT NULL,
+      expires_at TIMESTAMP NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
 
-    db.serialize(() => {
-      db.run(createUsersTable, (err) => {
-        if (err) {
-          console.error('❌ Erro ao criar tabela users:', err.message);
-          reject(err);
-          return;
-        }
-        console.log('✅ Tabela users criada/verificada');
-      });
-
-      db.run(createSessionsTable, (err) => {
-        if (err) {
-          console.error('❌ Erro ao criar tabela sessions:', err.message);
-          reject(err);
-          return;
-        }
-        console.log('✅ Tabela sessions criada/verificada');
-        resolve();
-      });
-    });
-  });
+  await pool.query(createUsersTable);
+  await pool.query(createSessionsTable);
+  console.log('✅ Tabelas criadas/verificadas');
 }
 
 /**
  * Criar usuário padrão para testes
  */
 async function createDefaultUser() {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // Verificar se já existe usuário admin
-      db.get('SELECT id FROM users WHERE username = ?', ['admin'], async (err, row) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-
-        if (row) {
-          console.log('✅ Usuário admin já existe');
-          resolve();
-          return;
-        }
-
-        // Criar usuário admin padrão
-        const hashedPassword = await bcrypt.hash('admin123', 12);
-        
-        const insertUser = `
-          INSERT INTO users (username, email, password, full_name)
-          VALUES (?, ?, ?, ?)
-        `;
-
-        db.run(insertUser, [
-          'admin',
-          'admin@example.com',
-          hashedPassword,
-          'Administrador'
-        ], function(err) {
-          if (err) {
-            console.error('❌ Erro ao criar usuário padrão:', err.message);
-            reject(err);
-            return;
-          }
-          
-          console.log('✅ Usuário admin criado com sucesso');
-          console.log('📧 Email: admin@example.com');
-          console.log('🔑 Senha: admin123');
-          resolve();
-        });
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+  const { rows } = await pool.query('SELECT id FROM users WHERE username = $1', ['admin']);
+  if (rows.length > 0) {
+    console.log('✅ Usuário admin já existe');
+    return;
+  }
+  const hashedPassword = await bcrypt.hash('admin123', 12);
+  await pool.query(
+    'INSERT INTO users (username, email, password, full_name) VALUES ($1, $2, $3, $4)',
+    ['admin', 'admin@example.com', hashedPassword, 'Administrador']
+  );
+  console.log('✅ Usuário admin criado com sucesso');
+  console.log('📧 Email: admin@example.com');
+  console.log('🔑 Senha: admin123');
 }
 
 /**
  * Inicializar banco de dados
  */
 async function initDatabase() {
-  try {
-    await connectDatabase();
-    await createTables();
-    await createDefaultUser();
-    console.log('🎉 Banco de dados inicializado completamente');
-  } catch (error) {
-    console.error('❌ Erro na inicialização do banco:', error);
-    throw error;
-  }
+  await connectDatabase();
+  await createTables();
+  await createDefaultUser();
+  console.log('🎉 Banco de dados inicializado completamente');
 }
 
 /**
- * Obter instância do banco de dados
+ * Obter objeto de acesso ao banco
  */
 function getDatabase() {
-  if (!db) {
+  if (!pool) {
     throw new Error('Banco de dados não inicializado');
   }
-  return db;
+  return {
+    async query(sql, params) {
+      return pool.query(convertPlaceholders(sql), params);
+    },
+    get(sql, params, callback) {
+      if (typeof params === 'function') {
+        callback = params;
+        params = [];
+      }
+      pool
+        .query(convertPlaceholders(sql), params)
+        .then(res => callback(null, res.rows[0]))
+        .catch(err => callback(err));
+    },
+    all(sql, params, callback) {
+      if (typeof params === 'function') {
+        callback = params;
+        params = [];
+      }
+      pool
+        .query(convertPlaceholders(sql), params)
+        .then(res => callback(null, res.rows))
+        .catch(err => callback(err));
+    },
+    run(sql, params, callback) {
+      if (typeof params === 'function') {
+        callback = params;
+        params = [];
+      }
+      pool
+        .query(convertPlaceholders(sql), params)
+        .then(res => {
+          const ctx = { lastID: res.rows[0]?.id, changes: res.rowCount };
+          if (callback) callback.call(ctx, null);
+        })
+        .catch(err => callback(err));
+    }
+  };
 }
 
 /**
  * Fechar conexão com banco de dados
  */
 function closeDatabase() {
-  return new Promise((resolve, reject) => {
-    if (db) {
-      db.close((err) => {
-        if (err) {
-          reject(err);
-        } else {
-          console.log('✅ Conexão com banco de dados fechada');
-          resolve();
-        }
-      });
-    } else {
-      resolve();
-    }
-  });
+  return pool ? pool.end() : Promise.resolve();
 }
 
 module.exports = {
@@ -185,4 +163,3 @@ module.exports = {
   createTables,
   createDefaultUser
 };
-
