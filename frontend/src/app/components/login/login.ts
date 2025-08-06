@@ -9,12 +9,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 
 // PrimeNG imports
-import { ButtonModule } from 'primeng/button/button';
-import { InputTextModule } from 'primeng/inputtext/inputtext';
-import { PasswordModule } from 'primeng/password/password';
-import { CardModule } from 'primeng/card/card';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
-import { ToastModule } from 'primeng/toast/toast';
+import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 import { AuthService, LoginRequest } from '../../services/auth';
