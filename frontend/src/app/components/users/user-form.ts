@@ -23,8 +23,7 @@ import { UserService, AppUser } from '../../services/users';
   standalone: true,
   imports: [CommonModule, FormsModule, CardModule, InputTextModule, PasswordModule, ButtonModule, ToastModule],
   providers: [MessageService],
-  templateUrl: './user-form.html',
-  styleUrls: ['./user-form.scss']
+  templateUrl: './user-form.html'
 })
 export class UserFormComponent implements OnInit {
   user: AppUser = { username: '', email: '', fullName: '', password: '' };
