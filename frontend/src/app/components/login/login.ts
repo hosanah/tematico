@@ -6,7 +6,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -30,7 +30,8 @@ import { AuthService, LoginRequest } from '../../services/auth';
     PasswordModule,
     CardModule,
     MessageModule,
-    ToastModule
+    ToastModule,
+    RouterModule
   ],
   providers: [MessageService],
   template: `
@@ -101,6 +102,7 @@ import { AuthService, LoginRequest } from '../../services/auth';
                 styleClass="w-full"
                 size="large"
               ></p-button>
+              <a routerLink="/reset-password" class="block text-center mt-4 text-sm text-blue-600 hover:underline">Esqueci minha senha</a>
             </form>
 
             <!-- Informações de Teste -->

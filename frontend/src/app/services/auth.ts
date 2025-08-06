@@ -233,6 +233,19 @@ export class AuthService {
   }
 
   /**
+   * Resetar senha do usuário através do email
+   */
+  resetPassword(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/reset-password`, { email, password })
+      .pipe(
+        catchError(error => {
+          console.error('❌ Erro ao resetar senha:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
    * Verificar se token está próximo do vencimento
    */
   isTokenExpiringSoon(): boolean {

@@ -63,13 +63,20 @@ import { ApiService } from '../../services/api';
                 <p class="text-xs text-gray-500">{{ currentUser?.email }}</p>
               </div>
               
-              <p-avatar 
-                [label]="getUserInitials()" 
+              <p-avatar
+                [label]="getUserInitials()"
                 styleClass="bg-primary-600 text-white"
                 size="normal"
                 shape="circle"
               ></p-avatar>
-              
+
+              <p-button
+                label="Usuários"
+                icon="pi pi-users"
+                [text]="true"
+                (onClick)="goUsers()"
+              ></p-button>
+
               <p-button
                 icon="pi pi-sign-out"
                 [text]="true"
@@ -422,5 +429,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.error('Erro no logout:', error);
       }
     });
+  }
+
+  goUsers(): void {
+    this.router.navigate(['/users']);
   }
 }

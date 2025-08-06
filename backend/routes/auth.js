@@ -289,5 +289,75 @@ router.post('/register', async (req, res) => {
   }
 });
 
+/**
+ * POST /auth/reset-password
+ * Resetar senha do usuário através do email
+ */
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Email e nova senha são obrigatórios',
+        code: 'MISSING_FIELDS'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: 'Senha deve ter pelo menos 6 caracteres',
+        code: 'PASSWORD_TOO_SHORT'
+      });
+    }
+
+    const db = getDatabase();
+    db.get('SELECT id FROM users WHERE email = ?', [email], async (err, user) => {
+      if (err) {
+        console.error('❌ Erro ao buscar usuário para reset de senha:', err.message);
+        return res.status(500).json({
+          error: 'Erro interno do servidor',
+          code: 'INTERNAL_ERROR'
+        });
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          error: 'Usuário não encontrado',
+          code: 'USER_NOT_FOUND'
+        });
+      }
+
+      try {
+        const hashed = await bcrypt.hash(password, 12);
+        db.run('UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [hashed, user.id], function(err) {
+          if (err) {
+            console.error('❌ Erro ao atualizar senha:', err.message);
+            return res.status(500).json({
+              error: 'Erro ao atualizar senha',
+              code: 'UPDATE_PASSWORD_ERROR'
+            });
+          }
+
+          console.log(`🔄 Senha redefinida para usuário ID ${user.id}`);
+          res.json({ message: 'Senha atualizada com sucesso' });
+        });
+      } catch (hashError) {
+        console.error('❌ Erro ao hash da nova senha:', hashError);
+        return res.status(500).json({
+          error: 'Erro interno do servidor',
+          code: 'INTERNAL_ERROR'
+        });
+      }
+    });
+  } catch (error) {
+    console.error('❌ Erro no reset de senha:', error);
+    res.status(500).json({
+      error: 'Erro interno do servidor',
+      code: 'INTERNAL_ERROR'
+    });
+  }
+});
+
 module.exports = router;
 
