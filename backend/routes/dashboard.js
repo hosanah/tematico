@@ -100,7 +100,7 @@ router.get('/stats', (req, res) => {
     const db = getDatabase();
 
     // Buscar estatísticas reais do banco
-    db.get('SELECT COUNT(*) as totalUsers FROM users WHERE is_active = 1', (err, userCount) => {
+    db.get('SELECT COUNT(*) as totalUsers FROM users WHERE is_active = TRUE', (err, userCount) => {
       if (err) {
         console.error('❌ Erro ao buscar estatísticas:', err.message);
         return res.status(500).json({

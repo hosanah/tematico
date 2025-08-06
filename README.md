@@ -7,7 +7,7 @@ Um projeto completo fullstack com frontend Angular (PrimeNG + CSS customizado) e
 ### Backend
 - **Node.js** - Runtime JavaScript
 - **Express.js** - Framework web
-- **SQLite** - Banco de dados
+- **PostgreSQL** - Banco de dados
 - **JWT (jsonwebtoken)** - Autenticação
 - **bcryptjs** - Hash de senhas
 - **CORS** - Cross-Origin Resource Sharing
@@ -30,7 +30,7 @@ fullstack-project/
 │   ├── middleware/         # Middlewares (autenticação)
 │   ├── routes/            # Rotas da API
 │   ├── scripts/           # Scripts utilitários
-│   ├── database/          # Banco de dados SQLite
+│   ├── database/          # Banco de dados PostgreSQL
 │   ├── uploads/           # Arquivos enviados
 │   ├── .env               # Variáveis de ambiente
 │   ├── server.js          # Servidor principal
@@ -89,7 +89,11 @@ NODE_ENV=development
 JWT_SECRET=sua_chave_secreta_jwt_muito_segura_aqui_2024
 
 # Configurações do banco de dados
-DB_PATH=./database/users.db
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=tematico
+DB_USER=postgres
+DB_PASSWORD=postgres
 
 # CORS
 CORS_ORIGIN=http://localhost:4200
@@ -200,31 +204,30 @@ O sistema cria automaticamente um usuário administrador para testes:
 
 ## 📊 Banco de Dados
 
-### Estrutura (SQLite)
+### Estrutura (PostgreSQL)
 
 #### Tabela `users`
 ```sql
 CREATE TABLE users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL,
-  full_name TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  is_active BOOLEAN DEFAULT 1
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(255) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  full_name VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT TRUE
 );
 ```
 
 #### Tabela `sessions`
 ```sql
 CREATE TABLE sessions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id),
   token_hash TEXT NOT NULL,
-  expires_at DATETIME NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users (id)
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
@@ -265,7 +268,7 @@ CREATE TABLE sessions (
 Verifique se a variável `CORS_ORIGIN` no `.env` está configurada corretamente.
 
 #### 2. Erro de conexão com banco
-O banco SQLite é criado automaticamente. Verifique as permissões da pasta `backend/database/`.
+Certifique-se de que o banco PostgreSQL esteja configurado e acessível; utilize os arquivos SQL em `backend/database` para criar as tabelas.
 
 #### 3. Token inválido
 Limpe o localStorage do navegador ou faça logout e login novamente.
@@ -294,7 +297,7 @@ Altere as portas nos arquivos de configuração se necessário:
 ### Produção
 1. **Variáveis de Ambiente** - Configurar para produção
 2. **HTTPS** - Certificados SSL/TLS
-3. **Banco de Dados** - Migrar para PostgreSQL/MySQL
+3. **Banco de Dados** - Implementar migrations e otimizações
 4. **Load Balancer** - Para alta disponibilidade
 5. **CDN** - Para assets estáticos
 
