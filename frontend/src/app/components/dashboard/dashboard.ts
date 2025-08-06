@@ -50,7 +50,7 @@ import { ApiService } from '../../services/api';
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <h1 class="text-xl font-bold text-gray-900">
-                  <i class="pi pi-chart-line mr-2 text-primary-600"></i>
+                  <i class="pi pi-chart-line mr-2 text-blue-600"></i>
                   Dashboard
                 </h1>
               </div>
@@ -65,7 +65,7 @@ import { ApiService } from '../../services/api';
               
               <p-avatar
                 [label]="getUserInitials()"
-                styleClass="bg-primary-600 text-white"
+                styleClass="bg-blue-600 text-white"
                 size="normal"
                 shape="circle"
               ></p-avatar>
