@@ -10,12 +10,12 @@
     </div>
 
     <!-- Card de Login -->
-    <p-card class="shadow-xl">
+    <p-card styleClass="shadow-xl rounded-xl border-0" contentStyleClass="p-0">
       <div class="p-6">
         <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
           <!-- Campo Username -->
           <div class="mb-6">
-            <label for="username" class="form-label">
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
               <i class="pi pi-user mr-2"></i>
               Usuário ou Email
             </label>
@@ -25,7 +25,7 @@
               name="username"
               [(ngModel)]="credentials.username"
               required
-              class="w-full"
+              class="w-full rounded-lg border border-gray-300 p-3 text-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500/20"
               placeholder="Digite seu usuário ou email"
               [disabled]="isLoading"
             />
@@ -33,7 +33,7 @@
 
           <!-- Campo Password -->
           <div class="mb-6">
-            <label for="password" class="form-label">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
               <i class="pi pi-lock mr-2"></i>
               Senha
             </label>
@@ -45,14 +45,14 @@
               [toggleMask]="true"
               placeholder="Digite sua senha"
               styleClass="w-full"
-              inputStyleClass="w-full"
+              inputStyleClass="w-full rounded-lg border border-gray-300 p-3 text-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500/20"
               [disabled]="isLoading"
             ></p-password>
           </div>
 
           <!-- Mensagem de Erro -->
           <div *ngIf="errorMessage" class="mb-4">
-            <p-message severity="error" [text]="errorMessage"></p-message>
+            <p-message severity="error" [text]="errorMessage" styleClass="rounded-lg border-0 p-3"></p-message>
           </div>
 
           <!-- Botão de Login -->
@@ -62,7 +62,7 @@
             icon="pi pi-sign-in"
             [loading]="isLoading"
             [disabled]="!loginForm.valid || isLoading"
-            styleClass="w-full"
+            styleClass="w-full rounded-lg px-6 py-3 font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(59,130,246,0.3)]"
             size="large"
           ></p-button>
           <a routerLink="/reset-password" class="block text-center mt-4 text-sm text-blue-600 hover:underline">Esqueci minha senha</a>
