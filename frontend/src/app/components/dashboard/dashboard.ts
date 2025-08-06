@@ -41,7 +41,6 @@ import { ApiService } from '../../services/api';
   ],
   providers: [MessageService],
   templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;

@@ -76,7 +76,10 @@
     <!-- Charts and Data Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- System Performance -->
-      <p-card header="Performance do Sistema" styleClass="h-full">
+      <p-card header="Performance do Sistema"
+              styleClass="h-full rounded-xl border border-gray-200"
+              headerStyleClass="bg-gray-50 border-b border-gray-200 px-6 py-4 font-semibold text-gray-700"
+              contentStyleClass="p-6">
         <div class="space-y-4">
           <div>
             <div class="flex justify-between items-center mb-2">
@@ -86,6 +89,8 @@
             <p-progressBar
               [value]="dashboardData?.charts?.systemPerformance?.cpu || 0"
               [style]="{'height': '8px'}"
+              styleClass="rounded-md bg-gray-200"
+              valueStyleClass="rounded-md"
             ></p-progressBar>
           </div>
 
@@ -98,6 +103,8 @@
               [value]="dashboardData?.charts?.systemPerformance?.memory || 0"
               [style]="{'height': '8px'}"
               severity="warning"
+              styleClass="rounded-md bg-gray-200"
+              valueStyleClass="rounded-md"
             ></p-progressBar>
           </div>
 
@@ -110,13 +117,18 @@
               [value]="dashboardData?.charts?.systemPerformance?.disk || 0"
               [style]="{'height': '8px'}"
               severity="success"
+              styleClass="rounded-md bg-gray-200"
+              valueStyleClass="rounded-md"
             ></p-progressBar>
           </div>
         </div>
       </p-card>
 
       <!-- Notifications -->
-      <p-card header="Notificações" styleClass="h-full">
+      <p-card header="Notificações"
+              styleClass="h-full rounded-xl border border-gray-200"
+              headerStyleClass="bg-gray-50 border-b border-gray-200 px-6 py-4 font-semibold text-gray-700"
+              contentStyleClass="p-6">
         <div class="space-y-3">
           <div *ngFor="let notification of dashboardData?.notifications"
                class="flex items-start space-x-3 p-3 rounded-lg border"
@@ -144,34 +156,37 @@
     </div>
 
     <!-- Recent Activity Table -->
-    <p-card header="Atividade Recente">
+    <p-card header="Atividade Recente"
+            styleClass="rounded-xl border border-gray-200"
+            headerStyleClass="bg-gray-50 border-b border-gray-200 px-6 py-4 font-semibold text-gray-700"
+            contentStyleClass="p-6">
       <p-table [value]="dashboardData?.recentActivity || []" [loading]="isLoading">
         <ng-template pTemplate="header">
           <tr>
-            <th>ID</th>
-            <th>Ação</th>
-            <th>Usuário</th>
-            <th>Data/Hora</th>
-            <th>Status</th>
+            <th class="bg-gray-50 border border-gray-200 text-gray-700 font-semibold p-4">ID</th>
+            <th class="bg-gray-50 border border-gray-200 text-gray-700 font-semibold p-4">Ação</th>
+            <th class="bg-gray-50 border border-gray-200 text-gray-700 font-semibold p-4">Usuário</th>
+            <th class="bg-gray-50 border border-gray-200 text-gray-700 font-semibold p-4">Data/Hora</th>
+            <th class="bg-gray-50 border border-gray-200 text-gray-700 font-semibold p-4">Status</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-activity>
           <tr>
-            <td>{{ activity.id }}</td>
-            <td>
+            <td class="border border-gray-200 p-4">{{ activity.id }}</td>
+            <td class="border border-gray-200 p-4">
               <i class="pi pi-check-circle text-green-600 mr-2"></i>
               {{ activity.action }}
             </td>
-            <td>{{ activity.user }}</td>
-            <td>{{ formatDate(activity.timestamp) }}</td>
-            <td>
-              <p-tag value="Sucesso" severity="success"></p-tag>
+            <td class="border border-gray-200 p-4">{{ activity.user }}</td>
+            <td class="border border-gray-200 p-4">{{ formatDate(activity.timestamp) }}</td>
+            <td class="border border-gray-200 p-4">
+              <p-tag value="Sucesso" severity="success" styleClass="rounded-md font-medium"></p-tag>
             </td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5" class="text-center py-8 text-gray-500">
+            <td colspan="5" class="border border-gray-200 p-4 text-center py-8 text-gray-500">
               <i class="pi pi-info-circle mr-2"></i>
               Nenhuma atividade encontrada
             </td>
