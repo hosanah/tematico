@@ -19,11 +19,34 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () => import('./components/login/login').then(m => m.LoginComponent)
   },
+
+  // Reset de senha
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./components/reset-password/reset-password').then(m => m.ResetPasswordComponent)
+  },
   
   // Rota do dashboard (protegida)
   {
     path: 'dashboard',
     loadComponent: () => import('./components/dashboard/dashboard').then(m => m.DashboardComponent),
+    canActivate: [authGuard]
+  },
+
+  // CRUD de usuários
+  {
+    path: 'users',
+    loadComponent: () => import('./components/users/user-list').then(m => m.UserListComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'users/new',
+    loadComponent: () => import('./components/users/user-form').then(m => m.UserFormComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'users/:id',
+    loadComponent: () => import('./components/users/user-form').then(m => m.UserFormComponent),
     canActivate: [authGuard]
   },
   
