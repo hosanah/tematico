@@ -40,8 +40,7 @@ import { ApiService } from '../../services/api';
     SkeletonModule
   ],
   providers: [MessageService],
-  templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.scss']
+  templateUrl: './dashboard.html'
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
