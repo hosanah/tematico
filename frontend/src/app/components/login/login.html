@@ -2,20 +2,20 @@
   <div class="w-full max-w-md">
     <!-- Logo/Header -->
     <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-full mb-4">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-full mb-4">
         <i class="pi pi-lock text-white text-2xl"></i>
       </div>
       <h1 class="text-3xl font-bold text-gray-900 mb-2">Bem-vindo</h1>
       <p class="text-gray-600">Faça login para acessar o dashboard</p>
     </div>
 
-    <!-- Card de Login -->
-    <p-card styleClass="shadow-xl rounded-xl border-0" contentStyleClass="p-0">
+    <!-- Card de Login com PrimeNG -->
+    <p-card styleClass="rounded-xl shadow-xl border-0" contentStyleClass="p-0">
       <div class="p-6">
-        <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
           <!-- Campo Username -->
           <div class="mb-6">
-            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
               <i class="pi pi-user mr-2"></i>
               Usuário ou Email
             </label>
@@ -25,7 +25,8 @@
               name="username"
               [(ngModel)]="credentials.username"
               required
-              class="w-full rounded-lg border border-gray-300 p-3 text-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500/20"
+              type="text"
+              class="w-full rounded-md border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 px-4 py-2"
               placeholder="Digite seu usuário ou email"
               [disabled]="isLoading"
             />
@@ -33,7 +34,7 @@
 
           <!-- Campo Password -->
           <div class="mb-6">
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
               <i class="pi pi-lock mr-2"></i>
               Senha
             </label>
@@ -45,14 +46,18 @@
               [toggleMask]="true"
               placeholder="Digite sua senha"
               styleClass="w-full"
-              inputStyleClass="w-full rounded-lg border border-gray-300 p-3 text-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500/20"
+              inputStyleClass="w-full rounded-md border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 px-4 py-2"
               [disabled]="isLoading"
             ></p-password>
           </div>
 
           <!-- Mensagem de Erro -->
           <div *ngIf="errorMessage" class="mb-4">
-            <p-message severity="error" [text]="errorMessage" styleClass="rounded-lg border-0 p-3"></p-message>
+            <p-message
+              severity="error"
+              [text]="errorMessage"
+              styleClass="rounded-lg border-0 px-4 py-2 bg-red-100 text-red-700"
+            ></p-message>
           </div>
 
           <!-- Botão de Login -->
@@ -62,10 +67,15 @@
             icon="pi pi-sign-in"
             [loading]="isLoading"
             [disabled]="!loginForm.valid || isLoading"
-            styleClass="w-full rounded-lg px-6 py-3 font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(59,130,246,0.3)]"
-            size="large"
+            styleClass="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50"
           ></p-button>
-          <a routerLink="/reset-password" class="block text-center mt-4 text-sm text-blue-600 hover:underline">Esqueci minha senha</a>
+
+          <a
+            routerLink="/reset-password"
+            class="block text-center mt-4 text-sm text-blue-600 hover:underline"
+          >
+            Esqueci minha senha
+          </a>
         </form>
 
         <!-- Informações de Teste -->
