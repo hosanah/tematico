@@ -31,24 +31,8 @@ import { AuthService } from '../../services/auth';
     ToastModule
   ],
   providers: [MessageService],
-  template: `
-    <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <p-card class="w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-4">Redefinir Senha</h2>
-        <form (ngSubmit)="onSubmit()" #f="ngForm" class="space-y-4">
-          <div>
-            <label for="email" class="form-label">Email</label>
-            <input pInputText id="email" name="email" [(ngModel)]="email" required class="w-full" />
-          </div>
-          <div>
-            <label for="password" class="form-label">Nova Senha</label>
-            <p-password [(ngModel)]="password" name="password" required [feedback]="false" placeholder="Nova senha" styleClass="w-full" inputStyleClass="w-full"></p-password>
-          </div>
-          <p-button type="submit" label="Redefinir" [disabled]="!f.valid || isLoading" [loading]="isLoading" styleClass="w-full"></p-button>
-        </form>
-      </p-card>
-    </div>
-  `
+  templateUrl: './reset-password.html',
+  styleUrls: ['./reset-password.scss']
 })
 export class ResetPasswordComponent {
   email = '';

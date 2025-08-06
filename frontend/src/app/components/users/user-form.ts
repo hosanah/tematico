@@ -23,33 +23,8 @@ import { UserService, AppUser } from '../../services/users';
   standalone: true,
   imports: [CommonModule, FormsModule, CardModule, InputTextModule, PasswordModule, ButtonModule, ToastModule],
   providers: [MessageService],
-  template: `
-    <div class="p-4">
-      <p-card class="max-w-xl mx-auto">
-        <h2 class="text-xl font-bold mb-4">{{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}</h2>
-        <form (ngSubmit)="onSubmit()" #f="ngForm" class="space-y-4">
-          <div>
-            <label class="form-label" for="username">Usuário</label>
-            <input pInputText id="username" name="username" [(ngModel)]="user.username" required class="w-full" />
-          </div>
-          <div>
-            <label class="form-label" for="email">Email</label>
-            <input pInputText id="email" name="email" [(ngModel)]="user.email" required class="w-full" />
-          </div>
-          <div>
-            <label class="form-label" for="fullName">Nome Completo</label>
-            <input pInputText id="fullName" name="fullName" [(ngModel)]="user.fullName" class="w-full" />
-          </div>
-          <div>
-            <label class="form-label" for="password">Senha</label>
-            <p-password id="password" name="password" [(ngModel)]="user.password" [feedback]="false" placeholder="Senha" styleClass="w-full" inputStyleClass="w-full" [required]="!isEdit"></p-password>
-          </div>
-          <p-button type="submit" label="Salvar" [disabled]="!f.valid || isLoading" [loading]="isLoading"></p-button>
-          <p-button label="Cancelar" severity="secondary" (onClick)="cancel()" [text]="true"></p-button>
-        </form>
-      </p-card>
-    </div>
-  `
+  templateUrl: './user-form.html',
+  styleUrls: ['./user-form.scss']
 })
 export class UserFormComponent implements OnInit {
   user: AppUser = { username: '', email: '', fullName: '', password: '' };
