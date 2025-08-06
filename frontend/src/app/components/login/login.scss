@@ -1,0 +1,52 @@
+:host ::ng-deep {
+  .p-card {
+    border-radius: 12px;
+    border: none;
+  }
+
+  .p-card-body {
+    padding: 0;
+  }
+
+  .p-inputtext {
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .p-inputtext:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .p-password input {
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .p-password input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .p-button {
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .p-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  .p-message {
+    border-radius: 8px;
+    border: none;
+    padding: 12px;
+  }
+}
