@@ -7,8 +7,8 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Servidor local"
+      "url": "https://tematicoapi.zapchatbr.com/",
+      "description": "API Temático"
     }
   ],
   "components": {
