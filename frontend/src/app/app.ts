@@ -16,5 +16,5 @@ import { RouterOutlet } from '@angular/router';
   styles: []
 })
 export class AppComponent {
-  title = 'Fullstack Angular + Node.js';
+  title = 'Sistema de Agendamento de Temáticos';
 }
