@@ -9,6 +9,8 @@ import { RouterModule, Router } from '@angular/router';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { PaginatorModule } from 'primeng/paginator';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -18,13 +20,17 @@ import { EventoService, Evento } from '../../services/eventos';
 @Component({
   selector: 'app-evento-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, CardModule, ButtonModule, ToastModule],
+  imports: [CommonModule, RouterModule, CardModule, TableModule, PaginatorModule, ButtonModule, ToastModule],
   providers: [MessageService],
   templateUrl: './evento-list.html',
   styleUrls: ['./evento-list.scss']
 })
 export class EventoListComponent implements OnInit {
   eventos: Evento[] = [];
+  isLoading = false;
+  totalRecords = 0;
+  page = 0;
+  pageSize = 10;
 
   constructor(
     private service: EventoService,
@@ -37,10 +43,24 @@ export class EventoListComponent implements OnInit {
   }
 
   load(): void {
-    this.service.getEventos().subscribe({
-      next: data => this.eventos = data,
-      error: err => this.showError('Erro ao carregar eventos', err)
+    this.isLoading = true;
+    this.service.getEventos(this.page + 1, this.pageSize).subscribe({
+      next: res => {
+        this.eventos = res.data;
+        this.totalRecords = res.total;
+        this.isLoading = false;
+      },
+      error: err => {
+        this.isLoading = false;
+        this.showError('Erro ao carregar eventos', err);
+      }
     });
+  }
+
+  onPage(event: any): void {
+    this.page = event.first / event.rows;
+    this.pageSize = event.rows;
+    this.load();
   }
 
   novo(): void {

@@ -25,6 +25,10 @@ import { ReservaService, Reserva } from '../../services/reservas';
 })
 export class ReservaListComponent implements OnInit {
   reservas: Reserva[] = [];
+  isLoading = false;
+  totalRecords = 0;
+  page = 0;
+  pageSize = 10;
 
   constructor(
     private service: ReservaService,
@@ -37,10 +41,24 @@ export class ReservaListComponent implements OnInit {
   }
 
   load(): void {
-    this.service.getReservas().subscribe({
-      next: data => this.reservas = data,
-      error: err => this.showError('Erro ao carregar reservas', err)
+    this.isLoading = true;
+    this.service.getReservas(this.page + 1, this.pageSize).subscribe({
+      next: res => {
+        this.reservas = res.data;
+        this.totalRecords = res.total;
+        this.isLoading = false;
+      },
+      error: err => {
+        this.isLoading = false;
+        this.showError('Erro ao carregar reservas', err);
+      }
     });
+  }
+
+  onPage(event: any): void {
+    this.page = event.first / event.rows;
+    this.pageSize = event.rows;
+    this.load();
   }
 
   novo(): void {

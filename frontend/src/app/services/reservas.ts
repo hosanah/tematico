@@ -6,7 +6,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, throwError, map } from 'rxjs';
 
 export interface Reserva {
   id?: number;
@@ -23,8 +23,9 @@ export class ReservaService {
 
   constructor(private http: HttpClient) {}
 
-  getReservas(): Observable<Reserva[]> {
-    return this.http.get<Reserva[]>(`${this.API_URL}/reservas`).pipe(
+  getReservas(page = 1, limit = 10): Observable<{ data: Reserva[]; total: number }> {
+    return this.http.get<any>(`${this.API_URL}/reservas`, { params: { page, limit } }).pipe(
+      map(res => ({ data: res.data as Reserva[], total: res.total })),
       catchError(error => {
         console.error('❌ Erro ao listar reservas:', error);
         return throwError(() => error);

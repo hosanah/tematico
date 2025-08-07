@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 
 // PrimeNG
 import { TableModule } from 'primeng/table';
+import { PaginatorModule } from 'primeng/paginator';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
@@ -19,7 +20,7 @@ import { UserService, AppUser } from '../../services/users';
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, ToastModule, TagModule],
+  imports: [CommonModule, TableModule, PaginatorModule, ButtonModule, ToastModule, TagModule],
   providers: [MessageService],
   templateUrl: './user-list.html',
   styleUrls: ['./user-list.scss']
@@ -27,6 +28,9 @@ import { UserService, AppUser } from '../../services/users';
 export class UserListComponent implements OnInit {
   users: AppUser[] = [];
   isLoading = false;
+  totalRecords = 0;
+  page = 0;
+  pageSize = 10;
 
   constructor(private userService: UserService, private router: Router, private messageService: MessageService) {}
 
@@ -36,9 +40,10 @@ export class UserListComponent implements OnInit {
 
   loadUsers(): void {
     this.isLoading = true;
-    this.userService.getUsers().subscribe({
-      next: data => {
-        this.users = data;
+    this.userService.getUsers(this.page + 1, this.pageSize).subscribe({
+      next: res => {
+        this.users = res.data;
+        this.totalRecords = res.total;
         this.isLoading = false;
       },
       error: err => {
@@ -46,6 +51,12 @@ export class UserListComponent implements OnInit {
         this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar usuários' });
       }
     });
+  }
+
+  onPage(event: any): void {
+    this.page = event.first / event.rows;
+    this.pageSize = event.rows;
+    this.loadUsers();
   }
 
   createUser(): void {

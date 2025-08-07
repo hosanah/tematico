@@ -4,7 +4,16 @@
     <h2 class="title">Usuários</h2>
     <p-button label="Novo" icon="pi pi-plus" (onClick)="createUser()"></p-button>
   </div>
-  <p-table [value]="users" [loading]="isLoading">
+  <p-table
+    [value]="users"
+    [loading]="isLoading"
+    [paginator]="true"
+    [rows]="pageSize"
+    [totalRecords]="totalRecords"
+    [first]="page * pageSize"
+    [lazy]="true"
+    (onPage)="onPage($event)"
+  >
     <ng-template pTemplate="header">
       <tr>
         <th>Usuário</th>
