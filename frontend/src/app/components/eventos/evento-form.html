@@ -1,0 +1,30 @@
+<p-card header="{{ isEdit ? 'Editar Evento' : 'Novo Evento' }}">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="field">
+      <label for="nome">Nome</label>
+      <input id="nome" type="text" pInputText formControlName="nome" />
+      <div class="error" *ngIf="form.get('nome')?.hasError('required') && form.get('nome')?.touched">Nome é obrigatório.</div>
+    </div>
+
+    <div class="field">
+      <label for="data">Data (YYYY-MM-DD)</label>
+      <input id="data" type="text" pInputText formControlName="data" />
+      <div class="error" *ngIf="form.get('data')?.hasError('required') && form.get('data')?.touched">Data é obrigatória.</div>
+      <div class="error" *ngIf="form.get('data')?.hasError('pattern') && form.get('data')?.touched">Formato de data inválido.</div>
+    </div>
+
+    <div class="field">
+      <label for="hora">Hora (HH:mm)</label>
+      <input id="hora" type="text" pInputText formControlName="hora" />
+      <div class="error" *ngIf="form.get('hora')?.hasError('required') && form.get('hora')?.touched">Hora é obrigatória.</div>
+      <div class="error" *ngIf="form.get('hora')?.hasError('pattern') && form.get('hora')?.touched">Formato de hora inválido.</div>
+    </div>
+
+    <div class="actions">
+      <button pButton type="submit" label="Salvar" [disabled]="isLoading"></button>
+      <button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="cancel()"></button>
+    </div>
+  </form>
+</p-card>
+
+<p-toast></p-toast>
