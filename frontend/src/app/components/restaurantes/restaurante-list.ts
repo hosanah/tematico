@@ -16,6 +16,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 import { RestauranteService, Restaurante } from '../../services/restaurantes';
+import { extractErrorMessage } from '../../utils';
 
 @Component({
   selector: 'app-restaurante-list',
@@ -87,7 +88,7 @@ export class RestauranteListComponent implements OnInit {
   private showError(summary: string, err: any): void {
     let detail = 'Falha na operação';
     if (err.status >= 400 && err.status < 500) {
-      detail = err.error?.message || 'Requisição inválida';
+      detail = extractErrorMessage(err);
     }
     this.messageService.add({ severity: 'error', summary, detail });
   }
