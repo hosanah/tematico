@@ -213,9 +213,16 @@ router.post('/register', async (req, res, next) => {
       return next(new ApiError(400, 'Formato de email inválido', 'INVALID_EMAIL'));
     }
 
-    // Validar senha (mínimo 6 caracteres)
-    if (password.length < 6) {
-      return next(new ApiError(400, 'Senha deve ter pelo menos 6 caracteres', 'PASSWORD_TOO_SHORT'));
+    // Validar senha forte: mínimo 8 caracteres, uma letra maiúscula e um caractere especial
+    const strongPassword = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+    if (!strongPassword.test(password)) {
+      return next(
+        new ApiError(
+          400,
+          'Senha deve ter pelo menos 8 caracteres, incluir letra maiúscula e caractere especial',
+          'WEAK_PASSWORD'
+        )
+      );
     }
 
     const db = getDatabase();

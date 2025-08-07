@@ -45,6 +45,18 @@ router.post('/', async (req, res, next) => {
     if (!username || !email || !password) {
       return next(new ApiError(400, 'Username, email e senha são obrigatórios', 'MISSING_FIELDS'));
     }
+
+    // Validar senha forte: mínimo 8 caracteres, uma letra maiúscula e um caractere especial
+    const strongPassword = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+    if (!strongPassword.test(password)) {
+      return next(
+        new ApiError(
+          400,
+          'Senha deve ter pelo menos 8 caracteres, incluir letra maiúscula e caractere especial',
+          'WEAK_PASSWORD'
+        )
+      );
+    }
     const db = getDatabase();
     db.get('SELECT id FROM users WHERE username = ? OR email = ?', [username, email], async (err, existing) => {
       if (err) {
