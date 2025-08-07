@@ -28,6 +28,7 @@ export class AppMenu {
         label: 'Cadastros',
         items: [
             { label: 'Usuários', icon: 'pi pi-fw pi-id-card', routerLink: ['/users'] },
+            { label: 'Reserva Evento', icon: 'pi pi-fw pi-calendar-plus', routerLink: ['/reserva-evento'] },
         ]
       },
     ];

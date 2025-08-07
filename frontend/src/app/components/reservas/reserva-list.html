@@ -1,0 +1,12 @@
+<p-card header="Reservas">
+  <button pButton label="Nova" (click)="novo()" class="mb-3"></button>
+  <ul>
+    <li *ngFor="let r of reservas">
+      {{ r.nome }} - {{ r.data }} {{ r.hora }}
+      <button pButton label="Editar" class="p-button-text" (click)="editar(r.id)"></button>
+      <button pButton label="Excluir" class="p-button-text p-button-danger" (click)="excluir(r.id)"></button>
+    </li>
+  </ul>
+</p-card>
+
+<p-toast></p-toast>
