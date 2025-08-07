@@ -16,7 +16,7 @@ router.get('/', (req, res, next) => {
   const offset = (page - 1) * limit;
 
   db.all(
-    'SELECT id, nome, endereco, capacidade FROM restaurantes LIMIT ? OFFSET ?',
+    'SELECT id, nome, capacidade, horario_funcionamento FROM restaurantes LIMIT ? OFFSET ?',
     [limit, offset],
     (err, rows) => {
       if (err) {
@@ -40,7 +40,7 @@ router.get('/:id', (req, res, next) => {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
   const db = getDatabase();
-  db.get('SELECT id, nome, endereco, capacidade FROM restaurantes WHERE id = ?', [req.params.id], (err, row) => {
+  db.get('SELECT id, nome, capacidade, horario_funcionamento FROM restaurantes WHERE id = ?', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter restaurante:', err.message);
       return next(new ApiError(500, 'Erro ao obter restaurante', 'GET_RESTAURANT_ERROR', err.message));
@@ -54,20 +54,20 @@ router.get('/:id', (req, res, next) => {
 
 // Create restaurant
 router.post('/', (req, res, next) => {
-  const { nome, endereco, capacidade } = req.body;
-  if (!nome || !endereco || !isValidInt(capacidade)) {
-    return next(new ApiError(400, 'Nome, endereço e capacidade inteira são obrigatórios', 'MISSING_FIELDS'));
+  const { nome, capacidade, horario_funcionamento } = req.body;
+  if (!nome || !horario_funcionamento || !isValidInt(capacidade)) {
+    return next(new ApiError(400, 'Nome, capacidade inteira e horário de funcionamento são obrigatórios', 'MISSING_FIELDS'));
   }
   const db = getDatabase();
   db.run(
-    'INSERT INTO restaurantes (nome, endereco, capacidade) VALUES (?, ?, ?) RETURNING id',
-    [nome, endereco, capacidade],
+    'INSERT INTO restaurantes (nome, capacidade, horario_funcionamento) VALUES (?, ?, ?) RETURNING id',
+    [nome, capacidade, horario_funcionamento],
     function(err) {
       if (err) {
         console.error('❌ Erro ao criar restaurante:', err.message);
         return next(new ApiError(500, 'Erro ao criar restaurante', 'CREATE_RESTAURANT_ERROR', err.message));
       }
-      res.status(201).json({ id: this.lastID, nome, endereco, capacidade });
+      res.status(201).json({ id: this.lastID, nome, capacidade, horario_funcionamento });
     }
   );
 });
@@ -77,11 +77,10 @@ router.put('/:id', (req, res, next) => {
   if (!isValidInt(req.params.id)) {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
-  const { nome, endereco, capacidade } = req.body;
+  const { nome, capacidade, horario_funcionamento } = req.body;
   const fields = [];
   const values = [];
   if (nome) { fields.push('nome = ?'); values.push(nome); }
-  if (endereco) { fields.push('endereco = ?'); values.push(endereco); }
   if (capacidade !== undefined) {
     if (!isValidInt(capacidade)) {
       return next(new ApiError(400, 'Capacidade deve ser um inteiro', 'INVALID_CAPACITY'));
@@ -89,6 +88,7 @@ router.put('/:id', (req, res, next) => {
     fields.push('capacidade = ?');
     values.push(capacidade);
   }
+  if (horario_funcionamento) { fields.push('horario_funcionamento = ?'); values.push(horario_funcionamento); }
   if (fields.length === 0) {
     return next(new ApiError(400, 'Nenhum dado para atualizar', 'NO_FIELDS_TO_UPDATE'));
   }

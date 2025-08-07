@@ -7,9 +7,15 @@
     </div>
 
     <div class="field">
-      <label for="localizacao">Localização</label>
-      <input id="localizacao" type="text" pInputText formControlName="localizacao" />
-      <div class="error" *ngIf="form.get('localizacao')?.hasError('required') && form.get('localizacao')?.touched">Localização é obrigatória.</div>
+      <label for="capacidade">Capacidade</label>
+      <input id="capacidade" type="number" pInputText formControlName="capacidade" />
+      <div class="error" *ngIf="form.get('capacidade')?.hasError('required') && form.get('capacidade')?.touched">Capacidade é obrigatória.</div>
+    </div>
+
+    <div class="field">
+      <label for="horarioFuncionamento">Horário de Funcionamento</label>
+      <input id="horarioFuncionamento" type="text" pInputText formControlName="horarioFuncionamento" />
+      <div class="error" *ngIf="form.get('horarioFuncionamento')?.hasError('required') && form.get('horarioFuncionamento')?.touched">Horário de funcionamento é obrigatório.</div>
     </div>
 
     <div class="actions">
