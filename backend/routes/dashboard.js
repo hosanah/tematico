@@ -98,7 +98,7 @@ router.get('/stats', (req, res, next) => {
     const db = getDatabase();
 
     // Buscar estatísticas reais do banco
-    db.get('SELECT COUNT(*) as totalUsers FROM users WHERE is_active = TRUE', (err, userCount) => {
+    db.get('SELECT COUNT(*) as totalUsers FROM users WHERE is_active = 1', (err, userCount) => {
       if (err) {
         console.error('❌ Erro ao buscar estatísticas:', err.message);
         return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', err.message));

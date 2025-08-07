@@ -28,7 +28,7 @@ router.post('/login', async (req, res, next) => {
     const db = getDatabase();
     
     db.get(
-      'SELECT id, username, email, password, full_name, is_active FROM users WHERE (username = ? OR email = ?) AND is_active = TRUE',
+      'SELECT id, username, email, password, full_name, is_active FROM users WHERE (username = ? OR email = ?) AND is_active = 1',
       [username, username],
       async (err, user) => {
         if (err) {

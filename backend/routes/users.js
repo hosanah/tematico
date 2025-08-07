@@ -13,7 +13,11 @@ router.get('/', (req, res, next) => {
       console.error('❌ Erro ao listar usuários:', err.message);
       return next(new ApiError(500, 'Erro ao listar usuários', 'LIST_USERS_ERROR', err.message));
     }
-    const formattedRows = rows.map(({ full_name, ...rest }) => ({ ...rest, fullName: full_name }));
+    const formattedRows = rows.map(({ full_name, is_active, ...rest }) => ({
+      ...rest,
+      fullName: full_name,
+      is_active: Boolean(is_active)
+    }));
     res.json(formattedRows);
   });
 });
@@ -29,8 +33,8 @@ router.get('/:id', (req, res, next) => {
     if (!row) {
       return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
     }
-    const { full_name, ...rest } = row;
-    res.json({ ...rest, fullName: full_name });
+    const { full_name, is_active, ...rest } = row;
+    res.json({ ...rest, fullName: full_name, is_active: Boolean(is_active) });
   });
 });
 
@@ -84,9 +88,9 @@ router.put('/:id', async (req, res, next) => {
       if (email) { fields.push('email = ?'); values.push(email); }
       if (fullName) { fields.push('full_name = ?'); values.push(fullName); }
       if (typeof is_active !== 'undefined') {
-        const isActiveBool = is_active === true || is_active === 'true' || is_active === 1 || is_active === '1';
+        const isActiveInt = (is_active === true || is_active === 'true' || is_active === 1 || is_active === '1') ? 1 : 0;
         fields.push('is_active = ?');
-        values.push(isActiveBool);
+        values.push(isActiveInt);
       }
       if (password) {
         const hashed = await bcrypt.hash(password, 12);
