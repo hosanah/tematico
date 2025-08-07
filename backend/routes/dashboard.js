@@ -5,6 +5,7 @@
 
 const express = require('express');
 const { getDatabase } = require('../config/database');
+const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ const router = express.Router();
  * GET /dashboard
  * Obter dados do dashboard para usuário autenticado
  */
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   try {
     // Dados mockados do dashboard
     const dashboardData = {
@@ -84,10 +85,7 @@ router.get('/', (req, res) => {
 
   } catch (error) {
     console.error('❌ Erro ao obter dados do dashboard:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
@@ -95,7 +93,7 @@ router.get('/', (req, res) => {
  * GET /dashboard/stats
  * Obter estatísticas detalhadas
  */
-router.get('/stats', (req, res) => {
+router.get('/stats', (req, res, next) => {
   try {
     const db = getDatabase();
 
@@ -103,10 +101,7 @@ router.get('/stats', (req, res) => {
     db.get('SELECT COUNT(*) as totalUsers FROM users WHERE is_active = TRUE', (err, userCount) => {
       if (err) {
         console.error('❌ Erro ao buscar estatísticas:', err.message);
-        return res.status(500).json({
-          error: 'Erro interno do servidor',
-          code: 'INTERNAL_ERROR'
-        });
+        return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', err.message));
       }
 
       const stats = {
@@ -138,10 +133,7 @@ router.get('/stats', (req, res) => {
 
   } catch (error) {
     console.error('❌ Erro ao obter estatísticas:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
@@ -149,7 +141,7 @@ router.get('/stats', (req, res) => {
  * GET /dashboard/profile
  * Obter perfil detalhado do usuário
  */
-router.get('/profile', (req, res) => {
+router.get('/profile', (req, res, next) => {
   try {
     const db = getDatabase();
 
@@ -159,17 +151,11 @@ router.get('/profile', (req, res) => {
       (err, user) => {
         if (err) {
           console.error('❌ Erro ao buscar perfil:', err.message);
-          return res.status(500).json({
-            error: 'Erro interno do servidor',
-            code: 'INTERNAL_ERROR'
-          });
+          return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', err.message));
         }
 
         if (!user) {
-          return res.status(404).json({
-            error: 'Usuário não encontrado',
-            code: 'USER_NOT_FOUND'
-          });
+          return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
         }
 
         res.json({
@@ -189,10 +175,7 @@ router.get('/profile', (req, res) => {
 
   } catch (error) {
     console.error('❌ Erro ao obter perfil:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
@@ -200,15 +183,12 @@ router.get('/profile', (req, res) => {
  * PUT /dashboard/profile
  * Atualizar perfil do usuário
  */
-router.put('/profile', (req, res) => {
+router.put('/profile', (req, res, next) => {
   try {
     const { fullName, email } = req.body;
 
     if (!fullName && !email) {
-      return res.status(400).json({
-        error: 'Pelo menos um campo deve ser fornecido para atualização',
-        code: 'NO_FIELDS_TO_UPDATE'
-      });
+      return next(new ApiError(400, 'Pelo menos um campo deve ser fornecido para atualização', 'NO_FIELDS_TO_UPDATE'));
     }
 
     const db = getDatabase();
@@ -224,10 +204,7 @@ router.put('/profile', (req, res) => {
       // Validar formato do email
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        return res.status(400).json({
-          error: 'Formato de email inválido',
-          code: 'INVALID_EMAIL'
-        });
+        return next(new ApiError(400, 'Formato de email inválido', 'INVALID_EMAIL'));
       }
       updateFields.push('email = ?');
       updateValues.push(email);
@@ -241,18 +218,12 @@ router.put('/profile', (req, res) => {
     db.run(updateQuery, updateValues, function(err) {
       if (err) {
         console.error('❌ Erro ao atualizar perfil:', err.message);
-        
+
         if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(409).json({
-            error: 'Email já está em uso',
-            code: 'EMAIL_EXISTS'
-          });
+          return next(new ApiError(409, 'Email já está em uso', 'EMAIL_EXISTS'));
         }
-        
-        return res.status(500).json({
-          error: 'Erro interno do servidor',
-          code: 'INTERNAL_ERROR'
-        });
+
+        return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', err.message));
       }
 
       console.log(`✅ Perfil atualizado: ${req.user.username} (ID: ${req.user.id})`);
@@ -265,10 +236,7 @@ router.put('/profile', (req, res) => {
 
   } catch (error) {
     console.error('❌ Erro ao atualizar perfil:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 

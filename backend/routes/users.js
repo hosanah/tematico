@@ -1,16 +1,17 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { getDatabase } = require('../config/database');
+const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
 
 // List all users
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   const db = getDatabase();
   db.all('SELECT id, username, email, full_name, created_at, updated_at, is_active FROM users', [], (err, rows) => {
     if (err) {
       console.error('❌ Erro ao listar usuários:', err.message);
-      return res.status(500).json({ error: 'Erro ao listar usuários' });
+      return next(new ApiError(500, 'Erro ao listar usuários', 'LIST_USERS_ERROR', err.message));
     }
     const formattedRows = rows.map(({ full_name, ...rest }) => ({ ...rest, fullName: full_name }));
     res.json(formattedRows);
@@ -18,15 +19,15 @@ router.get('/', (req, res) => {
 });
 
 // Get single user
-router.get('/:id', (req, res) => {
+router.get('/:id', (req, res, next) => {
   const db = getDatabase();
   db.get('SELECT id, username, email, full_name, created_at, updated_at, is_active FROM users WHERE id = ?', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter usuário:', err.message);
-      return res.status(500).json({ error: 'Erro ao obter usuário' });
+      return next(new ApiError(500, 'Erro ao obter usuário', 'GET_USER_ERROR', err.message));
     }
     if (!row) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
     }
     const { full_name, ...rest } = row;
     res.json({ ...rest, fullName: full_name });
@@ -34,62 +35,66 @@ router.get('/:id', (req, res) => {
 });
 
 // Create user
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   try {
     const { username, email, password, fullName } = req.body;
     if (!username || !email || !password) {
-      return res.status(400).json({ error: 'Username, email e senha são obrigatórios' });
+      return next(new ApiError(400, 'Username, email e senha são obrigatórios', 'MISSING_FIELDS'));
     }
     const db = getDatabase();
     db.get('SELECT id FROM users WHERE username = ? OR email = ?', [username, email], async (err, existing) => {
       if (err) {
         console.error('❌ Erro ao verificar usuário:', err.message);
-        return res.status(500).json({ error: 'Erro ao criar usuário' });
+        return next(new ApiError(500, 'Erro ao criar usuário', 'CREATE_USER_ERROR', err.message));
       }
       if (existing) {
-        return res.status(409).json({ error: 'Usuário ou email já existe' });
+        return next(new ApiError(409, 'Usuário ou email já existe', 'USER_EXISTS'));
       }
       const hashed = await bcrypt.hash(password, 12);
       db.run('INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?) RETURNING id', [username, email, hashed, fullName || username], function(err) {
         if (err) {
           console.error('❌ Erro ao inserir usuário:', err.message);
-          return res.status(500).json({ error: 'Erro ao criar usuário' });
+          return next(new ApiError(500, 'Erro ao criar usuário', 'CREATE_USER_ERROR', err.message));
         }
         res.status(201).json({ id: this.lastID, username, email, fullName: fullName || username });
       });
     });
   } catch (error) {
     console.error('❌ Erro ao criar usuário:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
 // Update user
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const { username, email, password, fullName, is_active } = req.body;
     const db = getDatabase();
     db.get('SELECT id FROM users WHERE id = ?', [req.params.id], async (err, user) => {
       if (err) {
         console.error('❌ Erro ao buscar usuário:', err.message);
-        return res.status(500).json({ error: 'Erro ao atualizar usuário' });
+        return next(new ApiError(500, 'Erro ao atualizar usuário', 'UPDATE_USER_ERROR', err.message));
       }
       if (!user) {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
+        return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
       }
       const fields = [];
       const values = [];
       if (username) { fields.push('username = ?'); values.push(username); }
       if (email) { fields.push('email = ?'); values.push(email); }
       if (fullName) { fields.push('full_name = ?'); values.push(fullName); }
-      if (typeof is_active !== 'undefined') { fields.push('is_active = ?'); values.push(is_active); }
+      if (typeof is_active !== 'undefined') {
+        const isActiveBool = is_active === true || is_active === 'true' || is_active === 1 || is_active === '1';
+        fields.push('is_active = ?');
+        values.push(isActiveBool);
+      }
       if (password) {
         const hashed = await bcrypt.hash(password, 12);
         fields.push('password = ?');
         values.push(hashed);
       }
       if (fields.length === 0) {
-        return res.status(400).json({ error: 'Nenhum dado para atualizar' });
+        return next(new ApiError(400, 'Nenhum dado para atualizar', 'NO_FIELDS_TO_UPDATE'));
       }
       fields.push('updated_at = CURRENT_TIMESTAMP');
       const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
@@ -97,27 +102,27 @@ router.put('/:id', async (req, res) => {
       db.run(sql, values, function(err) {
         if (err) {
           console.error('❌ Erro ao atualizar usuário:', err.message);
-          return res.status(500).json({ error: 'Erro ao atualizar usuário' });
+          return next(new ApiError(500, 'Erro ao atualizar usuário', 'UPDATE_USER_ERROR', err.message));
         }
         res.json({ message: 'Usuário atualizado com sucesso' });
       });
     });
   } catch (error) {
     console.error('❌ Erro ao atualizar usuário:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
 // Delete user
-router.delete('/:id', (req, res) => {
+router.delete('/:id', (req, res, next) => {
   const db = getDatabase();
   db.run('DELETE FROM users WHERE id = ?', [req.params.id], function(err) {
     if (err) {
       console.error('❌ Erro ao deletar usuário:', err.message);
-      return res.status(500).json({ error: 'Erro ao deletar usuário' });
+      return next(new ApiError(500, 'Erro ao deletar usuário', 'DELETE_USER_ERROR', err.message));
     }
     if (this.changes === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
     }
     res.json({ message: 'Usuário deletado com sucesso' });
   });

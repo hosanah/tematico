@@ -5,6 +5,7 @@
 
 const jwt = require('jsonwebtoken');
 const { getDatabase } = require('../config/database');
+const { ApiError } = require('./errorHandler');
 
 /**
  * Middleware para verificar token JWT
@@ -16,35 +17,23 @@ function authenticateToken(req, res, next) {
 
   // Verificar se token existe
   if (!token) {
-    return res.status(401).json({
-      error: 'Token de acesso requerido',
-      code: 'TOKEN_REQUIRED'
-    });
+    return next(new ApiError(401, 'Token de acesso requerido', 'TOKEN_REQUIRED'));
   }
 
   // Verificar e decodificar token
   jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
     if (err) {
       console.log('❌ Erro na verificação do token:', err.message);
-      
+
       if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({
-          error: 'Token expirado',
-          code: 'TOKEN_EXPIRED'
-        });
+        return next(new ApiError(401, 'Token expirado', 'TOKEN_EXPIRED'));
       }
-      
+
       if (err.name === 'JsonWebTokenError') {
-        return res.status(401).json({
-          error: 'Token inválido',
-          code: 'TOKEN_INVALID'
-        });
+        return next(new ApiError(401, 'Token inválido', 'TOKEN_INVALID'));
       }
-      
-      return res.status(401).json({
-        error: 'Falha na autenticação',
-        code: 'AUTH_FAILED'
-      });
+
+      return next(new ApiError(401, 'Falha na autenticação', 'AUTH_FAILED'));
     }
 
     try {
@@ -57,17 +46,11 @@ function authenticateToken(req, res, next) {
         (err, user) => {
           if (err) {
             console.error('❌ Erro ao buscar usuário:', err.message);
-            return res.status(500).json({
-              error: 'Erro interno do servidor',
-              code: 'INTERNAL_ERROR'
-            });
+            return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', err.message));
           }
 
           if (!user) {
-            return res.status(401).json({
-              error: 'Usuário não encontrado ou inativo',
-              code: 'USER_NOT_FOUND'
-            });
+            return next(new ApiError(401, 'Usuário não encontrado ou inativo', 'USER_NOT_FOUND'));
           }
 
           // Adicionar informações do usuário à requisição
@@ -87,10 +70,7 @@ function authenticateToken(req, res, next) {
       );
     } catch (error) {
       console.error('❌ Erro no middleware de autenticação:', error);
-      return res.status(500).json({
-        error: 'Erro interno do servidor',
-        code: 'INTERNAL_ERROR'
-      });
+      return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
     }
   });
 }
