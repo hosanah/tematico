@@ -30,6 +30,7 @@ export const routes: Routes = [
       { path: 'users', loadComponent: () => import('./components/users/user-list').then(m => m.UserListComponent) },
       { path: 'users/new', loadComponent: () => import('./components/users/user-form').then(m => m.UserFormComponent) },
       { path: 'users/:id', loadComponent: () => import('./components/users/user-form').then(m => m.UserFormComponent) },
+      { path: 'change-password', loadComponent: () => import('./components/change-password/change-password').then(m => m.ChangePasswordComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
     ]
