@@ -21,6 +21,7 @@
               required
               type="text"
               class="w-full"
+              inputStyleClass="w-full"
               placeholder="Digite seu usuário ou email"
               [disabled]="isLoading"
             />
@@ -39,10 +40,6 @@
               inputStyleClass="w-full"
               [disabled]="isLoading"
             ></p-password>
-          </div>
-
-          <div *ngIf="errorMessage" class="error-msg">
-            <p-message severity="error" [text]="errorMessage"></p-message>
           </div>
 
           <p-button
