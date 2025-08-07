@@ -20,7 +20,8 @@ import { UserService, AppUser } from '../../services/users';
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, ToastModule],
   providers: [MessageService],
-  templateUrl: './user-list.html'
+  templateUrl: './user-list.html',
+  styleUrls: ['./user-list.scss']
 })
 export class UserListComponent implements OnInit {
   users: AppUser[] = [];

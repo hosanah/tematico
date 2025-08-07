@@ -31,7 +31,8 @@ import { AuthService } from '../../services/auth';
     ToastModule
   ],
   providers: [MessageService],
-  templateUrl: './reset-password.html'
+  templateUrl: './reset-password.html',
+  styleUrls: ['./reset-password.scss']
 })
 export class ResetPasswordComponent {
   email = '';

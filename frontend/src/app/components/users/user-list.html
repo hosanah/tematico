@@ -1,6 +1,6 @@
-<div class="p-4">
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-xl font-bold">Usuários</h2>
+<div class="user-list">
+  <div class="header">
+    <h2 class="title">Usuários</h2>
     <p-button label="Novo" icon="pi pi-plus" (onClick)="createUser()"></p-button>
   </div>
   <p-table [value]="users" [loading]="isLoading">
