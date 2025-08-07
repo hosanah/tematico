@@ -52,13 +52,11 @@ export class ReservaEventoComponent implements OnInit {
     };
 
     this.reservaEventoService.getReservas(filtros).subscribe({
-      next: data => (this.reservas = data),
-      error: () => this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar reservas' })
+      next: data => (this.reservas = data)
     });
 
     this.reservaEventoService.getEventos(filtros).subscribe({
-      next: data => (this.eventos = data),
-      error: () => this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar eventos' })
+      next: data => (this.eventos = data)
     });
   }
 
@@ -74,18 +72,6 @@ export class ReservaEventoComponent implements OnInit {
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Reserva vinculada ao evento' });
           this.carregarDados();
-        },
-        error: err => {
-          let detail = 'Falha ao vincular reserva';
-          const msg = err.error?.message || '';
-          if (msg.toLowerCase().includes('capacidade')) {
-            detail = 'Capacidade do evento excedida';
-          } else if (msg.toLowerCase().includes('restaurante')) {
-            detail = 'Não é permitido múltiplos restaurantes no mesmo dia';
-          } else if (msg.toLowerCase().includes('duração')) {
-            detail = 'Limite de eventos por duração excedido';
-          }
-          this.messageService.add({ severity: 'error', summary: 'Erro', detail });
         }
       });
   }

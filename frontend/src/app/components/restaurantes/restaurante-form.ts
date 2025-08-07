@@ -51,8 +51,7 @@ export class RestauranteFormComponent implements OnInit {
       this.id = Number(idParam);
       this.isEdit = true;
       this.service.getRestaurante(this.id).subscribe({
-        next: data => this.form.patchValue(data),
-        error: err => this.showError('Erro ao carregar restaurante', err)
+        next: data => this.form.patchValue(data)
       });
     }
   }
@@ -75,9 +74,8 @@ export class RestauranteFormComponent implements OnInit {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Restaurante salvo' });
         this.router.navigate(['/restaurantes']);
       },
-      error: err => {
+      error: () => {
         this.isLoading = false;
-        this.showError('Erro ao salvar restaurante', err);
       }
     });
   }
@@ -86,11 +84,4 @@ export class RestauranteFormComponent implements OnInit {
     this.router.navigate(['/restaurantes']);
   }
 
-  private showError(summary: string, err: any): void {
-    let detail = 'Falha na operação';
-    if (err.status >= 400 && err.status < 500) {
-      detail = err.error?.message || 'Dados inválidos';
-    }
-    this.messageService.add({ severity: 'error', summary, detail });
-  }
 }

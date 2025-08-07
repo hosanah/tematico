@@ -86,12 +86,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isLoading = false;
         console.error('Erro ao carregar dashboard:', error);
-
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Erro ao carregar dados do dashboard'
-        });
       }
     });
   }

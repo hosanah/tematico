@@ -44,7 +44,6 @@ export class LoginComponent implements OnInit {
   };
 
   isLoading = false;
-  errorMessage = '';
   returnUrl = '/dashboard';
 
   constructor(
@@ -71,7 +70,6 @@ export class LoginComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.errorMessage = '';
 
     this.authService.login(this.credentials).subscribe({
       next: (response) => {
@@ -88,26 +86,13 @@ export class LoginComponent implements OnInit {
           this.router.navigate([this.returnUrl]);
         }, 1000);
       },
-      error: (error) => {
+      error: () => {
         this.isLoading = false;
-        
-        let errorMsg = 'Erro ao fazer login. Tente novamente.';
-        
-        if (error.error?.error) {
-          errorMsg = error.error.error;
-        } else if (error.status === 401) {
-          errorMsg = 'Credenciais inválidas. Verifique seu usuário e senha.';
-        } else if (error.status === 0) {
-          errorMsg = 'Erro de conexão. Verifique se o servidor está rodando.';
-        }
-        
-        this.showError(errorMsg);
       }
     });
   }
 
   private showError(message: string): void {
-    this.errorMessage = message;
     this.messageService.add({
       severity: 'error',
       summary: 'Erro',

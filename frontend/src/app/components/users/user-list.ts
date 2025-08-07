@@ -46,9 +46,8 @@ export class UserListComponent implements OnInit {
         this.totalRecords = res.total;
         this.isLoading = false;
       },
-      error: err => {
+      error: () => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar usuários' });
       }
     });
   }
@@ -78,10 +77,6 @@ export class UserListComponent implements OnInit {
           const detail = user.is_active ? 'Usuário desativado' : 'Usuário reativado';
           this.messageService.add({ severity: 'success', summary: 'Sucesso', detail });
           this.loadUsers();
-        },
-        error: () => {
-          const detail = user.is_active ? 'Falha ao desativar usuário' : 'Falha ao reativar usuário';
-          this.messageService.add({ severity: 'error', summary: 'Erro', detail });
         }
       });
   }

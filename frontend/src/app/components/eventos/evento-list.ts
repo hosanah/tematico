@@ -50,9 +50,8 @@ export class EventoListComponent implements OnInit {
         this.totalRecords = res.total;
         this.isLoading = false;
       },
-      error: err => {
+      error: () => {
         this.isLoading = false;
-        this.showError('Erro ao carregar eventos', err);
       }
     });
   }
@@ -79,16 +78,7 @@ export class EventoListComponent implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Evento removido' });
         this.load();
-      },
-      error: err => this.showError('Erro ao remover evento', err)
+      }
     });
-  }
-
-  private showError(summary: string, err: any): void {
-    let detail = 'Falha na operação';
-    if (err.status >= 400 && err.status < 500) {
-      detail = err.error?.message || 'Requisição inválida';
-    }
-    this.messageService.add({ severity: 'error', summary, detail });
   }
 }
