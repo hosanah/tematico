@@ -14,7 +14,6 @@ export interface AppUser {
   email: string;
   fullName?: string;
   password?: string;
-  is_active?: boolean;
 }
 
 @Injectable({
@@ -28,7 +27,7 @@ export class UserService {
   getUsers(): Observable<AppUser[]> {
     return this.http.get<any[]>(`${this.API_URL}/users`).pipe(
       map((users: any[]) =>
-        users.map(({ full_name, ...user }: any) => ({
+        users.map(({ full_name, is_active: _is_active, ...user }: any) => ({
           ...user,
           fullName: full_name,
         }) as AppUser)
@@ -42,7 +41,7 @@ export class UserService {
 
   getUser(id: number): Observable<AppUser> {
     return this.http.get<any>(`${this.API_URL}/users/${id}`).pipe(
-      map(({ full_name, ...user }: any) => ({
+      map(({ full_name, is_active: _is_active, ...user }: any) => ({
         ...user,
         fullName: full_name,
       }) as AppUser),
