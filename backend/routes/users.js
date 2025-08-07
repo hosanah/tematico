@@ -12,7 +12,8 @@ router.get('/', (req, res) => {
       console.error('❌ Erro ao listar usuários:', err.message);
       return res.status(500).json({ error: 'Erro ao listar usuários' });
     }
-    res.json(rows);
+    const formattedRows = rows.map(({ full_name, ...rest }) => ({ ...rest, fullName: full_name }));
+    res.json(formattedRows);
   });
 });
 
@@ -27,7 +28,8 @@ router.get('/:id', (req, res) => {
     if (!row) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
-    res.json(row);
+    const { full_name, ...rest } = row;
+    res.json({ ...rest, fullName: full_name });
   });
 });
 
