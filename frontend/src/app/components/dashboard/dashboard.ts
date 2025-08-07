@@ -5,20 +5,15 @@
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 // PrimeNG imports
 import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
 
 import { AuthService, User } from '../../services/auth';
@@ -30,13 +25,10 @@ import { ApiService } from '../../services/api';
   imports: [
     CommonModule,
     CardModule,
-    ButtonModule,
     TableModule,
     TagModule,
     ProgressBarModule,
     ToastModule,
-    AvatarModule,
-    MenuModule,
     SkeletonModule
   ],
   providers: [MessageService],
@@ -47,31 +39,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   dashboardData: any = null;
   isLoading = true;
   statsCards: any[] = [];
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
-    private router: Router,
     private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
     // Obter usuário atual
     this.currentUser = this.authService.getCurrentUser();
-    
+
     // Carregar dados do dashboard
     this.loadDashboardData();
-    
+
     // Escutar mudanças no estado de autenticação
     this.authService.authState$
       .pipe(takeUntil(this.destroy$))
       .subscribe(state => {
         this.currentUser = state.user;
-        if (!state.isAuthenticated) {
-          this.router.navigate(['/login']);
-        }
       });
   }
 
@@ -82,13 +70,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadDashboardData(): void {
     this.isLoading = true;
-    
+
     this.apiService.getDashboardData().subscribe({
       next: (response) => {
         this.dashboardData = response.data;
         this.setupStatsCards();
         this.isLoading = false;
-        
+
         this.messageService.add({
           severity: 'success',
           summary: 'Dashboard carregado',
@@ -98,7 +86,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isLoading = false;
         console.error('Erro ao carregar dashboard:', error);
-        
+
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
@@ -110,7 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   setupStatsCards(): void {
     if (!this.dashboardData?.stats) return;
-    
+
     this.statsCards = [
       {
         title: 'Usuários Totais',
@@ -124,36 +112,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
         value: this.dashboardData.stats.activeUsers,
         subtitle: 'Online agora',
         icon: 'pi pi-user-plus',
-        iconBg: 'bg-green-100 text-green-600'
+        iconBg: 'bg-green-100 text-green-600',
       },
       {
         title: 'Sessões',
         value: this.dashboardData.stats.totalSessions,
         subtitle: 'Sessões ativas',
         icon: 'pi pi-desktop',
-        iconBg: 'bg-yellow-100 text-yellow-600'
+        iconBg: 'bg-yellow-100 text-yellow-600',
       },
       {
         title: 'Uptime',
         value: this.formatUptime(this.dashboardData.stats.serverUptime),
         subtitle: 'Tempo online',
         icon: 'pi pi-clock',
-        iconBg: 'bg-purple-100 text-purple-600'
+        iconBg: 'bg-purple-100 text-purple-600',
       }
     ];
-  }
-
-  getUserInitials(): string {
-    if (!this.currentUser) return 'U';
-    
-    const name = this.currentUser.fullName || this.currentUser.username;
-    const parts = name.split(' ');
-    
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    
-    return name.substring(0, 2).toUpperCase();
   }
 
   getNotificationIcon(type: string): string {
@@ -174,30 +149,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   formatUptime(seconds: number): string {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
-    
+
     return `${minutes}m`;
-  }
-
-  logout(): void {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Logout realizado',
-          detail: 'Até logo!'
-        });
-      },
-      error: (error) => {
-        console.error('Erro no logout:', error);
-      }
-    });
-  }
-
-  goUsers(): void {
-    this.router.navigate(['/users']);
   }
 }
