@@ -1,7 +1,7 @@
 {
   "name": "fullstack-angular-nodejs",
   "version": "1.0.0",
-  "description": "Projeto fullstack com Angular (PrimeNG + TailwindCSS) e Node.js (Express + JWT)",
+  "description": "Projeto fullstack com Angular (PrimeNG) e Node.js (Express + JWT)",
   "scripts": {
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
@@ -22,7 +22,6 @@
     "express",
     "jwt",
     "primeng",
-    "tailwindcss",
     "fullstack"
   ],
   "author": "Codex",

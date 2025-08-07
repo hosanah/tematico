@@ -1,24 +1,18 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-  <div class="w-full max-w-md">
-    <!-- Logo/Header -->
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-full mb-4">
-        <i class="pi pi-lock text-white text-2xl"></i>
+<div class="login-container">
+  <div class="content">
+    <div class="logo">
+      <div class="logo-circle">
+        <i class="pi pi-lock"></i>
       </div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Bem-vindo</h1>
-      <p class="text-gray-600">Faça login para acessar o dashboard</p>
+      <h1>Bem-vindo</h1>
+      <p>Faça login para acessar o dashboard</p>
     </div>
 
-    <!-- Card de Login com PrimeNG -->
-    <p-card styleClass="rounded-xl shadow-xl border-0" contentStyleClass="p-0">
-      <div class="p-6">
-        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
-          <!-- Campo Username -->
-          <div class="mb-6">
-            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
-              <i class="pi pi-user mr-2"></i>
-              Usuário ou Email
-            </label>
+    <p-card class="login-card" contentStyleClass="no-padding">
+      <div class="card-content">
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate class="form">
+          <div class="field">
+            <label for="username"><i class="pi pi-user mr-2"></i>Usuário ou Email</label>
             <input
               pInputText
               id="username"
@@ -26,18 +20,14 @@
               [(ngModel)]="credentials.username"
               required
               type="text"
-              class="w-full rounded-md border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 px-4 py-2"
+              class="w-full"
               placeholder="Digite seu usuário ou email"
               [disabled]="isLoading"
             />
           </div>
 
-          <!-- Campo Password -->
-          <div class="mb-6">
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-              <i class="pi pi-lock mr-2"></i>
-              Senha
-            </label>
+          <div class="field">
+            <label for="password"><i class="pi pi-lock mr-2"></i>Senha</label>
             <p-password
               [(ngModel)]="credentials.password"
               name="password"
@@ -46,45 +36,30 @@
               [toggleMask]="true"
               placeholder="Digite sua senha"
               styleClass="w-full"
-              inputStyleClass="w-full rounded-md border border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 px-4 py-2"
+              inputStyleClass="w-full"
               [disabled]="isLoading"
             ></p-password>
           </div>
 
-          <!-- Mensagem de Erro -->
-          <div *ngIf="errorMessage" class="mb-4">
-            <p-message
-              severity="error"
-              [text]="errorMessage"
-              styleClass="rounded-lg border-0 px-4 py-2 bg-red-100 text-red-700"
-            ></p-message>
+          <div *ngIf="errorMessage" class="error-msg">
+            <p-message severity="error" [text]="errorMessage"></p-message>
           </div>
 
-          <!-- Botão de Login -->
           <p-button
             type="submit"
             label="Entrar"
             icon="pi pi-sign-in"
             [loading]="isLoading"
             [disabled]="!loginForm.valid || isLoading"
-            styleClass="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50"
+            styleClass="w-full"
           ></p-button>
 
-          <a
-            routerLink="/reset-password"
-            class="block text-center mt-4 text-sm text-blue-600 hover:underline"
-          >
-            Esqueci minha senha
-          </a>
+          <a routerLink="/reset-password" class="forgot-link">Esqueci minha senha</a>
         </form>
 
-        <!-- Informações de Teste -->
-        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h3 class="text-sm font-medium text-blue-800 mb-2">
-            <i class="pi pi-info-circle mr-1"></i>
-            Credenciais de Teste
-          </h3>
-          <div class="text-sm text-blue-700">
+        <div class="info-box">
+          <h3><i class="pi pi-info-circle mr-1"></i>Credenciais de Teste</h3>
+          <div class="credentials">
             <p><strong>Usuário:</strong> admin</p>
             <p><strong>Senha:</strong> admin123</p>
           </div>
@@ -92,12 +67,10 @@
       </div>
     </p-card>
 
-    <!-- Footer -->
-    <div class="text-center mt-8 text-gray-500 text-sm">
+    <div class="footer">
       <p>© 2024 Fullstack App. Desenvolvido com Angular + Node.js</p>
     </div>
   </div>
 </div>
 
-<!-- Toast para notificações -->
 <p-toast></p-toast>

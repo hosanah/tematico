@@ -35,6 +35,7 @@ import { AuthService, LoginRequest } from '../../services/auth';
   ],
   providers: [MessageService],
   templateUrl: './login.html',
+  styleUrls: ['./login.scss'],
 })
 export class LoginComponent implements OnInit {
   credentials: LoginRequest = {
