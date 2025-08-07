@@ -1,0 +1,53 @@
+<p-toast></p-toast>
+
+<div class="filters">
+  <p-select [(ngModel)]="filtroRestaurante" [options]="eventos" optionLabel="restaurante" optionValue="restaurante" placeholder="Restaurante"></p-select>
+  <p-select [(ngModel)]="filtroEvento" [options]="eventos" optionLabel="nome" optionValue="id" placeholder="Evento"></p-select>
+  <p-datepicker [(ngModel)]="filtroData" dateFormat="yy-mm-dd" placeholder="Data"></p-datepicker>
+  <button pButton type="button" label="Filtrar" (click)="aplicarFiltros()"></button>
+</div>
+
+<div class="lists">
+  <h3>Reservas</h3>
+  <p-table [value]="reservas">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Cliente</th>
+        <th>Restaurante</th>
+        <th>Data</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-reserva>
+      <tr>
+        <td>{{ reserva.cliente }}</td>
+        <td>{{ reserva.restaurante }}</td>
+        <td>{{ reserva.data }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <h3>Eventos</h3>
+  <p-table [value]="eventos">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Nome</th>
+        <th>Restaurante</th>
+        <th>Data</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-evento>
+      <tr>
+        <td>{{ evento.nome }}</td>
+        <td>{{ evento.restaurante }}</td>
+        <td>{{ evento.data }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<div class="form">
+  <h3>Vincular Reserva a Evento</h3>
+  <p-select [(ngModel)]="reservaSelecionada" [options]="reservas" optionLabel="cliente" placeholder="Selecione a reserva"></p-select>
+  <p-select [(ngModel)]="eventoSelecionado" [options]="eventos" optionLabel="nome" placeholder="Selecione o evento"></p-select>
+  <button pButton type="button" label="Vincular" (click)="vincular()" [disabled]="!reservaSelecionada || !eventoSelecionado"></button>
+</div>
