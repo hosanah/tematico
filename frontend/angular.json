@@ -58,9 +58,7 @@
               }
             ],
             "styles": [
-              "node_modules/primeicons/primeicons.css",
-              "node_modules/primeng/resources/themes/aura-light-blue/theme.css",
-              "node_modules/primeng/resources/primeng.css",
+              "primeicons/primeicons.css",
               "src/styles.scss"
             ]
           },
