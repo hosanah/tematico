@@ -8,14 +8,15 @@ const router = express.Router();
 // List all users
 router.get('/', (req, res, next) => {
   const db = getDatabase();
-  db.all('SELECT id, username, email, full_name, created_at, updated_at FROM users WHERE is_active = 1', [], (err, rows) => {
+  db.all('SELECT id, username, email, full_name, is_active, created_at, updated_at FROM users', [], (err, rows) => {
     if (err) {
       console.error('❌ Erro ao listar usuários:', err.message);
       return next(new ApiError(500, 'Erro ao listar usuários', 'LIST_USERS_ERROR', err.message));
     }
-    const formattedRows = rows.map(({ full_name, ...rest }) => ({
+    const formattedRows = rows.map(({ full_name, is_active, ...rest }) => ({
       ...rest,
-      fullName: full_name
+      fullName: full_name,
+      is_active
     }));
     res.json(formattedRows);
   });
@@ -24,7 +25,7 @@ router.get('/', (req, res, next) => {
 // Get single user
 router.get('/:id', (req, res, next) => {
   const db = getDatabase();
-  db.get('SELECT id, username, email, full_name, created_at, updated_at FROM users WHERE id = ? AND is_active = 1', [req.params.id], (err, row) => {
+  db.get('SELECT id, username, email, full_name, is_active, created_at, updated_at FROM users WHERE id = ?', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter usuário:', err.message);
       return next(new ApiError(500, 'Erro ao obter usuário', 'GET_USER_ERROR', err.message));
@@ -32,8 +33,8 @@ router.get('/:id', (req, res, next) => {
     if (!row) {
       return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
     }
-    const { full_name, ...rest } = row;
-    res.json({ ...rest, fullName: full_name });
+    const { full_name, is_active, ...rest } = row;
+    res.json({ ...rest, fullName: full_name, is_active });
   });
 });
 
