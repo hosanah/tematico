@@ -15,7 +15,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
-import { ReservaEventoService, Reserva, Evento } from '../services/reserva-evento';
+import { ReservaEventoService, Reserva, Evento } from '../../services/reserva-evento';
 
 @Component({
   selector: 'app-reserva-evento',

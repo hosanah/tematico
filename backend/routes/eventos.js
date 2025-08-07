@@ -121,6 +121,8 @@ router.delete('/:id', (req, res, next) => {
     }
     res.json({ message: 'Evento deletado com sucesso' });
   });
+});
+  
 // Adicionar uma reserva a um evento
 router.post('/:id/reservas', async (req, res, next) => {
   try {
