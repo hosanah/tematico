@@ -9,6 +9,8 @@ import { RouterModule, Router } from '@angular/router';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { PaginatorModule } from 'primeng/paginator';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -18,13 +20,17 @@ import { RestauranteService, Restaurante } from '../../services/restaurantes';
 @Component({
   selector: 'app-restaurante-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, CardModule, ButtonModule, ToastModule],
+  imports: [CommonModule, RouterModule, CardModule, TableModule, PaginatorModule, ButtonModule, ToastModule],
   providers: [MessageService],
   templateUrl: './restaurante-list.html',
   styleUrls: ['./restaurante-list.scss']
 })
 export class RestauranteListComponent implements OnInit {
   restaurantes: Restaurante[] = [];
+  isLoading = false;
+  totalRecords = 0;
+  page = 0;
+  pageSize = 10;
 
   constructor(
     private service: RestauranteService,
@@ -37,10 +43,24 @@ export class RestauranteListComponent implements OnInit {
   }
 
   load(): void {
-    this.service.getRestaurantes().subscribe({
-      next: data => this.restaurantes = data,
-      error: err => this.showError('Erro ao carregar restaurantes', err)
+    this.isLoading = true;
+    this.service.getRestaurantes(this.page + 1, this.pageSize).subscribe({
+      next: res => {
+        this.restaurantes = res.data;
+        this.totalRecords = res.total;
+        this.isLoading = false;
+      },
+      error: err => {
+        this.isLoading = false;
+        this.showError('Erro ao carregar restaurantes', err);
+      }
     });
+  }
+
+  onPage(event: any): void {
+    this.page = event.first / event.rows;
+    this.pageSize = event.rows;
+    this.load();
   }
 
   novo(): void {

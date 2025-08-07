@@ -6,7 +6,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, throwError, map } from 'rxjs';
 
 export interface Restaurante {
   id?: number;
@@ -22,8 +22,12 @@ export class RestauranteService {
 
   constructor(private http: HttpClient) {}
 
-  getRestaurantes(): Observable<Restaurante[]> {
-    return this.http.get<Restaurante[]>(`${this.API_URL}/restaurantes`).pipe(
+  getRestaurantes(page = 1, limit = 10): Observable<{ data: Restaurante[]; total: number }> {
+    return this.http.get<any>(`${this.API_URL}/restaurantes`, { params: { page, limit } }).pipe(
+      map(res => ({
+        data: res.data.map((r: any) => ({ id: r.id, nome: r.nome, localizacao: r.endereco } as Restaurante)),
+        total: res.total
+      })),
       catchError(error => {
         console.error('❌ Erro ao listar restaurantes:', error);
         return throwError(() => error);
@@ -32,7 +36,8 @@ export class RestauranteService {
   }
 
   getRestaurante(id: number): Observable<Restaurante> {
-    return this.http.get<Restaurante>(`${this.API_URL}/restaurantes/${id}`).pipe(
+    return this.http.get<any>(`${this.API_URL}/restaurantes/${id}`).pipe(
+      map(r => ({ id: r.id, nome: r.nome, localizacao: r.endereco } as Restaurante)),
       catchError(error => {
         console.error('❌ Erro ao obter restaurante:', error);
         return throwError(() => error);
@@ -41,7 +46,8 @@ export class RestauranteService {
   }
 
   createRestaurante(data: Restaurante): Observable<any> {
-    return this.http.post(`${this.API_URL}/restaurantes`, data).pipe(
+    const payload = { nome: data.nome, endereco: data.localizacao };
+    return this.http.post(`${this.API_URL}/restaurantes`, payload).pipe(
       catchError(error => {
         console.error('❌ Erro ao criar restaurante:', error);
         return throwError(() => error);
@@ -50,7 +56,12 @@ export class RestauranteService {
   }
 
   updateRestaurante(id: number, data: Partial<Restaurante>): Observable<any> {
-    return this.http.put(`${this.API_URL}/restaurantes/${id}`, data).pipe(
+    const payload: any = { ...data };
+    if (data.localizacao !== undefined) {
+      payload.endereco = data.localizacao;
+      delete payload.localizacao;
+    }
+    return this.http.put(`${this.API_URL}/restaurantes/${id}`, payload).pipe(
       catchError(error => {
         console.error('❌ Erro ao atualizar restaurante:', error);
         return throwError(() => error);

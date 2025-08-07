@@ -5,21 +5,37 @@ const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
 
-// List all users
+// List all users with pagination
 router.get('/', (req, res, next) => {
   const db = getDatabase();
-  db.all('SELECT id, username, email, full_name, is_active, created_at, updated_at FROM users', [], (err, rows) => {
-    if (err) {
-      console.error('❌ Erro ao listar usuários:', err.message);
-      return next(new ApiError(500, 'Erro ao listar usuários', 'LIST_USERS_ERROR', err.message));
+
+  // Pagination parameters
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const offset = (page - 1) * limit;
+
+  db.all(
+    'SELECT id, username, email, full_name, is_active, created_at, updated_at FROM users LIMIT ? OFFSET ?',
+    [limit, offset],
+    (err, rows) => {
+      if (err) {
+        console.error('❌ Erro ao listar usuários:', err.message);
+        return next(new ApiError(500, 'Erro ao listar usuários', 'LIST_USERS_ERROR', err.message));
+      }
+      const formattedRows = rows.map(({ full_name, is_active, ...rest }) => ({
+        ...rest,
+        fullName: full_name,
+        is_active
+      }));
+      db.get('SELECT COUNT(*) as count FROM users', [], (err2, result) => {
+        if (err2) {
+          console.error('❌ Erro ao contar usuários:', err2.message);
+          return next(new ApiError(500, 'Erro ao listar usuários', 'LIST_USERS_ERROR', err2.message));
+        }
+        res.json({ data: formattedRows, total: result.count });
+      });
     }
-    const formattedRows = rows.map(({ full_name, is_active, ...rest }) => ({
-      ...rest,
-      fullName: full_name,
-      is_active
-    }));
-    res.json(formattedRows);
-  });
+  );
 });
 
 // Get single user

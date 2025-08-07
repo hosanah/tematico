@@ -16,16 +16,30 @@ function isValidInt(value) {
   return Number.isInteger(Number(value));
 }
 
-// List all reservations
+// List all reservations with pagination
 router.get('/', (req, res, next) => {
   const db = getDatabase();
-  db.all('SELECT id, restaurante_id, evento_id, data, horario, numero_pessoas FROM reservas', [], (err, rows) => {
-    if (err) {
-      console.error('❌ Erro ao listar reservas:', err.message);
-      return next(new ApiError(500, 'Erro ao listar reservas', 'LIST_RESERVATIONS_ERROR', err.message));
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const offset = (page - 1) * limit;
+
+  db.all(
+    'SELECT id, restaurante_id, evento_id, data, horario, numero_pessoas FROM reservas LIMIT ? OFFSET ?',
+    [limit, offset],
+    (err, rows) => {
+      if (err) {
+        console.error('❌ Erro ao listar reservas:', err.message);
+        return next(new ApiError(500, 'Erro ao listar reservas', 'LIST_RESERVATIONS_ERROR', err.message));
+      }
+      db.get('SELECT COUNT(*) as count FROM reservas', [], (err2, result) => {
+        if (err2) {
+          console.error('❌ Erro ao contar reservas:', err2.message);
+          return next(new ApiError(500, 'Erro ao listar reservas', 'LIST_RESERVATIONS_ERROR', err2.message));
+        }
+        res.json({ data: rows, total: result.count });
+      });
     }
-    res.json(rows);
-  });
+  );
 });
 
 // Get single reservation

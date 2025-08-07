@@ -1,12 +1,33 @@
 <p-card header="Restaurantes">
   <button pButton label="Novo" (click)="novo()" class="mb-3"></button>
-  <ul>
-    <li *ngFor="let r of restaurantes">
-      {{ r.nome }} - {{ r.localizacao }}
-      <button pButton label="Editar" class="p-button-text" (click)="editar(r.id)"></button>
-      <button pButton label="Excluir" class="p-button-text p-button-danger" (click)="excluir(r.id)"></button>
-    </li>
-  </ul>
+  <p-table
+    [value]="restaurantes"
+    [loading]="isLoading"
+    [paginator]="true"
+    [rows]="pageSize"
+    [totalRecords]="totalRecords"
+    [first]="page * pageSize"
+    [lazy]="true"
+    (onPage)="onPage($event)"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Nome</th>
+        <th>Localização</th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-r>
+      <tr>
+        <td>{{ r.nome }}</td>
+        <td>{{ r.localizacao }}</td>
+        <td>
+          <button pButton icon="pi pi-pencil" class="p-button-text" (click)="editar(r.id)"></button>
+          <button pButton icon="pi pi-trash" class="p-button-text p-button-danger" (click)="excluir(r.id)"></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </p-card>
 
 <p-toast></p-toast>

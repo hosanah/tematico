@@ -25,15 +25,16 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(): Observable<AppUser[]> {
-    return this.http.get<any[]>(`${this.API_URL}/users`).pipe(
-      map((users: any[]) =>
-        users.map(({ fullName, is_active, ...user }: any) => ({
+  getUsers(page = 1, limit = 10): Observable<{ data: AppUser[]; total: number }> {
+    return this.http.get<any>(`${this.API_URL}/users`, { params: { page, limit } }).pipe(
+      map(res => ({
+        data: res.data.map(({ fullName, is_active, ...user }: any) => ({
           ...user,
           fullName: fullName,
           is_active
-        }) as AppUser)
-      ),
+        }) as AppUser),
+        total: res.total
+      })),
       catchError(error => {
         console.error('❌ Erro ao listar usuários:', error);
         return throwError(() => error);

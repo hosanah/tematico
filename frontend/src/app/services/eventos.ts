@@ -6,7 +6,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, throwError, map } from 'rxjs';
 
 export interface Evento {
   id?: number;
@@ -23,8 +23,9 @@ export class EventoService {
 
   constructor(private http: HttpClient) {}
 
-  getEventos(): Observable<Evento[]> {
-    return this.http.get<Evento[]>(`${this.API_URL}/eventos`).pipe(
+  getEventos(page = 1, limit = 10): Observable<{ data: Evento[]; total: number }> {
+    return this.http.get<any>(`${this.API_URL}/eventos`, { params: { page, limit } }).pipe(
+      map(res => ({ data: res.data as Evento[], total: res.total })),
       catchError(error => {
         console.error('❌ Erro ao listar eventos:', error);
         return throwError(() => error);

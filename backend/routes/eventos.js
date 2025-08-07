@@ -16,16 +16,30 @@ function isValidInt(value) {
   return Number.isInteger(Number(value));
 }
 
-// List all events
+// List all events with pagination
 router.get('/', (req, res, next) => {
   const db = getDatabase();
-  db.all('SELECT id, nome, data, horario, restaurante_id FROM eventos', [], (err, rows) => {
-    if (err) {
-      console.error('❌ Erro ao listar eventos:', err.message);
-      return next(new ApiError(500, 'Erro ao listar eventos', 'LIST_EVENTS_ERROR', err.message));
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const offset = (page - 1) * limit;
+
+  db.all(
+    'SELECT id, nome, data, horario, restaurante_id FROM eventos LIMIT ? OFFSET ?',
+    [limit, offset],
+    (err, rows) => {
+      if (err) {
+        console.error('❌ Erro ao listar eventos:', err.message);
+        return next(new ApiError(500, 'Erro ao listar eventos', 'LIST_EVENTS_ERROR', err.message));
+      }
+      db.get('SELECT COUNT(*) as count FROM eventos', [], (err2, result) => {
+        if (err2) {
+          console.error('❌ Erro ao contar eventos:', err2.message);
+          return next(new ApiError(500, 'Erro ao listar eventos', 'LIST_EVENTS_ERROR', err2.message));
+        }
+        res.json({ data: rows, total: result.count });
+      });
     }
-    res.json(rows);
-  });
+  );
 });
 
 // Get single event
