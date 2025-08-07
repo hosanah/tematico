@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
+const { ApiError, errorHandler } = require('./middleware/errorHandler');
 
 // Importar rotas
 const authRoutes = require('./routes/auth');
@@ -94,35 +95,11 @@ app.use('/users', authenticateToken, usersRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Middleware de tratamento de erros
-app.use((err, req, res, next) => {
-  console.error('Erro:', err.stack);
-  
-  // Erro de validação JWT
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      error: 'Token inválido'
-    });
-  }
-  
-  // Erro de token expirado
-  if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({
-      error: 'Token expirado'
-    });
-  }
-  
-  // Erro genérico
-  res.status(500).json({
-    error: 'Erro interno do servidor'
-  });
+app.use((req, res, next) => {
+  next(new ApiError(404, 'Rota não encontrada'));
 });
 
-// Rota 404 - não encontrada
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Rota não encontrada'
-  });
-});
+app.use(errorHandler);
 
 // Inicializar banco de dados e servidor
 async function startServer() {

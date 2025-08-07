@@ -7,6 +7,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { getDatabase } = require('../config/database');
 const { generateToken, authenticateToken, verifyToken } = require('../middleware/auth');
+const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
 
@@ -14,16 +15,13 @@ const router = express.Router();
  * POST /auth/login
  * Autenticar usuário e retornar token JWT
  */
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
     // Validar dados de entrada
     if (!username || !password) {
-      return res.status(400).json({
-        error: 'Username e password são obrigatórios',
-        code: 'MISSING_CREDENTIALS'
-      });
+      return next(new ApiError(400, 'Username e password são obrigatórios', 'MISSING_CREDENTIALS'));
     }
 
     // Buscar usuário no banco de dados
@@ -35,18 +33,12 @@ router.post('/login', async (req, res) => {
       async (err, user) => {
         if (err) {
           console.error('❌ Erro ao buscar usuário:', err.message);
-          return res.status(500).json({
-            error: 'Erro interno do servidor',
-            code: 'INTERNAL_ERROR'
-          });
+          return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', err.message));
         }
 
         if (!user) {
           console.log(`❌ Tentativa de login com usuário inexistente: ${username}`);
-          return res.status(401).json({
-            error: 'Credenciais inválidas',
-            code: 'INVALID_CREDENTIALS'
-          });
+          return next(new ApiError(401, 'Credenciais inválidas', 'INVALID_CREDENTIALS'));
         }
 
         try {
@@ -55,10 +47,7 @@ router.post('/login', async (req, res) => {
           
           if (!isPasswordValid) {
             console.log(`❌ Tentativa de login com senha incorreta para: ${username}`);
-            return res.status(401).json({
-              error: 'Credenciais inválidas',
-              code: 'INVALID_CREDENTIALS'
-            });
+            return next(new ApiError(401, 'Credenciais inválidas', 'INVALID_CREDENTIALS'));
           }
 
           // Gerar token JWT
@@ -82,20 +71,14 @@ router.post('/login', async (req, res) => {
 
         } catch (bcryptError) {
           console.error('❌ Erro ao verificar senha:', bcryptError);
-          return res.status(500).json({
-            error: 'Erro interno do servidor',
-            code: 'INTERNAL_ERROR'
-          });
+          return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', bcryptError.message));
         }
       }
     );
 
   } catch (error) {
     console.error('❌ Erro no login:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
@@ -103,7 +86,7 @@ router.post('/login', async (req, res) => {
  * POST /auth/logout
  * Logout do usuário (invalidar token no frontend)
  */
-router.post('/logout', authenticateToken, (req, res) => {
+router.post('/logout', authenticateToken, (req, res, next) => {
   try {
     console.log(`✅ Logout realizado: ${req.user.username} (ID: ${req.user.id})`);
     
@@ -112,10 +95,7 @@ router.post('/logout', authenticateToken, (req, res) => {
     });
   } catch (error) {
     console.error('❌ Erro no logout:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
@@ -123,7 +103,7 @@ router.post('/logout', authenticateToken, (req, res) => {
  * GET /auth/me
  * Obter informações do usuário autenticado
  */
-router.get('/me', authenticateToken, (req, res) => {
+router.get('/me', authenticateToken, (req, res, next) => {
   try {
     res.json({
       user: req.user,
@@ -134,10 +114,7 @@ router.get('/me', authenticateToken, (req, res) => {
     });
   } catch (error) {
     console.error('❌ Erro ao obter dados do usuário:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
@@ -145,24 +122,18 @@ router.get('/me', authenticateToken, (req, res) => {
  * POST /auth/validate
  * Validar token JWT
  */
-router.post('/validate', (req, res) => {
+router.post('/validate', (req, res, next) => {
   try {
     const { token } = req.body;
 
     if (!token) {
-      return res.status(400).json({
-        error: 'Token é obrigatório',
-        code: 'TOKEN_REQUIRED'
-      });
+      return next(new ApiError(400, 'Token é obrigatório', 'TOKEN_REQUIRED'));
     }
 
     const decoded = verifyToken(token);
     
     if (!decoded) {
-      return res.status(401).json({
-        error: 'Token inválido ou expirado',
-        code: 'TOKEN_INVALID'
-      });
+      return next(new ApiError(401, 'Token inválido ou expirado', 'TOKEN_INVALID'));
     }
 
     res.json({
@@ -177,10 +148,7 @@ router.post('/validate', (req, res) => {
 
   } catch (error) {
     console.error('❌ Erro na validação do token:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
@@ -188,33 +156,24 @@ router.post('/validate', (req, res) => {
  * POST /auth/register
  * Registrar novo usuário (opcional)
  */
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
   try {
     const { username, email, password, fullName } = req.body;
 
     // Validar dados de entrada
     if (!username || !email || !password) {
-      return res.status(400).json({
-        error: 'Username, email e password são obrigatórios',
-        code: 'MISSING_FIELDS'
-      });
+      return next(new ApiError(400, 'Username, email e password são obrigatórios', 'MISSING_FIELDS'));
     }
 
     // Validar formato do email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        error: 'Formato de email inválido',
-        code: 'INVALID_EMAIL'
-      });
+      return next(new ApiError(400, 'Formato de email inválido', 'INVALID_EMAIL'));
     }
 
     // Validar senha (mínimo 6 caracteres)
     if (password.length < 6) {
-      return res.status(400).json({
-        error: 'Senha deve ter pelo menos 6 caracteres',
-        code: 'PASSWORD_TOO_SHORT'
-      });
+      return next(new ApiError(400, 'Senha deve ter pelo menos 6 caracteres', 'PASSWORD_TOO_SHORT'));
     }
 
     const db = getDatabase();
@@ -226,17 +185,11 @@ router.post('/register', async (req, res) => {
       async (err, existingUser) => {
         if (err) {
           console.error('❌ Erro ao verificar usuário existente:', err.message);
-          return res.status(500).json({
-            error: 'Erro interno do servidor',
-            code: 'INTERNAL_ERROR'
-          });
+          return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', err.message));
         }
 
         if (existingUser) {
-          return res.status(409).json({
-            error: 'Usuário ou email já existe',
-            code: 'USER_EXISTS'
-          });
+          return next(new ApiError(409, 'Usuário ou email já existe', 'USER_EXISTS'));
         }
 
         try {
@@ -248,13 +201,10 @@ router.post('/register', async (req, res) => {
             'INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?) RETURNING id',
             [username, email, hashedPassword, fullName || username],
             function(err) {
-              if (err) {
-                console.error('❌ Erro ao criar usuário:', err.message);
-                return res.status(500).json({
-                  error: 'Erro ao criar usuário',
-                  code: 'CREATE_USER_ERROR'
-                });
-              }
+            if (err) {
+              console.error('❌ Erro ao criar usuário:', err.message);
+              return next(new ApiError(500, 'Erro ao criar usuário', 'CREATE_USER_ERROR', err.message));
+            }
 
               console.log(`✅ Usuário criado: ${username} (ID: ${this.lastID})`);
 
@@ -272,20 +222,14 @@ router.post('/register', async (req, res) => {
 
         } catch (hashError) {
           console.error('❌ Erro ao hash da senha:', hashError);
-          return res.status(500).json({
-            error: 'Erro interno do servidor',
-            code: 'INTERNAL_ERROR'
-          });
+          return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', hashError.message));
         }
       }
     );
 
   } catch (error) {
     console.error('❌ Erro no registro:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
@@ -293,39 +237,27 @@ router.post('/register', async (req, res) => {
  * POST /auth/reset-password
  * Resetar senha do usuário através do email
  */
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({
-        error: 'Email e nova senha são obrigatórios',
-        code: 'MISSING_FIELDS'
-      });
+      return next(new ApiError(400, 'Email e nova senha são obrigatórios', 'MISSING_FIELDS'));
     }
 
     if (password.length < 6) {
-      return res.status(400).json({
-        error: 'Senha deve ter pelo menos 6 caracteres',
-        code: 'PASSWORD_TOO_SHORT'
-      });
+      return next(new ApiError(400, 'Senha deve ter pelo menos 6 caracteres', 'PASSWORD_TOO_SHORT'));
     }
 
     const db = getDatabase();
     db.get('SELECT id FROM users WHERE email = ?', [email], async (err, user) => {
       if (err) {
         console.error('❌ Erro ao buscar usuário para reset de senha:', err.message);
-        return res.status(500).json({
-          error: 'Erro interno do servidor',
-          code: 'INTERNAL_ERROR'
-        });
+        return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', err.message));
       }
 
       if (!user) {
-        return res.status(404).json({
-          error: 'Usuário não encontrado',
-          code: 'USER_NOT_FOUND'
-        });
+        return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
       }
 
       try {
@@ -333,10 +265,7 @@ router.post('/reset-password', async (req, res) => {
         db.run('UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [hashed, user.id], function(err) {
           if (err) {
             console.error('❌ Erro ao atualizar senha:', err.message);
-            return res.status(500).json({
-              error: 'Erro ao atualizar senha',
-              code: 'UPDATE_PASSWORD_ERROR'
-            });
+            return next(new ApiError(500, 'Erro ao atualizar senha', 'UPDATE_PASSWORD_ERROR', err.message));
           }
 
           console.log(`🔄 Senha redefinida para usuário ID ${user.id}`);
@@ -344,18 +273,12 @@ router.post('/reset-password', async (req, res) => {
         });
       } catch (hashError) {
         console.error('❌ Erro ao hash da nova senha:', hashError);
-        return res.status(500).json({
-          error: 'Erro interno do servidor',
-          code: 'INTERNAL_ERROR'
-        });
+        return next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', hashError.message));
       }
     });
   } catch (error) {
     console.error('❌ Erro no reset de senha:', error);
-    res.status(500).json({
-      error: 'Erro interno do servidor',
-      code: 'INTERNAL_ERROR'
-    });
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
   }
 });
 
