@@ -35,7 +35,10 @@ CREATE TABLE IF NOT EXISTS eventos (
 );
 
 CREATE TABLE IF NOT EXISTS reservas (
-  id_reserva SERIAL PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
+  idreservacm INTEGER NOT NULL,
+  numeroreservacm VARCHAR(255) NOT NULL,
+  coduh VARCHAR(255) NOT NULL,
   nome_hospede VARCHAR(255) NOT NULL,
   data_checkin DATE NOT NULL,
   data_checkout DATE NOT NULL,
@@ -43,7 +46,7 @@ CREATE TABLE IF NOT EXISTS reservas (
 );
 
 CREATE TABLE IF NOT EXISTS eventos_reservas (
-  id_evento INTEGER NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
-  id_reserva INTEGER NOT NULL REFERENCES reservas(id_reserva) ON DELETE CASCADE,
-  PRIMARY KEY (id_evento, id_reserva)
+  evento_id INTEGER NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
+  reserva_id INTEGER NOT NULL REFERENCES reservas(id) ON DELETE CASCADE,
+  PRIMARY KEY (evento_id, reserva_id)
 );

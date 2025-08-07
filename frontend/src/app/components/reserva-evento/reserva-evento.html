@@ -12,16 +12,24 @@
   <p-table [value]="reservas">
     <ng-template pTemplate="header">
       <tr>
-        <th>Cliente</th>
-        <th>Restaurante</th>
-        <th>Data</th>
+        <th>Id Reserva CM</th>
+        <th>Número Reserva CM</th>
+        <th>Código UH</th>
+        <th>Nome Hóspede</th>
+        <th>Check-in</th>
+        <th>Check-out</th>
+        <th>Qtd Hóspedes</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-reserva>
       <tr>
-        <td>{{ reserva.cliente }}</td>
-        <td>{{ reserva.restaurante }}</td>
-        <td>{{ reserva.data }}</td>
+        <td>{{ reserva.idreservacm }}</td>
+        <td>{{ reserva.numeroreservacm }}</td>
+        <td>{{ reserva.coduh }}</td>
+        <td>{{ reserva.nome_hospede }}</td>
+        <td>{{ reserva.data_checkin }}</td>
+        <td>{{ reserva.data_checkout }}</td>
+        <td>{{ reserva.qtd_hospedes }}</td>
       </tr>
     </ng-template>
   </p-table>
@@ -47,7 +55,7 @@
 
 <div class="form">
   <h3>Vincular Reserva a Evento</h3>
-  <p-select [(ngModel)]="reservaSelecionada" [options]="reservas" optionLabel="cliente" placeholder="Selecione a reserva"></p-select>
+  <p-select [(ngModel)]="reservaSelecionada" [options]="reservas" optionLabel="numeroreservacm" placeholder="Selecione a reserva"></p-select>
   <p-select [(ngModel)]="eventoSelecionado" [options]="eventos" optionLabel="nome" placeholder="Selecione o evento"></p-select>
   <button pButton type="button" label="Vincular" (click)="vincular()" [disabled]="!reservaSelecionada || !eventoSelecionado"></button>
 </div>

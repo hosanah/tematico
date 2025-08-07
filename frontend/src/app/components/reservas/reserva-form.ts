@@ -39,9 +39,13 @@ export class ReservaFormComponent implements OnInit {
     private messageService: MessageService
   ) {
     this.form = this.fb.group({
-      nome: ['', Validators.required],
-      data: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
-      hora: ['', [Validators.required, Validators.pattern(/^\d{2}:\d{2}$/)]]
+      idreservacm: [null, [Validators.required, Validators.pattern(/^\d+$/)]],
+      numeroreservacm: ['', Validators.required],
+      coduh: ['', Validators.required],
+      nome_hospede: ['', Validators.required],
+      data_checkin: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+      data_checkout: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+      qtd_hospedes: [null, [Validators.required, Validators.pattern(/^\d+$/)]]
     });
   }
 

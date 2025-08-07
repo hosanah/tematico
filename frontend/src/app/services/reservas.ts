@@ -10,9 +10,13 @@ import { Observable, catchError, throwError, map } from 'rxjs';
 
 export interface Reserva {
   id?: number;
-  nome: string;
-  data: string;
-  hora: string;
+  idreservacm: number;
+  numeroreservacm: string;
+  coduh: string;
+  nome_hospede: string;
+  data_checkin: string;
+  data_checkout: string;
+  qtd_hospedes: number;
 }
 
 @Injectable({

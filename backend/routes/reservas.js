@@ -4,16 +4,16 @@ const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
 
-function isValidDate(value) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
-}
-
-function isValidTime(value) {
-  return /^\d{2}:\d{2}$/.test(value);
+function isValidString(value) {
+  return typeof value === 'string' && value.trim() !== '';
 }
 
 function isValidInt(value) {
   return Number.isInteger(Number(value));
+}
+
+function isValidDate(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
 // List all reservations with pagination
@@ -24,7 +24,7 @@ router.get('/', (req, res, next) => {
   const offset = (page - 1) * limit;
 
   db.all(
-    'SELECT id, restaurante_id, evento_id, data, horario, numero_pessoas FROM reservas LIMIT ? OFFSET ?',
+    'SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes FROM reservas LIMIT ? OFFSET ?',
     [limit, offset],
     (err, rows) => {
       if (err) {
@@ -48,7 +48,7 @@ router.get('/:id', (req, res, next) => {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
   const db = getDatabase();
-  db.get('SELECT id, restaurante_id, evento_id, data, horario, numero_pessoas FROM reservas WHERE id = ?', [req.params.id], (err, row) => {
+  db.get('SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE id = ?', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter reserva:', err.message);
       return next(new ApiError(500, 'Erro ao obter reserva', 'GET_RESERVATION_ERROR', err.message));
@@ -62,20 +62,28 @@ router.get('/:id', (req, res, next) => {
 
 // Create reservation
 router.post('/', (req, res, next) => {
-  const { restauranteId, eventoId, data, horario, numeroPessoas } = req.body;
-  if (!isValidInt(restauranteId) || !isValidDate(data) || !isValidTime(horario) || !isValidInt(numeroPessoas)) {
+  const { idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes } = req.body;
+  if (
+    !isValidInt(idreservacm) ||
+    !isValidString(numeroreservacm) ||
+    !isValidString(coduh) ||
+    !isValidString(nome_hospede) ||
+    !isValidDate(data_checkin) ||
+    !isValidDate(data_checkout) ||
+    !isValidInt(qtd_hospedes)
+  ) {
     return next(new ApiError(400, 'Dados inválidos para criação de reserva', 'INVALID_FIELDS'));
   }
   const db = getDatabase();
   db.run(
-    'INSERT INTO reservas (restaurante_id, evento_id, data, horario, numero_pessoas) VALUES (?, ?, ?, ?, ?) RETURNING id',
-    [restauranteId, eventoId || null, data, horario, numeroPessoas],
+    'INSERT INTO reservas (idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id',
+    [idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes],
     function(err) {
       if (err) {
         console.error('❌ Erro ao criar reserva:', err.message);
         return next(new ApiError(500, 'Erro ao criar reserva', 'CREATE_RESERVATION_ERROR', err.message));
       }
-      res.status(201).json({ id: this.lastID, restauranteId, eventoId: eventoId || null, data, horario, numeroPessoas });
+      res.status(201).json({ id: this.lastID, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes });
     }
   );
 });
@@ -85,28 +93,36 @@ router.put('/:id', (req, res, next) => {
   if (!isValidInt(req.params.id)) {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
-  const { restauranteId, eventoId, data, horario, numeroPessoas } = req.body;
+  const { idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes } = req.body;
   const fields = [];
   const values = [];
-  if (restauranteId !== undefined) {
-    if (!isValidInt(restauranteId)) return next(new ApiError(400, 'restauranteId deve ser inteiro', 'INVALID_RESTAURANT_ID'));
-    fields.push('restaurante_id = ?'); values.push(restauranteId);
+  if (idreservacm !== undefined) {
+    if (!isValidInt(idreservacm)) return next(new ApiError(400, 'idreservacm deve ser inteiro', 'INVALID_IDRESERVACM'));
+    fields.push('idreservacm = ?'); values.push(idreservacm);
   }
-  if (eventoId !== undefined) {
-    if (eventoId !== null && !isValidInt(eventoId)) return next(new ApiError(400, 'eventoId deve ser inteiro', 'INVALID_EVENT_ID'));
-    fields.push('evento_id = ?'); values.push(eventoId);
+  if (numeroreservacm !== undefined) {
+    if (!isValidString(numeroreservacm)) return next(new ApiError(400, 'numeroreservacm inválido', 'INVALID_NUMERORESERVACM'));
+    fields.push('numeroreservacm = ?'); values.push(numeroreservacm);
   }
-  if (data) {
-    if (!isValidDate(data)) return next(new ApiError(400, 'Data inválida', 'INVALID_DATE'));
-    fields.push('data = ?'); values.push(data);
+  if (coduh !== undefined) {
+    if (!isValidString(coduh)) return next(new ApiError(400, 'coduh inválido', 'INVALID_CODUH'));
+    fields.push('coduh = ?'); values.push(coduh);
   }
-  if (horario) {
-    if (!isValidTime(horario)) return next(new ApiError(400, 'Horário inválido', 'INVALID_TIME'));
-    fields.push('horario = ?'); values.push(horario);
+  if (nome_hospede !== undefined) {
+    if (!isValidString(nome_hospede)) return next(new ApiError(400, 'nome_hospede inválido', 'INVALID_NOME_HOSPEDE'));
+    fields.push('nome_hospede = ?'); values.push(nome_hospede);
   }
-  if (numeroPessoas !== undefined) {
-    if (!isValidInt(numeroPessoas)) return next(new ApiError(400, 'numeroPessoas deve ser inteiro', 'INVALID_PEOPLE_NUMBER'));
-    fields.push('numero_pessoas = ?'); values.push(numeroPessoas);
+  if (data_checkin !== undefined) {
+    if (!isValidDate(data_checkin)) return next(new ApiError(400, 'data_checkin inválida', 'INVALID_DATA_CHECKIN'));
+    fields.push('data_checkin = ?'); values.push(data_checkin);
+  }
+  if (data_checkout !== undefined) {
+    if (!isValidDate(data_checkout)) return next(new ApiError(400, 'data_checkout inválida', 'INVALID_DATA_CHECKOUT'));
+    fields.push('data_checkout = ?'); values.push(data_checkout);
+  }
+  if (qtd_hospedes !== undefined) {
+    if (!isValidInt(qtd_hospedes)) return next(new ApiError(400, 'qtd_hospedes deve ser inteiro', 'INVALID_QTD_HOSPEDES'));
+    fields.push('qtd_hospedes = ?'); values.push(qtd_hospedes);
   }
   if (fields.length === 0) {
     return next(new ApiError(400, 'Nenhum dado para atualizar', 'NO_FIELDS_TO_UPDATE'));
