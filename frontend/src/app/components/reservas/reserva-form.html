@@ -1,23 +1,49 @@
 <p-card header="{{ isEdit ? 'Editar Reserva' : 'Nova Reserva' }}">
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="field">
-      <label for="nome">Nome</label>
-      <input id="nome" type="text" pInputText formControlName="nome" />
-      <div class="error" *ngIf="form.get('nome')?.hasError('required') && form.get('nome')?.touched">Nome é obrigatório.</div>
+      <label for="idreservacm">Id Reserva CM</label>
+      <input id="idreservacm" type="text" pInputText formControlName="idreservacm" />
+      <div class="error" *ngIf="form.get('idreservacm')?.hasError('required') && form.get('idreservacm')?.touched">Id Reserva CM é obrigatório.</div>
+      <div class="error" *ngIf="form.get('idreservacm')?.hasError('pattern') && form.get('idreservacm')?.touched">Id Reserva CM deve ser numérico.</div>
     </div>
 
     <div class="field">
-      <label for="data">Data (YYYY-MM-DD)</label>
-      <input id="data" type="text" pInputText formControlName="data" />
-      <div class="error" *ngIf="form.get('data')?.hasError('required') && form.get('data')?.touched">Data é obrigatória.</div>
-      <div class="error" *ngIf="form.get('data')?.hasError('pattern') && form.get('data')?.touched">Formato de data inválido.</div>
+      <label for="numeroreservacm">Número Reserva CM</label>
+      <input id="numeroreservacm" type="text" pInputText formControlName="numeroreservacm" />
+      <div class="error" *ngIf="form.get('numeroreservacm')?.hasError('required') && form.get('numeroreservacm')?.touched">Número Reserva CM é obrigatório.</div>
     </div>
 
     <div class="field">
-      <label for="hora">Hora (HH:mm)</label>
-      <input id="hora" type="text" pInputText formControlName="hora" />
-      <div class="error" *ngIf="form.get('hora')?.hasError('required') && form.get('hora')?.touched">Hora é obrigatória.</div>
-      <div class="error" *ngIf="form.get('hora')?.hasError('pattern') && form.get('hora')?.touched">Formato de hora inválido.</div>
+      <label for="coduh">Código UH</label>
+      <input id="coduh" type="text" pInputText formControlName="coduh" />
+      <div class="error" *ngIf="form.get('coduh')?.hasError('required') && form.get('coduh')?.touched">Código UH é obrigatório.</div>
+    </div>
+
+    <div class="field">
+      <label for="nome_hospede">Nome Hóspede</label>
+      <input id="nome_hospede" type="text" pInputText formControlName="nome_hospede" />
+      <div class="error" *ngIf="form.get('nome_hospede')?.hasError('required') && form.get('nome_hospede')?.touched">Nome do hóspede é obrigatório.</div>
+    </div>
+
+    <div class="field">
+      <label for="data_checkin">Data Check-in</label>
+      <input id="data_checkin" type="date" pInputText formControlName="data_checkin" />
+      <div class="error" *ngIf="form.get('data_checkin')?.hasError('required') && form.get('data_checkin')?.touched">Data de check-in é obrigatória.</div>
+      <div class="error" *ngIf="form.get('data_checkin')?.hasError('pattern') && form.get('data_checkin')?.touched">Data de check-in inválida.</div>
+    </div>
+
+    <div class="field">
+      <label for="data_checkout">Data Check-out</label>
+      <input id="data_checkout" type="date" pInputText formControlName="data_checkout" />
+      <div class="error" *ngIf="form.get('data_checkout')?.hasError('required') && form.get('data_checkout')?.touched">Data de check-out é obrigatória.</div>
+      <div class="error" *ngIf="form.get('data_checkout')?.hasError('pattern') && form.get('data_checkout')?.touched">Data de check-out inválida.</div>
+    </div>
+
+    <div class="field">
+      <label for="qtd_hospedes">Qtd Hóspedes</label>
+      <input id="qtd_hospedes" type="text" pInputText formControlName="qtd_hospedes" />
+      <div class="error" *ngIf="form.get('qtd_hospedes')?.hasError('required') && form.get('qtd_hospedes')?.touched">Quantidade de hóspedes é obrigatória.</div>
+      <div class="error" *ngIf="form.get('qtd_hospedes')?.hasError('pattern') && form.get('qtd_hospedes')?.touched">Quantidade de hóspedes deve ser numérica.</div>
     </div>
 
     <div class="actions">

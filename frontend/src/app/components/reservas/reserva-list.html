@@ -12,17 +12,25 @@
   >
     <ng-template pTemplate="header">
       <tr>
-        <th>Nome</th>
-        <th>Data</th>
-        <th>Hora</th>
+        <th>Id Reserva CM</th>
+        <th>Número Reserva CM</th>
+        <th>Código UH</th>
+        <th>Nome Hóspede</th>
+        <th>Check-in</th>
+        <th>Check-out</th>
+        <th>Qtd Hóspedes</th>
         <th>Ações</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-r>
       <tr>
-        <td>{{ r.nome }}</td>
-        <td>{{ r.data }}</td>
-        <td>{{ r.hora }}</td>
+        <td>{{ r.idreservacm }}</td>
+        <td>{{ r.numeroreservacm }}</td>
+        <td>{{ r.coduh }}</td>
+        <td>{{ r.nome_hospede }}</td>
+        <td>{{ r.data_checkin }}</td>
+        <td>{{ r.data_checkout }}</td>
+        <td>{{ r.qtd_hospedes }}</td>
         <td>
           <button pButton icon="pi pi-pencil" class="p-button-text" (click)="editar(r.id)"></button>
           <button pButton icon="pi pi-trash" class="p-button-text p-button-danger" (click)="excluir(r.id)"></button>

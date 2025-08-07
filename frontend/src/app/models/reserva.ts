@@ -3,9 +3,11 @@
  */
 export interface Reserva {
   id?: number;
-  cliente: string;
-  data: string; // ISO string
-  pessoas: number;
-  restauranteId?: number;
-  eventoId?: number;
+  idreservacm: number;
+  numeroreservacm: string;
+  coduh: string;
+  nome_hospede: string;
+  data_checkin: string;
+  data_checkout: string;
+  qtd_hospedes: number;
 }

@@ -148,7 +148,6 @@ router.post('/:id/reservas', async (req, res, next) => {
 
     const db = getDatabase();
 
-    // Obter informações do evento
     const { rows: [evento] } = await db.query(
       'SELECT id, id_restaurante AS restaurante_id, data_evento FROM eventos WHERE id = ?', [eventoId]
     );
@@ -156,7 +155,6 @@ router.post('/:id/reservas', async (req, res, next) => {
       return next(new ApiError(404, 'Evento não encontrado', 'EVENTO_NOT_FOUND'));
     }
 
-    // Obter informações da reserva
     const { rows: [reserva] } = await db.query(
       'SELECT id_reserva AS id, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE id_reserva = ?', [reservaId]
     );
