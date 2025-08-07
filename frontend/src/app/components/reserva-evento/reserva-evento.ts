@@ -16,6 +16,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 import { ReservaEventoService, Reserva, Evento } from '../../services/reserva-evento';
+import { extractErrorMessage } from '../../utils';
 
 @Component({
   selector: 'app-reserva-evento',
@@ -72,6 +73,18 @@ export class ReservaEventoComponent implements OnInit {
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Reserva vinculada ao evento' });
           this.carregarDados();
+        },
+        error: err => {
+          let detail = 'Falha ao vincular reserva';
+          const msg = extractErrorMessage(err);
+          if (msg.toLowerCase().includes('capacidade')) {
+            detail = 'Capacidade do evento excedida';
+          } else if (msg.toLowerCase().includes('restaurante')) {
+            detail = 'Não é permitido múltiplos restaurantes no mesmo dia';
+          } else if (msg.toLowerCase().includes('duração')) {
+            detail = 'Limite de eventos por duração excedido';
+          }
+          this.messageService.add({ severity: 'error', summary: 'Erro', detail });
         }
       });
   }

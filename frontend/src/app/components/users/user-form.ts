@@ -1,11 +1,6 @@
-/**
- * Formulário de Usuário
- * Usado para criação e edição de usuários
- */
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 // PrimeNG
@@ -21,19 +16,44 @@ import { UserService, AppUser } from '../../services/users';
 @Component({
   selector: 'app-user-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardModule, InputTextModule, PasswordModule, ButtonModule, ToastModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule, // <- trocado FormsModule por ReactiveFormsModule
+    CardModule,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
+    ToastModule
+  ],
   providers: [MessageService],
   templateUrl: './user-form.html',
   styleUrls: ['./user-form.scss']
 })
 export class UserFormComponent implements OnInit {
-  user: AppUser = { username: '', email: '', fullName: '', password: '', is_active : true };
+  form: FormGroup;
   isEdit = false;
   isLoading = false;
   private userId?: number;
+
   private readonly strongPassword = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
-  constructor(private userService: UserService, private route: ActivatedRoute, private router: Router, private messageService: MessageService) {}
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private messageService: MessageService
+  ) {
+    // Inicializa o formulário com validações
+    this.form = this.fb.group({
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      fullName: [''],
+      password: [''],
+      is_active: [true],
+      qtd_hospedes: [null, [Validators.pattern(/^\d+$/)]] // <- exemplo se estiver usando qtd_hospedes no template
+    });
+  }
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -48,13 +68,13 @@ export class UserFormComponent implements OnInit {
     this.userService.getUser(id).subscribe({
       next: data => {
         const fullName = data.fullName || (data as any).full_name;
-        this.user = {
+        this.form.patchValue({
           id: data.id,
           username: data.username,
           email: data.email,
           fullName,
           is_active: data.is_active
-        } as AppUser;
+        });
       },
       error: () => {
         this.router.navigate(['/users']);
@@ -63,11 +83,16 @@ export class UserFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.isLoading = true;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
-    // Verifica força da senha quando criando usuário ou alterando senha
-    const needsValidation = !this.isEdit || !!this.user.password;
-    if (needsValidation && !this.strongPassword.test(this.user.password || '')) {
+    this.isLoading = true;
+    const formValue = this.form.value as AppUser;
+
+    const needsValidation = !this.isEdit || !!formValue.password;
+    if (needsValidation && !this.strongPassword.test(formValue.password || '')) {
       this.isLoading = false;
       this.messageService.add({
         severity: 'warn',
@@ -78,8 +103,8 @@ export class UserFormComponent implements OnInit {
     }
 
     const request = this.isEdit && this.userId
-      ? this.userService.updateUser(this.userId, this.user)
-      : this.userService.createUser(this.user);
+      ? this.userService.updateUser(this.userId, formValue)
+      : this.userService.createUser(formValue);
 
     request.subscribe({
       next: () => {
@@ -95,5 +120,10 @@ export class UserFormComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/users']);
+  }
+
+  // Facilita acesso no template
+  get f() {
+    return this.form.controls;
   }
 }
