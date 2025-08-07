@@ -46,12 +46,14 @@ export class UserFormComponent implements OnInit {
   loadUser(id: number): void {
     this.userService.getUser(id).subscribe({
       next: data => {
-        this.user.id = data.id;
-        this.user.username = data.username;
-        this.user.email = data.email;
-        this.user.fullName = data.fullName;
         const fullName = data.fullName || (data as any).full_name;
-        this.user = { id: data.id, username: data.username, email: data.email, fullName } as AppUser;
+        this.user = {
+          id: data.id,
+          username: data.username,
+          email: data.email,
+          fullName,
+          is_active: data.is_active
+        } as AppUser;
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Usuário não encontrado' });
