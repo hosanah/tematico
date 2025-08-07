@@ -10,6 +10,7 @@
         <th>Usuário</th>
         <th>Email</th>
         <th>Nome</th>
+        <th>Status</th>
         <th>Ações</th>
       </tr>
     </ng-template>
@@ -19,8 +20,12 @@
         <td>{{ user.email }}</td>
         <td>{{ user.fullName }}</td>
         <td>
+          <p-tag [value]="user.is_active ? 'Ativo' : 'Inativo'" [severity]="user.is_active ? 'success' : 'danger'"></p-tag>
+        </td>
+        <td>
           <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" (onClick)="editUser(user.id)"></p-button>
-          <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="deleteUser(user.id)"></p-button>
+          <p-button *ngIf="user.is_active" icon="pi pi-user-minus" [rounded]="true" [text]="true" severity="danger" (onClick)="toggleActive(user)"></p-button>
+          <p-button *ngIf="!user.is_active" icon="pi pi-user-plus" [rounded]="true" [text]="true" severity="success" (onClick)="toggleActive(user)"></p-button>
         </td>
       </tr>
     </ng-template>

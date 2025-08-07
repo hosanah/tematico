@@ -117,18 +117,18 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-// Delete user
+// Deactivate user
 router.delete('/:id', (req, res, next) => {
   const db = getDatabase();
-  db.run('DELETE FROM users WHERE id = ?', [req.params.id], function(err) {
+  db.run('UPDATE users SET is_active = 0 WHERE id = ?', [req.params.id], function(err) {
     if (err) {
-      console.error('❌ Erro ao deletar usuário:', err.message);
-      return next(new ApiError(500, 'Erro ao deletar usuário', 'DELETE_USER_ERROR', err.message));
+      console.error('❌ Erro ao desativar usuário:', err.message);
+      return next(new ApiError(500, 'Erro ao desativar usuário', 'DEACTIVATE_USER_ERROR', err.message));
     }
     if (this.changes === 0) {
       return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
     }
-    res.json({ message: 'Usuário deletado com sucesso' });
+    res.json({ message: 'Usuário desativado' });
   });
 });
 
