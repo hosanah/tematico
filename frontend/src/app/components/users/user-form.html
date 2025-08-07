@@ -1,26 +1,80 @@
-<div class="user-form-container">
-  <p-toast></p-toast>
-  <p-card class="form-card">
-    <h2 class="title">{{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}</h2>
-    <form (ngSubmit)="onSubmit()" #f="ngForm" class="form">
-      <div>
-        <label for="username">Usuário</label>
-        <input pInputText id="username" name="username" [(ngModel)]="user.username" required class="w-full" />
+<p-card header="{{ isEdit ? 'Editar Reserva' : 'Nova Reserva' }}">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="card flex flex-col gap-4">
+
+    <div class="flex flex-col gap-2">
+      <label for="idreservacm">Id Reserva CM</label>
+      <input id="idreservacm" type="text" pInputText formControlName="idreservacm" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('idreservacm')?.hasError('required') && form.get('idreservacm')?.touched">
+        Id Reserva CM é obrigatório.
       </div>
-      <div>
-        <label for="email">Email</label>
-        <input pInputText id="email" name="email" [(ngModel)]="user.email" required class="w-full" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('idreservacm')?.hasError('pattern') && form.get('idreservacm')?.touched">
+        Id Reserva CM deve ser numérico.
       </div>
-      <div>
-        <label for="fullName">Nome Completo</label>
-        <input pInputText id="fullName" name="fullName" [(ngModel)]="user.fullName" class="w-full" />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="numeroreservacm">Número Reserva CM</label>
+      <input id="numeroreservacm" type="text" pInputText formControlName="numeroreservacm" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('numeroreservacm')?.hasError('required') && form.get('numeroreservacm')?.touched">
+        Número Reserva CM é obrigatório.
       </div>
-      <div>
-        <label for="password">Senha</label>
-        <p-password id="password" name="password" [(ngModel)]="user.password" [feedback]="false" placeholder="Senha" styleClass="w-full" inputStyleClass="w-full" [required]="!isEdit"></p-password>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="coduh">Código UH</label>
+      <input id="coduh" type="text" pInputText formControlName="coduh" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('coduh')?.hasError('required') && form.get('coduh')?.touched">
+        Código UH é obrigatório.
       </div>
-      <p-button type="submit" label="Salvar" [disabled]="!f.valid || isLoading" [loading]="isLoading"></p-button>
-      <p-button label="Cancelar" severity="secondary" (onClick)="cancel()" [text]="true"></p-button>
-    </form>
-  </p-card>
-</div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="nome_hospede">Nome Hóspede</label>
+      <input id="nome_hospede" type="text" pInputText formControlName="nome_hospede" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('nome_hospede')?.hasError('required') && form.get('nome_hospede')?.touched">
+        Nome do hóspede é obrigatório.
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="data_checkin">Data Check-in</label>
+      <input id="data_checkin" type="date" pInputText formControlName="data_checkin" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('data_checkin')?.hasError('required') && form.get('data_checkin')?.touched">
+        Data de check-in é obrigatória.
+      </div>
+      <div class="text-red-500 text-sm" *ngIf="form.get('data_checkin')?.hasError('pattern') && form.get('data_checkin')?.touched">
+        Data de check-in inválida.
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="data_checkout">Data Check-out</label>
+      <input id="data_checkout" type="date" pInputText formControlName="data_checkout" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('data_checkout')?.hasError('required') && form.get('data_checkout')?.touched">
+        Data de check-out é obrigatória.
+      </div>
+      <div class="text-red-500 text-sm" *ngIf="form.get('data_checkout')?.hasError('pattern') && form.get('data_checkout')?.touched">
+        Data de check-out inválida.
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="qtd_hospedes">Qtd Hóspedes</label>
+      <input id="qtd_hospedes" type="text" pInputText formControlName="qtd_hospedes" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('qtd_hospedes')?.hasError('required') && form.get('qtd_hospedes')?.touched">
+        Quantidade de hóspedes é obrigatória.
+      </div>
+      <div class="text-red-500 text-sm" *ngIf="form.get('qtd_hospedes')?.hasError('pattern') && form.get('qtd_hospedes')?.touched">
+        Quantidade de hóspedes deve ser numérica.
+      </div>
+    </div>
+
+    <div class="flex gap-2 pt-2">
+      <button pButton type="submit" label="Salvar" [disabled]="isLoading"></button>
+      <button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="cancel()"></button>
+    </div>
+
+  </form>
+</p-card>
+
+<p-toast></p-toast>

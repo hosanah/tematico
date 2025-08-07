@@ -8,17 +8,20 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 
 // PrimeNG
-import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { PaginatorModule } from 'primeng/paginator';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
+import { CardModule } from 'primeng/card';
 
 import { ReservaService, Reserva } from '../../services/reservas';
 
 @Component({
   selector: 'app-reserva-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, CardModule, ButtonModule, ToastModule],
+  imports: [CommonModule, TableModule, PaginatorModule, ButtonModule, ToastModule, TagModule, CardModule],
   providers: [MessageService],
   templateUrl: './reserva-list.html',
   styleUrls: ['./reserva-list.scss']
