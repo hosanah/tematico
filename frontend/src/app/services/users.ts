@@ -35,6 +35,7 @@ export class UserService {
           fullName: user.full_name,
           is_active: user.is_active,
         }))
+        users.map(({ full_name, ...user }) => ({ ...user, fullName: full_name }) as AppUser)
       ),
       catchError(error => {
         console.error('❌ Erro ao listar usuários:', error);
@@ -52,6 +53,7 @@ export class UserService {
         fullName: user.full_name,
         is_active: user.is_active,
       })),
+      map(({ full_name, ...user }) => ({ ...user, fullName: full_name }) as AppUser),
       catchError(error => {
         console.error('❌ Erro ao obter usuário:', error);
         return throwError(() => error);
