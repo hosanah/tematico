@@ -31,6 +31,7 @@ export class UserFormComponent implements OnInit {
   isEdit = false;
   isLoading = false;
   private userId?: number;
+  private readonly strongPassword = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
   constructor(private userService: UserService, private route: ActivatedRoute, private router: Router, private messageService: MessageService) {}
 
@@ -64,6 +65,19 @@ export class UserFormComponent implements OnInit {
 
   onSubmit(): void {
     this.isLoading = true;
+
+    // Verifica força da senha quando criando usuário ou alterando senha
+    const needsValidation = !this.isEdit || !!this.user.password;
+    if (needsValidation && !this.strongPassword.test(this.user.password || '')) {
+      this.isLoading = false;
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Senha fraca',
+        detail: 'Senha deve ter pelo menos 8 caracteres, incluir letra maiúscula e caractere especial'
+      });
+      return;
+    }
+
     const request = this.isEdit && this.userId
       ? this.userService.updateUser(this.userId, this.user)
       : this.userService.createUser(this.user);
