@@ -1,0 +1,59 @@
+/**
+ * Serviço para listar eventos e reservas e vincular ambos
+ */
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
+
+export interface Reserva {
+  id?: number;
+  cliente?: string;
+  restaurante?: string;
+  data?: string;
+}
+
+export interface Evento {
+  id?: number;
+  nome?: string;
+  restaurante?: string;
+  data?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ReservaEventoService {
+  private readonly API_URL = environment.apiUrl;
+
+  constructor(private http: HttpClient) {}
+
+  getReservas(params?: any): Observable<Reserva[]> {
+    return this.http.get<Reserva[]>(`${this.API_URL}/reservas`, { params }).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao listar reservas:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getEventos(params?: any): Observable<Evento[]> {
+    return this.http.get<Evento[]>(`${this.API_URL}/eventos`, { params }).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao listar eventos:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  vincular(reservaId: number, eventoId: number): Observable<any> {
+    return this.http.post(`${this.API_URL}/reservas/${reservaId}/evento`, { eventoId }).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao vincular reserva ao evento:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+}
+
