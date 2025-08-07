@@ -4,6 +4,7 @@
  */
 
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { getDatabase } = require('../config/database');
 const { ApiError } = require('./errorHandler');
 
@@ -140,6 +141,54 @@ function generateToken(userId, username) {
 }
 
 /**
+ * Gerar refresh token e salvar sessão no banco
+ */
+async function generateRefreshToken(userId) {
+  const token = crypto.randomBytes(64).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+
+  const db = getDatabase();
+  await db.query(
+    'INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (?, ?, ?)',
+    [userId, tokenHash, expiresAt]
+  );
+
+  return token;
+}
+
+/**
+ * Verificar refresh token
+ */
+async function verifyRefreshToken(token) {
+  try {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const db = getDatabase();
+    const result = await db.query(
+      `SELECT s.user_id, u.username
+       FROM sessions s
+       JOIN users u ON s.user_id = u.id
+       WHERE s.token_hash = ?
+         AND s.expires_at > CURRENT_TIMESTAMP
+         AND s.revoked_at IS NULL`,
+      [tokenHash]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return {
+      userId: result.rows[0].user_id,
+      username: result.rows[0].username
+    };
+  } catch (error) {
+    console.error('❌ Erro ao verificar refresh token:', error.message);
+    return null;
+  }
+}
+
+/**
  * Verificar se token é válido (sem middleware)
  */
 function verifyToken(token) {
@@ -165,6 +214,8 @@ module.exports = {
   authenticateToken,
   optionalAuth,
   generateToken,
+  generateRefreshToken,
+  verifyRefreshToken,
   verifyToken,
   decodeToken
 };

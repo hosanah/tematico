@@ -8,15 +8,14 @@ const router = express.Router();
 // List all users
 router.get('/', (req, res, next) => {
   const db = getDatabase();
-  db.all('SELECT id, username, email, full_name, created_at, updated_at, is_active FROM users', [], (err, rows) => {
+  db.all('SELECT id, username, email, full_name, created_at, updated_at FROM users WHERE is_active = 1', [], (err, rows) => {
     if (err) {
       console.error('❌ Erro ao listar usuários:', err.message);
       return next(new ApiError(500, 'Erro ao listar usuários', 'LIST_USERS_ERROR', err.message));
     }
-    const formattedRows = rows.map(({ full_name, is_active, ...rest }) => ({
+    const formattedRows = rows.map(({ full_name, ...rest }) => ({
       ...rest,
-      fullName: full_name,
-      is_active: Boolean(is_active)
+      fullName: full_name
     }));
     res.json(formattedRows);
   });
@@ -25,7 +24,7 @@ router.get('/', (req, res, next) => {
 // Get single user
 router.get('/:id', (req, res, next) => {
   const db = getDatabase();
-  db.get('SELECT id, username, email, full_name, created_at, updated_at, is_active FROM users WHERE id = ?', [req.params.id], (err, row) => {
+  db.get('SELECT id, username, email, full_name, created_at, updated_at FROM users WHERE id = ? AND is_active = 1', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter usuário:', err.message);
       return next(new ApiError(500, 'Erro ao obter usuário', 'GET_USER_ERROR', err.message));
@@ -33,8 +32,8 @@ router.get('/:id', (req, res, next) => {
     if (!row) {
       return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
     }
-    const { full_name, is_active, ...rest } = row;
-    res.json({ ...rest, fullName: full_name, is_active: Boolean(is_active) });
+    const { full_name, ...rest } = row;
+    res.json({ ...rest, fullName: full_name });
   });
 });
 
@@ -117,24 +116,18 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-// Delete user
+// Deactivate user
 router.delete('/:id', (req, res, next) => {
   const db = getDatabase();
-  db.run('DELETE FROM sessions WHERE user_id = ?', [req.params.id], err => {
+  db.run('UPDATE users SET is_active = 0 WHERE id = ?', [req.params.id], function(err) {
     if (err) {
-      console.error('❌ Erro ao deletar sessões do usuário:', err.message);
-      return next(new ApiError(500, 'Erro ao deletar sessões do usuário', 'DELETE_USER_SESSIONS_ERROR', err.message));
+      console.error('❌ Erro ao desativar usuário:', err.message);
+      return next(new ApiError(500, 'Erro ao desativar usuário', 'DEACTIVATE_USER_ERROR', err.message));
     }
-    db.run('DELETE FROM users WHERE id = ?', [req.params.id], function(err) {
-      if (err) {
-        console.error('❌ Erro ao deletar usuário:', err.message);
-        return next(new ApiError(500, 'Erro ao deletar usuário', 'DELETE_USER_ERROR', err.message));
-      }
-      if (this.changes === 0) {
-        return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
-      }
-      res.json({ message: 'Usuário deletado com sucesso' });
-    });
+    if (this.changes === 0) {
+      return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
+    }
+    res.json({ message: 'Usuário desativado' });
   });
 });
 

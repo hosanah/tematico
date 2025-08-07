@@ -1,6 +1,6 @@
 /**
  * Lista de Usuários
- * Exibe todos os usuários com ações de edição e exclusão
+ * Exibe todos os usuários com ações de edição e ativação/desativação
  */
 
 import { Component, OnInit } from '@angular/core';
@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 
 import { UserService, AppUser } from '../../services/users';
@@ -18,7 +19,7 @@ import { UserService, AppUser } from '../../services/users';
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, ToastModule],
+  imports: [CommonModule, TableModule, ButtonModule, ToastModule, TagModule],
   providers: [MessageService],
   templateUrl: './user-list.html',
   styleUrls: ['./user-list.scss']
@@ -55,16 +56,23 @@ export class UserListComponent implements OnInit {
     if (id) this.router.navigate(['/users', id]);
   }
 
-  deleteUser(id?: number): void {
-    if (!id) return;
-    if (!confirm('Deseja excluir este usuário?')) return;
-    this.userService.deleteUser(id).subscribe({
+  toggleActive(user: AppUser): void {
+    if (!user.id) return;
+    const action = user.is_active ? 'desativar' : 'reativar';
+    if (!confirm(`Deseja ${action} este usuário?`)) return;
+    const request = user.is_active
+      ? this.userService.deleteUser(user.id)
+      : this.userService.updateUser(user.id, { is_active: true });
+
+    request.subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Usuário removido' });
-        this.users = this.users.filter(user => user.id !== id);
+        const detail = user.is_active ? 'Usuário desativado' : 'Usuário reativado';
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail });
+        this.loadUsers();
       },
-      error: err => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao remover usuário' });
+      error: () => {
+        const detail = user.is_active ? 'Falha ao desativar usuário' : 'Falha ao reativar usuário';
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail });
       }
     });
   }

@@ -41,6 +41,7 @@ export class AuthService {
   private readonly API_URL = environment.apiUrl;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'auth_user';
+  private refreshTokenTimeout: any;
 
   // Estado de autenticação reativo
   private authStateSubject = new BehaviorSubject<AuthState>({
@@ -70,6 +71,7 @@ export class AuthService {
       try {
         const user = JSON.parse(userStr);
         this.updateAuthState(true, user, token);
+        this.startRefreshTokenTimer(token);
       } catch (error) {
         console.error('Erro ao parsear dados do usuário:', error);
         this.clearStoredAuth();
@@ -98,10 +100,11 @@ export class AuthService {
           // Salvar token e dados do usuário
           localStorage.setItem(this.TOKEN_KEY, response.token);
           localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
-          
+
           // Atualizar estado
           this.updateAuthState(true, response.user, response.token);
-          
+          this.startRefreshTokenTimer(response.token);
+
           console.log('✅ Login realizado com sucesso:', response.user.username);
         }),
         catchError(error => {
@@ -150,6 +153,7 @@ export class AuthService {
   private performLogout(): void {
     this.clearStoredAuth();
     this.updateAuthState(false, null, null);
+    this.stopRefreshTokenTimer();
     this.router.navigate(['/login']);
     console.log('✅ Logout local realizado');
   }
@@ -160,6 +164,64 @@ export class AuthService {
   private clearStoredAuth(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+  }
+
+  /**
+   * Iniciar temporizador para refresh do token
+   */
+  private startRefreshTokenTimer(token: string): void {
+    this.stopRefreshTokenTimer();
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload.exp * 1000;
+      const timeout = exp - Date.now() - 60 * 1000; // 1 minuto antes do vencimento
+      if (timeout > 0) {
+        this.refreshTokenTimeout = setTimeout(() => {
+          this.refreshToken().subscribe({
+            error: err => {
+              console.error('❌ Erro ao atualizar token automaticamente:', err);
+              this.performLogout();
+            }
+          });
+        }, timeout);
+      }
+    } catch (error) {
+      console.error('Erro ao configurar timer de refresh:', error);
+    }
+  }
+
+  /**
+   * Cancelar temporizador de refresh do token
+   */
+  private stopRefreshTokenTimer(): void {
+    if (this.refreshTokenTimeout) {
+      clearTimeout(this.refreshTokenTimeout);
+      this.refreshTokenTimeout = null;
+    }
+  }
+
+  /**
+   * Atualizar token
+   */
+  refreshToken(): Observable<any> {
+    return this.http.post<{ token: string }>(`${this.API_URL}/auth/refresh`, {})
+      .pipe(
+        tap(res => {
+          localStorage.setItem(this.TOKEN_KEY, res.token);
+          const userStr = localStorage.getItem(this.USER_KEY);
+          const user = userStr ? JSON.parse(userStr) : this.authStateSubject.value.user;
+          if (user) {
+            localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+          }
+          this.updateAuthState(true, user, res.token);
+          this.startRefreshTokenTimer(res.token);
+          console.log('🔄 Token atualizado');
+        }),
+        catchError(error => {
+          console.error('❌ Erro ao atualizar token:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   /**
