@@ -1,27 +1,18 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-  <div class="w-full max-w-md">
-
-    <!-- Cabeçalho -->
-    <div class="text-center mb-6">
-      <div class="flex justify-center mb-3">
-        <div class="bg-primary-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl shadow">
-          <i class="pi pi-lock"></i>
-        </div>
+<div class="login-container">
+  <div class="content">
+    <div class="logo">
+      <div class="logo-circle">
+        <i class="pi pi-lock"></i>
       </div>
-      <h1 class="text-2xl font-semibold text-gray-900">Bem-vindo</h1>
-      <p class="text-sm text-gray-600">Faça login para acessar o dashboard</p>
+      <h1>Bem-vindo</h1>
+      <p>Faça login para acessar o dashboard</p>
     </div>
 
-    <!-- Card de Login -->
-    <p-card styleClass="shadow-md">
-      <ng-template pTemplate="content">
-        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate class="space-y-4">
-
-          <!-- Campo Usuário -->
+    <p-card class="login-card" contentStyleClass="no-padding">
+      <div class="card-content">
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate class="form">
           <div class="field">
-            <label for="username" class="block text-sm font-medium text-gray-700">
-              <i class="pi pi-user mr-2"></i>Usuário ou Email
-            </label>
+            <label for="username"><i class="pi pi-user mr-2"></i>Usuário ou Email</label>
             <input
               pInputText
               id="username"
@@ -35,11 +26,8 @@
             />
           </div>
 
-          <!-- Campo Senha -->
           <div class="field">
-            <label for="password" class="block text-sm font-medium text-gray-700">
-              <i class="pi pi-lock mr-2"></i>Senha
-            </label>
+            <label for="password"><i class="pi pi-lock mr-2"></i>Senha</label>
             <p-password
               [(ngModel)]="credentials.password"
               name="password"
@@ -53,12 +41,10 @@
             ></p-password>
           </div>
 
-          <!-- Erro -->
-          <div *ngIf="errorMessage">
+          <div *ngIf="errorMessage" class="error-msg">
             <p-message severity="error" [text]="errorMessage"></p-message>
           </div>
 
-          <!-- Botão Entrar -->
           <p-button
             type="submit"
             label="Entrar"
@@ -68,31 +54,23 @@
             styleClass="w-full"
           ></p-button>
 
-          <!-- Link de senha -->
-          <div class="text-right mt-2">
-            <a routerLink="/reset-password" class="text-sm text-primary-600 hover:underline">Esqueci minha senha</a>
-          </div>
+          <a routerLink="/reset-password" class="forgot-link">Esqueci minha senha</a>
         </form>
 
-        <!-- Credenciais de Teste -->
-        <div class="mt-6 border-t pt-4">
-          <h3 class="text-sm font-semibold text-gray-700 flex items-center mb-2">
-            <i class="pi pi-info-circle mr-1"></i>Credenciais de Teste
-          </h3>
-          <div class="text-sm text-gray-600 space-y-1">
+        <div class="info-box">
+          <h3><i class="pi pi-info-circle mr-1"></i>Credenciais de Teste</h3>
+          <div class="credentials">
             <p><strong>Usuário:</strong> admin</p>
             <p><strong>Senha:</strong> admin123</p>
           </div>
         </div>
-      </ng-template>
+      </div>
     </p-card>
 
-    <!-- Rodapé -->
-    <div class="text-center text-xs text-gray-400 mt-6">
+    <div class="footer">
       <p>© 2024 Fullstack App. Desenvolvido com Angular + Node.js</p>
     </div>
   </div>
 </div>
 
-<!-- Toast de mensagens -->
 <p-toast></p-toast>
