@@ -1,0 +1,25 @@
+<div class="layout-topbar">
+  <div class="layout-logo">
+    <a routerLink="/dashboard">Tematico</a>
+  </div>
+  <div class="layout-topbar-actions">
+    <span class="user-name">{{ currentUser?.fullName || currentUser?.username }}</span>
+    <p-avatar [label]="getUserInitials()" styleClass="bg-primary-600 text-white" size="normal" shape="circle"></p-avatar>
+    <p-button icon="pi pi-sign-out" [text]="true" severity="secondary" (onClick)="logout()"></p-button>
+  </div>
+</div>
+
+<div class="layout-sidebar">
+  <nav>
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/users" routerLinkActive="active">Usuários</a>
+  </nav>
+</div>
+
+<div class="layout-main">
+  <router-outlet />
+</div>
+
+<div class="layout-footer">
+  <span>© 2024 Tematico</span>
+</div>
