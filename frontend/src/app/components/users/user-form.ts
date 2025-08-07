@@ -27,7 +27,7 @@ import { UserService, AppUser } from '../../services/users';
   styleUrls: ['./user-form.scss']
 })
 export class UserFormComponent implements OnInit {
-  user: AppUser = { username: '', email: '', fullName: '', password: '' };
+  user: AppUser = { username: '', email: '', fullName: '', password: '', is_active : true };
   isEdit = false;
   isLoading = false;
   private userId?: number;
