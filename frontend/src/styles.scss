@@ -1,3 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Global styles and PrimeNG overrides can be added here. */
+
+body {
+  margin: 0;
+}
+
+/* Example PrimeNG button customization */
+.p-button {
+  border-radius: 4px;
+}
