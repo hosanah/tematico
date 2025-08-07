@@ -120,15 +120,21 @@ router.put('/:id', async (req, res, next) => {
 // Delete user
 router.delete('/:id', (req, res, next) => {
   const db = getDatabase();
-  db.run('DELETE FROM users WHERE id = ?', [req.params.id], function(err) {
+  db.run('DELETE FROM sessions WHERE user_id = ?', [req.params.id], err => {
     if (err) {
-      console.error('❌ Erro ao deletar usuário:', err.message);
-      return next(new ApiError(500, 'Erro ao deletar usuário', 'DELETE_USER_ERROR', err.message));
+      console.error('❌ Erro ao deletar sessões do usuário:', err.message);
+      return next(new ApiError(500, 'Erro ao deletar sessões do usuário', 'DELETE_USER_SESSIONS_ERROR', err.message));
     }
-    if (this.changes === 0) {
-      return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
-    }
-    res.json({ message: 'Usuário deletado com sucesso' });
+    db.run('DELETE FROM users WHERE id = ?', [req.params.id], function(err) {
+      if (err) {
+        console.error('❌ Erro ao deletar usuário:', err.message);
+        return next(new ApiError(500, 'Erro ao deletar usuário', 'DELETE_USER_ERROR', err.message));
+      }
+      if (this.changes === 0) {
+        return next(new ApiError(404, 'Usuário não encontrado', 'USER_NOT_FOUND'));
+      }
+      res.json({ message: 'Usuário deletado com sucesso' });
+    });
   });
 });
 

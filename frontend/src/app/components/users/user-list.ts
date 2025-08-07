@@ -61,7 +61,7 @@ export class UserListComponent implements OnInit {
     this.userService.deleteUser(id).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Usuário removido' });
-        this.loadUsers();
+        this.users = this.users.filter(user => user.id !== id);
       },
       error: err => {
         this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao remover usuário' });
