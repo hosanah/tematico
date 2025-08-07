@@ -5,6 +5,8 @@
 
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 
 let pool = null;
 
@@ -41,35 +43,12 @@ function convertPlaceholders(sql) {
 }
 
 /**
- * Criar tabelas necessárias
+ * Criar tabelas necessárias carregando o schema do projeto
  */
 async function createTables() {
-  const createUsersTable = `
-    CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      username VARCHAR(255) UNIQUE NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
-      password VARCHAR(255) NOT NULL,
-      full_name VARCHAR(255),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      is_active INTEGER DEFAULT 1
-    )
-  `;
-
-  const createSessionsTable = `
-    CREATE TABLE IF NOT EXISTS sessions (
-      id SERIAL PRIMARY KEY,
-      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      token_hash TEXT NOT NULL,
-      expires_at TIMESTAMP NOT NULL,
-      revoked_at TIMESTAMP,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
-
-  await pool.query(createUsersTable);
-  await pool.query(createSessionsTable);
+  const schemaPath = path.join(__dirname, '../database/schema.sql');
+  const schema = fs.readFileSync(schemaPath, 'utf8');
+  await pool.query(schema);
   console.log('✅ Tabelas criadas/verificadas');
 }
 
