@@ -112,7 +112,7 @@ router.post('/refresh', async (req, res, next) => {
 
 /**
  * POST /auth/logout
- * Logout do usuário e remoção da sessão
+ * Logout do usuário e revogação da sessão
  */
 router.post('/logout', authenticateToken, async (req, res, next) => {
   try {
@@ -128,7 +128,14 @@ router.post('/logout', authenticateToken, async (req, res, next) => {
 
     const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
     const db = getDatabase();
-    await db.query('DELETE FROM sessions WHERE token_hash = ?', [tokenHash]);
+    const result = await db.query(
+      'UPDATE sessions SET revoked_at = CURRENT_TIMESTAMP WHERE token_hash = ?',
+      [tokenHash]
+    );
+
+    if (result.rowCount === 0) {
+      return next(new ApiError(404, 'Sessão não encontrada', 'SESSION_NOT_FOUND'));
+    }
 
     console.log(`✅ Logout realizado: ${req.user.username} (ID: ${req.user.id})`);
 
