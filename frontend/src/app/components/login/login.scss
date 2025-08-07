@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
+  background: linear-gradient(to bottom right, var(--surface-100), var(--surface-200));
   padding: 1rem;
 }
 
@@ -24,24 +24,24 @@
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background: #4f46e5;
+  background: var(--primary-color);
   margin: 0 auto 1rem;
 }
 
 .logo-circle i {
-  color: #fff;
+  color: var(--surface-0);
   font-size: 2rem;
 }
 
 .logo h1 {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin-bottom: 0.5rem;
 }
 
 .logo p {
-  color: #4b5563;
+  color: var(--color-text-muted);
 }
 
 .login-card .card-content {
@@ -58,7 +58,7 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text-secondary);
   margin-bottom: 0.25rem;
 }
 
@@ -66,8 +66,8 @@
   display: block;
   border: 0;
   padding: 0.5rem 1rem;
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
 }
 
 .forgot-link {
@@ -75,32 +75,32 @@
   text-align: center;
   margin-top: 1rem;
   font-size: 0.875rem;
-  color: #2563eb;
+  color: var(--color-link);
 }
 
 .info-box {
   margin-top: 1.5rem;
   padding: 1rem;
   border-radius: 0.5rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: var(--surface-100);
+  border: 1px solid var(--color-border);
 }
 
 .info-box h3 {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1e40af;
+  color: var(--color-link-dark);
   margin-bottom: 0.5rem;
 }
 
 .info-box .credentials {
   font-size: 0.875rem;
-  color: #1e3a8a;
+  color: var(--color-link-darker);
 }
 
 .footer {
   text-align: center;
   margin-top: 2rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-text-disabled);
 }
