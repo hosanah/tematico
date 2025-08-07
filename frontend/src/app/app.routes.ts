@@ -5,7 +5,7 @@
 
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
-import { MasterLayoutComponent } from './components/layout/master-layout';
+import { MasterLayoutComponent } from './components/layout/component/master-layout';
 
 export const routes: Routes = [
   // Rota de login

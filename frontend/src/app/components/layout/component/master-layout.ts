@@ -1,50 +1,116 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, Renderer2, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
-import { ButtonModule } from 'primeng/button';
-import { AvatarModule } from 'primeng/avatar';
-
-import { AuthService, User } from '../../services/auth';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
+import { AppTopbar } from './app.topbar';
+import { AppSidebar } from './app.sidebar';
+import { AppFooter } from './app.footer';
+import { LayoutService } from '../service/layout.service';
 
 @Component({
   selector: 'app-master-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, AvatarModule],
-  templateUrl: './master-layout.html',
-  styleUrls: ['./master-layout.scss'],
+  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
+  templateUrl: './master-layout.html'
 })
-export class MasterLayoutComponent implements OnInit, OnDestroy {
-  currentUser: User | null = null;
-  private destroy$ = new Subject<void>();
+export class MasterLayoutComponent {
+  overlayMenuOpenSubscription: Subscription;
 
-  constructor(private authService: AuthService) {}
+  menuOutsideClickListener: any;
 
-  ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
-    this.authService.authState$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => {
-        this.currentUser = state.user;
-      });
+  @ViewChild(AppSidebar) appSidebar!: AppSidebar;
+
+  @ViewChild(AppTopbar) appTopBar!: AppTopbar;
+
+  constructor(
+    public layoutService: LayoutService,
+    public renderer: Renderer2,
+    public router: Router
+  ) {
+    this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
+      if (!this.menuOutsideClickListener) {
+        this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
+          if (this.isOutsideClicked(event)) {
+            this.hideMenu();
+          }
+        });
+      }
+
+      if (this.layoutService.layoutState().staticMenuMobileActive) {
+        this.blockBodyScroll();
+      }
+    });
+
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.hideMenu();
+    });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  isOutsideClicked(event: MouseEvent) {
+    const sidebarEl = document.querySelector('.layout-sidebar');
+    const topbarEl = document.querySelector('.layout-menu-button');
+    const eventTarget = event.target as Node;
+
+    return !(
+      sidebarEl?.isSameNode(eventTarget) ||
+      sidebarEl?.contains(eventTarget) ||
+      topbarEl?.isSameNode(eventTarget) ||
+      topbarEl?.contains(eventTarget)
+    );
   }
 
-  getUserInitials(): string {
-    if (!this.currentUser) return 'U';
-    const name = this.currentUser.fullName || this.currentUser.username;
-    const parts = name.split(' ');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
+  hideMenu() {
+    this.layoutService.layoutState.update((prev) => ({
+      ...prev,
+      overlayMenuActive: false,
+      staticMenuMobileActive: false,
+      menuHoverActive: false
+    }));
+    if (this.menuOutsideClickListener) {
+      this.menuOutsideClickListener();
+      this.menuOutsideClickListener = null;
     }
-    return name.substring(0, 2).toUpperCase();
+    this.unblockBodyScroll();
   }
 
-  logout(): void {
-    this.authService.logout().subscribe();
+  blockBodyScroll(): void {
+    if (document.body.classList) {
+      document.body.classList.add('blocked-scroll');
+    } else {
+      document.body.className += ' blocked-scroll';
+    }
+  }
+
+  unblockBodyScroll(): void {
+    if (document.body.classList) {
+      document.body.classList.remove('blocked-scroll');
+    } else {
+      document.body.className = document.body.className.replace(
+        new RegExp('(^|\\b)' + 'blocked-scroll'.split(' ').join('|') + '(\\b|$)', 'gi'),
+        ' '
+      );
+    }
+  }
+
+  get containerClass() {
+    return {
+      'layout-overlay': this.layoutService.layoutConfig().menuMode === 'overlay',
+      'layout-static': this.layoutService.layoutConfig().menuMode === 'static',
+      'layout-static-inactive':
+        this.layoutService.layoutState().staticMenuDesktopInactive &&
+        this.layoutService.layoutConfig().menuMode === 'static',
+      'layout-overlay-active': this.layoutService.layoutState().overlayMenuActive,
+      'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
+    };
+  }
+
+  ngOnDestroy() {
+    if (this.overlayMenuOpenSubscription) {
+      this.overlayMenuOpenSubscription.unsubscribe();
+    }
+
+    if (this.menuOutsideClickListener) {
+      this.menuOutsideClickListener();
+    }
   }
 }
