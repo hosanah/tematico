@@ -60,20 +60,18 @@ export class UserListComponent implements OnInit {
     if (!user.id) return;
     const action = user.is_active ? 'desativar' : 'reativar';
     if (!confirm(`Deseja ${action} este usuário?`)) return;
-    const request = user.is_active
-      ? this.userService.deleteUser(user.id)
-      : this.userService.updateUser(user.id, { is_active: true });
-
-    request.subscribe({
-      next: () => {
-        const detail = user.is_active ? 'Usuário desativado' : 'Usuário reativado';
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail });
-        this.loadUsers();
-      },
-      error: () => {
-        const detail = user.is_active ? 'Falha ao desativar usuário' : 'Falha ao reativar usuário';
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail });
-      }
-    });
+    this.userService
+      .updateUser(user.id, { is_active: !user.is_active })
+      .subscribe({
+        next: () => {
+          const detail = user.is_active ? 'Usuário desativado' : 'Usuário reativado';
+          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail });
+          this.loadUsers();
+        },
+        error: () => {
+          const detail = user.is_active ? 'Falha ao desativar usuário' : 'Falha ao reativar usuário';
+          this.messageService.add({ severity: 'error', summary: 'Erro', detail });
+        }
+      });
   }
 }
