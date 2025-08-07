@@ -6,7 +6,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, throwError, map } from 'rxjs';
 
 export interface AppUser {
   id?: number;
@@ -26,7 +26,16 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   getUsers(): Observable<AppUser[]> {
-    return this.http.get<AppUser[]>(`${this.API_URL}/users`).pipe(
+    return this.http.get<any[]>(`${this.API_URL}/users`).pipe(
+      map(users =>
+        users.map(user => ({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          fullName: user.full_name,
+          is_active: user.is_active,
+        }))
+      ),
       catchError(error => {
         console.error('❌ Erro ao listar usuários:', error);
         return throwError(() => error);
@@ -35,7 +44,14 @@ export class UserService {
   }
 
   getUser(id: number): Observable<AppUser> {
-    return this.http.get<AppUser>(`${this.API_URL}/users/${id}`).pipe(
+    return this.http.get<any>(`${this.API_URL}/users/${id}`).pipe(
+      map(user => ({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.full_name,
+        is_active: user.is_active,
+      })),
       catchError(error => {
         console.error('❌ Erro ao obter usuário:', error);
         return throwError(() => error);
