@@ -18,3 +18,32 @@ CREATE TABLE IF NOT EXISTS sessions (
   revoked_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS restaurantes (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(255) NOT NULL,
+  capacidade INTEGER,
+  horario_funcionamento VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS eventos (
+  id SERIAL PRIMARY KEY,
+  nome_evento VARCHAR(255) NOT NULL,
+  data_evento DATE NOT NULL,
+  horario_evento TIME NOT NULL,
+  id_restaurante INTEGER NOT NULL REFERENCES restaurantes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS reservas (
+  id_reserva SERIAL PRIMARY KEY,
+  nome_hospede VARCHAR(255) NOT NULL,
+  data_checkin DATE NOT NULL,
+  data_checkout DATE NOT NULL,
+  qtd_hospedes INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS eventos_reservas (
+  id_evento INTEGER NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
+  id_reserva INTEGER NOT NULL REFERENCES reservas(id_reserva) ON DELETE CASCADE,
+  PRIMARY KEY (id_evento, id_reserva)
+);

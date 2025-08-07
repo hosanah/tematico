@@ -40,6 +40,7 @@ export const routes: Routes = [
       { path: 'reservas', loadComponent: () => import('./components/reservas/reserva-list').then(m => m.ReservaListComponent) },
       { path: 'reservas/novo', loadComponent: () => import('./components/reservas/reserva-form').then(m => m.ReservaFormComponent) },
       { path: 'reservas/:id', loadComponent: () => import('./components/reservas/reserva-form').then(m => m.ReservaFormComponent) },
+      { path: 'reserva-evento', loadComponent: () => import('./reserva-evento/reserva-evento').then(m => m.ReservaEventoComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
     ]
