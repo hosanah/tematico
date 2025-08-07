@@ -24,7 +24,7 @@ router.get('/', (req, res, next) => {
   const offset = (page - 1) * limit;
 
   db.all(
-    'SELECT id, nome, data, horario, restaurante_id FROM eventos LIMIT ? OFFSET ?',
+    'SELECT id, nome_evento AS nome, data_evento AS data, horario_evento AS hora, id_restaurante AS restaurante_id FROM eventos LIMIT ? OFFSET ?',
     [limit, offset],
     (err, rows) => {
       if (err) {
@@ -48,7 +48,7 @@ router.get('/:id', (req, res, next) => {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
   const db = getDatabase();
-  db.get('SELECT id, nome, data, horario, restaurante_id FROM eventos WHERE id = ?', [req.params.id], (err, row) => {
+  db.get('SELECT id, nome_evento AS nome, data_evento AS data, horario_evento AS hora, id_restaurante AS restaurante_id FROM eventos WHERE id = ?', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter evento:', err.message);
       return next(new ApiError(500, 'Erro ao obter evento', 'GET_EVENT_ERROR', err.message));
@@ -62,20 +62,20 @@ router.get('/:id', (req, res, next) => {
 
 // Create event
 router.post('/', (req, res, next) => {
-  const { nome, data, horario, restauranteId } = req.body;
-  if (!nome || !isValidDate(data) || !isValidTime(horario) || !isValidInt(restauranteId)) {
+  const { nome, data, hora, restauranteId } = req.body;
+  if (!nome || !isValidDate(data) || !isValidTime(hora) || !isValidInt(restauranteId)) {
     return next(new ApiError(400, 'Dados inválidos para criação de evento', 'INVALID_FIELDS'));
   }
   const db = getDatabase();
   db.run(
-    'INSERT INTO eventos (nome, data, horario, restaurante_id) VALUES (?, ?, ?, ?) RETURNING id',
-    [nome, data, horario, restauranteId],
+    'INSERT INTO eventos (nome_evento, data_evento, horario_evento, id_restaurante) VALUES (?, ?, ?, ?) RETURNING id',
+    [nome, data, hora, restauranteId],
     function(err) {
       if (err) {
         console.error('❌ Erro ao criar evento:', err.message);
         return next(new ApiError(500, 'Erro ao criar evento', 'CREATE_EVENT_ERROR', err.message));
       }
-      res.status(201).json({ id: this.lastID, nome, data, horario, restauranteId });
+      res.status(201).json({ id: this.lastID, nome, data, hora, restauranteId });
     }
   );
 });
@@ -85,21 +85,21 @@ router.put('/:id', (req, res, next) => {
   if (!isValidInt(req.params.id)) {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
-  const { nome, data, horario, restauranteId } = req.body;
+  const { nome, data, hora, restauranteId } = req.body;
   const fields = [];
   const values = [];
-  if (nome) { fields.push('nome = ?'); values.push(nome); }
+  if (nome) { fields.push('nome_evento = ?'); values.push(nome); }
   if (data) {
     if (!isValidDate(data)) return next(new ApiError(400, 'Data inválida', 'INVALID_DATE'));
-    fields.push('data = ?'); values.push(data);
+    fields.push('data_evento = ?'); values.push(data);
   }
-  if (horario) {
-    if (!isValidTime(horario)) return next(new ApiError(400, 'Horário inválido', 'INVALID_TIME'));
-    fields.push('horario = ?'); values.push(horario);
+  if (hora) {
+    if (!isValidTime(hora)) return next(new ApiError(400, 'Horário inválido', 'INVALID_TIME'));
+    fields.push('horario_evento = ?'); values.push(hora);
   }
   if (restauranteId !== undefined) {
     if (!isValidInt(restauranteId)) return next(new ApiError(400, 'RestauranteId deve ser inteiro', 'INVALID_RESTAURANT_ID'));
-    fields.push('restaurante_id = ?'); values.push(restauranteId);
+    fields.push('id_restaurante = ?'); values.push(restauranteId);
   }
   if (fields.length === 0) {
     return next(new ApiError(400, 'Nenhum dado para atualizar', 'NO_FIELDS_TO_UPDATE'));
@@ -150,7 +150,7 @@ router.post('/:id/reservas', async (req, res, next) => {
 
     // Obter informações do evento
     const { rows: [evento] } = await db.query(
-      'SELECT id, restaurante_id, data_evento FROM eventos WHERE id = ?',[eventoId]
+      'SELECT id, id_restaurante AS restaurante_id, data_evento FROM eventos WHERE id = ?', [eventoId]
     );
     if (!evento) {
       return next(new ApiError(404, 'Evento não encontrado', 'EVENTO_NOT_FOUND'));
@@ -158,7 +158,7 @@ router.post('/:id/reservas', async (req, res, next) => {
 
     // Obter informações da reserva
     const { rows: [reserva] } = await db.query(
-      'SELECT id, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE id = ?', [reservaId]
+      'SELECT id_reserva AS id, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE id_reserva = ?', [reservaId]
     );
     if (!reserva) {
       return next(new ApiError(404, 'Reserva não encontrada', 'RESERVA_NOT_FOUND'));
@@ -174,8 +174,8 @@ router.post('/:id/reservas', async (req, res, next) => {
     const { rows: [soma] } = await db.query(
       `SELECT COALESCE(SUM(r.qtd_hospedes),0) AS total
          FROM eventos_reservas er
-         JOIN reservas r ON er.reserva_id = r.id
-         WHERE er.evento_id = ?`, [eventoId]
+         JOIN reservas r ON er.id_reserva = r.id_reserva
+         WHERE er.id_evento = ?`, [eventoId]
     );
     if ((soma.total + reserva.qtd_hospedes) > restaurante.capacidade) {
       return next(new ApiError(400, 'Capacidade do restaurante excedida', 'CAPACIDADE_EXCEDIDA'));
@@ -185,9 +185,9 @@ router.post('/:id/reservas', async (req, res, next) => {
     const { rows: conflitos } = await db.query(
       `SELECT 1
          FROM eventos_reservas er
-         JOIN eventos ev ON er.evento_id = ev.id
-         WHERE er.reserva_id = ?
-           AND ev.restaurante_id <> ?
+         JOIN eventos ev ON er.id_evento = ev.id
+         WHERE er.id_reserva = ?
+           AND ev.id_restaurante <> ?
            AND ev.data_evento BETWEEN ? AND ?
          LIMIT 1`,
       [reservaId, evento.restaurante_id, reserva.data_checkin, reserva.data_checkout]
@@ -198,7 +198,7 @@ router.post('/:id/reservas', async (req, res, next) => {
 
     // Validar número máximo de eventos por duração
     const { rows: [countRes] } = await db.query(
-      'SELECT COUNT(*)::int AS count FROM eventos_reservas WHERE reserva_id = ?', [reservaId]
+      'SELECT COUNT(*)::int AS count FROM eventos_reservas WHERE id_reserva = ?', [reservaId]
     );
     const checkin = new Date(reserva.data_checkin);
     const checkout = new Date(reserva.data_checkout);
@@ -209,7 +209,7 @@ router.post('/:id/reservas', async (req, res, next) => {
 
     // Inserir associação
     await db.query(
-      'INSERT INTO eventos_reservas (evento_id, reserva_id) VALUES (?, ?)',
+      'INSERT INTO eventos_reservas (id_evento, id_reserva) VALUES (?, ?)',
       [eventoId, reservaId]
     );
     res.status(201).json({ message: 'Reserva associada ao evento com sucesso' });
@@ -225,7 +225,7 @@ router.delete('/:id/reservas/:reservaId', async (req, res, next) => {
     const { id: eventoId, reservaId } = req.params;
     const db = getDatabase();
     const result = await db.query(
-      'DELETE FROM eventos_reservas WHERE evento_id = ? AND reserva_id = ?',
+      'DELETE FROM eventos_reservas WHERE id_evento = ? AND id_reserva = ?',
       [eventoId, reservaId]
     );
     if (result.rowCount === 0) {
