@@ -17,6 +17,7 @@ const { ApiError, errorHandler } = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const usersRoutes = require('./routes/users');
+const eventosRoutes = require('./routes/eventos');
 
 // Importar middleware de autenticação
 const { authenticateToken } = require('./middleware/auth');
@@ -90,6 +91,7 @@ app.use('/auth', authRoutes);
 // Rotas protegidas (requerem autenticação)
 app.use('/dashboard', authenticateToken, dashboardRoutes);
 app.use('/users', authenticateToken, usersRoutes);
+app.use('/eventos', authenticateToken, eventosRoutes);
 
 // Rota para servir arquivos estáticos (se necessário)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
