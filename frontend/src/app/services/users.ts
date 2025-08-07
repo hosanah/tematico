@@ -28,6 +28,13 @@ export class UserService {
   getUsers(): Observable<AppUser[]> {
     return this.http.get<any[]>(`${this.API_URL}/users`).pipe(
       map(users =>
+        users.map(user => ({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          fullName: user.full_name,
+          is_active: user.is_active,
+        }))
         users.map(({ full_name, ...user }) => ({ ...user, fullName: full_name }) as AppUser)
       ),
       catchError(error => {
@@ -39,6 +46,13 @@ export class UserService {
 
   getUser(id: number): Observable<AppUser> {
     return this.http.get<any>(`${this.API_URL}/users/${id}`).pipe(
+      map(user => ({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.full_name,
+        is_active: user.is_active,
+      })),
       map(({ full_name, ...user }) => ({ ...user, fullName: full_name }) as AppUser),
       catchError(error => {
         console.error('❌ Erro ao obter usuário:', error);
