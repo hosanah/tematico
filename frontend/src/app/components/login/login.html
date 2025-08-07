@@ -13,8 +13,7 @@
         <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate class="form">
           <div class="field">
             <label for="username"><i class="pi pi-user mr-2"></i>Usuário ou Email</label>
-            <input
-              pInputText
+            <p-inputText
               id="username"
               name="username"
               [(ngModel)]="credentials.username"
@@ -23,7 +22,7 @@
               class="w-full"
               placeholder="Digite seu usuário ou email"
               [disabled]="isLoading"
-            />
+            ></p-inputText>
           </div>
 
           <div class="field">

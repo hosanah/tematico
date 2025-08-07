@@ -4,15 +4,15 @@
     <form (ngSubmit)="onSubmit()" #f="ngForm" class="form">
       <div>
         <label for="username">Usuário</label>
-        <input pInputText id="username" name="username" [(ngModel)]="user.username" required class="w-full" />
+        <p-inputText id="username" name="username" [(ngModel)]="user.username" required class="w-full"></p-inputText>
       </div>
       <div>
         <label for="email">Email</label>
-        <input pInputText id="email" name="email" [(ngModel)]="user.email" required class="w-full" />
+        <p-inputText id="email" name="email" [(ngModel)]="user.email" required class="w-full"></p-inputText>
       </div>
       <div>
         <label for="fullName">Nome Completo</label>
-        <input pInputText id="fullName" name="fullName" [(ngModel)]="user.fullName" class="w-full" />
+        <p-inputText id="fullName" name="fullName" [(ngModel)]="user.fullName" class="w-full"></p-inputText>
       </div>
       <div>
         <label for="password">Senha</label>

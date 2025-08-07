@@ -18,8 +18,8 @@
         <td>{{ user.email }}</td>
         <td>{{ user.full_name || user.fullName }}</td>
         <td>
-          <p-button icon="pi pi-pencil" rounded text (onClick)="editUser(user.id)"></p-button>
-          <p-button icon="pi pi-trash" rounded text severity="danger" (onClick)="deleteUser(user.id)"></p-button>
+          <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" (onClick)="editUser(user.id)"></p-button>
+          <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="deleteUser(user.id)"></p-button>
         </td>
       </tr>
     </ng-template>
