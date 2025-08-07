@@ -5,8 +5,9 @@
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { getDatabase } = require('../config/database');
-const { generateToken, authenticateToken, verifyToken } = require('../middleware/auth');
+const { generateToken, authenticateToken, verifyToken, generateRefreshToken, verifyRefreshToken } = require('../middleware/auth');
 const { ApiError } = require('../middleware/errorHandler');
 
 const router = express.Router();
@@ -50,16 +51,18 @@ router.post('/login', async (req, res, next) => {
             return next(new ApiError(401, 'Credenciais inválidas', 'INVALID_CREDENTIALS'));
           }
 
-          // Gerar token JWT
+          // Gerar tokens
           const token = generateToken(user.id, user.username);
+          const refreshToken = await generateRefreshToken(user.id);
 
           // Log de sucesso
           console.log(`✅ Login bem-sucedido: ${user.username} (ID: ${user.id})`);
 
-          // Retornar dados do usuário e token
+          // Retornar dados do usuário e tokens
           res.json({
             message: 'Login realizado com sucesso',
             token: token,
+            refreshToken: refreshToken,
             user: {
               id: user.id,
               username: user.username,
@@ -83,13 +86,52 @@ router.post('/login', async (req, res, next) => {
 });
 
 /**
- * POST /auth/logout
- * Logout do usuário (invalidar token no frontend)
+ * POST /auth/refresh
+ * Trocar refresh token válido por novo token de acesso
  */
-router.post('/logout', authenticateToken, (req, res, next) => {
+router.post('/refresh', async (req, res, next) => {
   try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return next(new ApiError(400, 'Refresh token é obrigatório', 'REFRESH_TOKEN_REQUIRED'));
+    }
+
+    const session = await verifyRefreshToken(refreshToken);
+    if (!session) {
+      return next(new ApiError(401, 'Refresh token inválido', 'INVALID_REFRESH_TOKEN'));
+    }
+
+    const token = generateToken(session.userId, session.username);
+    res.json({ token: token, expiresIn: '24h' });
+  } catch (error) {
+    console.error('❌ Erro ao renovar token:', error);
+    next(new ApiError(500, 'Erro interno do servidor', 'INTERNAL_ERROR', error.message));
+  }
+});
+
+/**
+ * POST /auth/logout
+ * Logout do usuário e remoção da sessão
+ */
+router.post('/logout', authenticateToken, async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return next(new ApiError(400, 'Refresh token é obrigatório', 'REFRESH_TOKEN_REQUIRED'));
+    }
+
+    const session = await verifyRefreshToken(refreshToken);
+    if (!session || session.userId !== req.user.id) {
+      return next(new ApiError(401, 'Refresh token inválido', 'INVALID_REFRESH_TOKEN'));
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const db = getDatabase();
+    await db.query('DELETE FROM sessions WHERE token_hash = ?', [tokenHash]);
+
     console.log(`✅ Logout realizado: ${req.user.username} (ID: ${req.user.id})`);
-    
+
     res.json({
       message: 'Logout realizado com sucesso'
     });
