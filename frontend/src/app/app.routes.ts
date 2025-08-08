@@ -41,6 +41,7 @@ export const routes: Routes = [
       { path: 'reservas/novo', loadComponent: () => import('./components/reservas/reserva-form').then(m => m.ReservaFormComponent) },
       { path: 'reservas/:id', loadComponent: () => import('./components/reservas/reserva-form').then(m => m.ReservaFormComponent) },
       { path: 'reserva-evento', loadComponent: () => import('./components/reserva-evento/reserva-evento').then(m => m.ReservaEventoComponent) },
+      { path: 'reserva-evento-list', loadComponent: () => import('./components/reserva-evento-list/reserva-evento-list').then(m => m.ReservaEventoListComponent) },
       { path: 'reserva-voucher/:reservaId/:eventoId', loadComponent: () => import('./components/reserva-voucher/reserva-voucher').then(m => m.ReservaVoucherComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
