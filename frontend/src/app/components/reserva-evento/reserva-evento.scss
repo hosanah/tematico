@@ -1,11 +1,18 @@
-.filters, .form {
+// Layout em duas colunas
+.reserva-evento-container {
   display: flex;
   gap: 1rem;
-  margin-bottom: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
 }
 
-.lists {
-  margin-bottom: 2rem;
+.col {
+  flex: 1;
+}
+
+// Formulário de vínculo
+.form {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
