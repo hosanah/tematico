@@ -16,6 +16,7 @@ export interface Reserva {
   data_checkin?: string;
   data_checkout?: string;
   qtd_hospedes?: number;
+  descricao?: string;
 }
 
 export interface Evento {

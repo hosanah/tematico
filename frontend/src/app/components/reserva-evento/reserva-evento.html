@@ -6,7 +6,7 @@
     <p-autoComplete
       [(ngModel)]="reservaSelecionada"
       [suggestions]="reservas"
-      field="coduh"
+      field="descricao"
       (completeMethod)="buscarReserva($event)"
       (onSelect)="onReservaSelect()"
       placeholder="Código UH"

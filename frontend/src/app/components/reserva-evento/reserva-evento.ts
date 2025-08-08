@@ -65,12 +65,23 @@ export class ReservaEventoComponent {
     const hoje = new Date().toISOString().split('T')[0];
     this.service.buscarReservaValida(codigo, hoje).subscribe({
       next: r => {
-        this.reservas = r ? [r] : [];
         if (r) {
+          this.reservas = [{ ...r, descricao: `${r.coduh} - ${r.nome_hospede}` }];
           this.carregarMarcacoesExistentes();
+        } else {
+          this.reservas = [];
+          this.reservaSelecionada = undefined;
+          this.message.add({
+            severity: 'warn',
+            summary: 'Aviso',
+            detail: 'Não existe nenhum apartamento check-in no período de hoje com a UH informada',
+          });
         }
       },
-      error: () => (this.reservas = []),
+      error: () => {
+        this.reservas = [];
+        this.reservaSelecionada = undefined;
+      },
     });
   }
 
