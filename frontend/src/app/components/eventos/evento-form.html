@@ -49,6 +49,22 @@
       </div>
     </div>
 
+    <div class="flex flex-col gap-2">
+      <label for="restaurante">Restaurante</label>
+      <p-select
+        id="restaurante"
+        [options]="restaurantes"
+        optionLabel="nome"
+        optionValue="id"
+        formControlName="restauranteId"
+        placeholder="Selecione um restaurante"
+        class="w-full"
+      ></p-select>
+      <div class="text-red-500 text-sm" *ngIf="form.get('restauranteId')?.hasError('required') && form.get('restauranteId')?.touched">
+        Restaurante é obrigatório.
+      </div>
+    </div>
+
     <div class="flex gap-2 pt-2">
       <button pButton type="submit" label="Salvar" [disabled]="isLoading"></button>
       <button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="cancel()"></button>

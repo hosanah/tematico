@@ -13,6 +13,7 @@ export interface Evento {
   nome: string;
   data: string;
   hora: string;
+  restauranteId: number;
 }
 
 @Injectable({
@@ -25,7 +26,16 @@ export class EventoService {
 
   getEventos(page = 1, limit = 10): Observable<{ data: Evento[]; total: number }> {
     return this.http.get<any>(`${this.API_URL}/eventos`, { params: { page, limit } }).pipe(
-      map(res => ({ data: res.data as Evento[], total: res.total })),
+      map(res => ({
+        data: res.data.map((e: any) => ({
+          id: e.id,
+          nome: e.nome,
+          data: e.data,
+          hora: e.hora,
+          restauranteId: e.restaurante_id
+        } as Evento)),
+        total: res.total
+      })),
       catchError(error => {
         console.error('❌ Erro ao listar eventos:', error);
         return throwError(() => error);
@@ -34,7 +44,14 @@ export class EventoService {
   }
 
   getEvento(id: number): Observable<Evento> {
-    return this.http.get<Evento>(`${this.API_URL}/eventos/${id}`).pipe(
+    return this.http.get<any>(`${this.API_URL}/eventos/${id}`).pipe(
+      map(e => ({
+        id: e.id,
+        nome: e.nome,
+        data: e.data,
+        hora: e.hora,
+        restauranteId: e.restaurante_id
+      } as Evento)),
       catchError(error => {
         console.error('❌ Erro ao obter evento:', error);
         return throwError(() => error);
