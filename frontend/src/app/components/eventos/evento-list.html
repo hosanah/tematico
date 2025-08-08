@@ -13,6 +13,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Nome</th>
+        <th>Restaurante</th>
         <th>Data</th>
         <th>Hora</th>
         <th>Ações</th>
@@ -21,6 +22,7 @@
     <ng-template pTemplate="body" let-e>
       <tr>
         <td>{{ e.nome }}</td>
+        <td>{{ e.restaurante }}</td>
         <td>{{ e.data }}</td>
         <td>{{ e.hora }}</td>
         <td>

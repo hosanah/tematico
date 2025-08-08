@@ -24,7 +24,7 @@ router.get('/', (req, res, next) => {
   const offset = (page - 1) * limit;
 
   db.all(
-    'SELECT id, nome_evento AS nome, data_evento AS data, horario_evento AS hora, id_restaurante AS restaurante_id FROM eventos LIMIT ? OFFSET ?',
+    'SELECT e.id, e.nome_evento AS nome, e.data_evento AS data, e.horario_evento AS hora, e.id_restaurante AS restaurante_id, r.nome AS restaurante FROM eventos e JOIN restaurantes r ON e.id_restaurante = r.id LIMIT ? OFFSET ?',
     [limit, offset],
     (err, rows) => {
       if (err) {
@@ -48,7 +48,7 @@ router.get('/:id', (req, res, next) => {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
   const db = getDatabase();
-  db.get('SELECT id, nome_evento AS nome, data_evento AS data, horario_evento AS hora, id_restaurante AS restaurante_id FROM eventos WHERE id = ?', [req.params.id], (err, row) => {
+  db.get('SELECT e.id, e.nome_evento AS nome, e.data_evento AS data, e.horario_evento AS hora, e.id_restaurante AS restaurante_id, r.nome AS restaurante FROM eventos e JOIN restaurantes r ON e.id_restaurante = r.id WHERE e.id = ?', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter evento:', err.message);
       return next(new ApiError(500, 'Erro ao obter evento', 'GET_EVENT_ERROR', err.message));
