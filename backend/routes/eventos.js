@@ -145,7 +145,7 @@ router.get('/:id/marcacoes', async (req, res, next) => {
         return next(new ApiError(400, 'reservaId inválido', 'INVALID_RESERVA_ID'));
       }
       const { rows } = await db.query(
-        `SELECT er.reserva_id, er.quantidade, er.informacoes
+        `SELECT er.reserva_id, er.quantidade, er.informacoes, er.status
            FROM eventos_reservas er
           WHERE er.evento_id = ? AND er.reserva_id = ?`,
         [id, reservaId]
@@ -154,7 +154,7 @@ router.get('/:id/marcacoes', async (req, res, next) => {
     }
 
     const { rows } = await db.query(
-      `SELECT er.reserva_id, er.quantidade, er.informacoes
+      `SELECT er.reserva_id, er.quantidade, er.informacoes, er.status
          FROM eventos_reservas er
         WHERE er.evento_id = ?`,
       [id]
@@ -244,14 +244,45 @@ router.post('/:id/marcar', async (req, res, next) => {
     }
 
     await db.query(
-      'INSERT INTO eventos_reservas (evento_id, reserva_id, informacoes, quantidade) VALUES (?, ?, ?, ?)',
-      [id, reservaId, informacoes || null, quantidade]
+      'INSERT INTO eventos_reservas (evento_id, reserva_id, informacoes, quantidade, status) VALUES (?, ?, ?, ?, ?)',
+      [id, reservaId, informacoes || null, quantidade, 'Ativa']
     );
 
     res.status(201).json({ message: 'Marcação registrada com sucesso' });
   } catch (error) {
     console.error('❌ Erro ao salvar marcação:', error.message);
     next(new ApiError(500, 'Erro ao salvar marcação', 'SAVE_MARCACAO_ERROR', error.message));
+  }
+});
+
+router.patch('/:eventoId/marcacoes/:reservaId/status', async (req, res, next) => {
+  const { eventoId, reservaId } = req.params;
+  const { status } = req.body;
+
+  if (!isValidInt(eventoId) || !isValidInt(reservaId)) {
+    return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
+  }
+
+  const allowed = ['Ativa', 'Finalizada', 'Cancelada', 'Não Compareceu'];
+  if (!allowed.includes(status)) {
+    return next(new ApiError(400, 'Status inválido', 'INVALID_STATUS'));
+  }
+
+  try {
+    const db = getDatabase();
+    const result = await db.query(
+      'UPDATE eventos_reservas SET status = ? WHERE evento_id = ? AND reserva_id = ?',
+      [status, eventoId, reservaId]
+    );
+
+    if (result.rowCount === 0) {
+      return next(new ApiError(404, 'Marcação não encontrada', 'MARCACAO_NOT_FOUND'));
+    }
+
+    res.json({ message: 'Status atualizado com sucesso' });
+  } catch (error) {
+    console.error('❌ Erro ao atualizar status da marcação:', error.message);
+    next(new ApiError(500, 'Erro ao atualizar status da marcação', 'UPDATE_STATUS_ERROR', error.message));
   }
 });
 
