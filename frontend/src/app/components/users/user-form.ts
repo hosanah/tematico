@@ -60,6 +60,7 @@ export class UserFormComponent implements OnInit {
     if (idParam) {
       this.isEdit = true;
       this.userId = Number(idParam);
+      this.form.removeControl('password');
       this.loadUser(this.userId);
     }
   }
