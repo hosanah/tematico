@@ -56,8 +56,7 @@ export class ReservaFormComponent implements OnInit {
       this.id = Number(idParam);
       this.isEdit = true;
       this.service.getReserva(this.id).subscribe({
-        next: data => this.form.patchValue(data),
-        error: err => this.showError('Erro ao carregar reserva', err)
+        next: data => this.form.patchValue(data)
       });
     }
   }
@@ -80,9 +79,8 @@ export class ReservaFormComponent implements OnInit {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Reserva salva' });
         this.router.navigate(['/reservas']);
       },
-      error: err => {
+      error: () => {
         this.isLoading = false;
-        this.showError('Erro ao salvar reserva', err);
       }
     });
   }

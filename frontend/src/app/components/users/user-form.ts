@@ -77,7 +77,6 @@ export class UserFormComponent implements OnInit {
         });
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Usuário não encontrado' });
         this.router.navigate(['/users']);
       }
     });
@@ -115,7 +114,6 @@ export class UserFormComponent implements OnInit {
       },
       error: () => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao salvar usuário' });
       }
     });
   }

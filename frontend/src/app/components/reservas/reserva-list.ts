@@ -52,9 +52,8 @@ export class ReservaListComponent implements OnInit {
         this.totalRecords = res.total;
         this.isLoading = false;
       },
-      error: err => {
+      error: () => {
         this.isLoading = false;
-        this.showError('Erro ao carregar reservas', err);
       }
     });
   }
@@ -81,8 +80,7 @@ export class ReservaListComponent implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Reserva removida' });
         this.load();
-      },
-      error: err => this.showError('Erro ao remover reserva', err)
+      }
     });
   }
 

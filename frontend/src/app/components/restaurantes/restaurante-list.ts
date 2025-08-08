@@ -51,9 +51,8 @@ export class RestauranteListComponent implements OnInit {
         this.totalRecords = res.total;
         this.isLoading = false;
       },
-      error: err => {
+      error: () => {
         this.isLoading = false;
-        this.showError('Erro ao carregar restaurantes', err);
       }
     });
   }
@@ -80,8 +79,7 @@ export class RestauranteListComponent implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Restaurante removido' });
         this.load();
-      },
-      error: err => this.showError('Erro ao remover restaurante', err)
+      }
     });
   }
 

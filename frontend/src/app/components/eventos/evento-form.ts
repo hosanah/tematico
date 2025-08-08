@@ -52,8 +52,7 @@ export class EventoFormComponent implements OnInit {
       this.id = Number(idParam);
       this.isEdit = true;
       this.service.getEvento(this.id).subscribe({
-        next: data => this.form.patchValue(data),
-        error: err => this.showError('Erro ao carregar evento', err)
+        next: data => this.form.patchValue(data)
       });
     }
   }
@@ -76,9 +75,8 @@ export class EventoFormComponent implements OnInit {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Evento salvo' });
         this.router.navigate(['/eventos']);
       },
-      error: err => {
+      error: () => {
         this.isLoading = false;
-        this.showError('Erro ao salvar evento', err);
       }
     });
   }

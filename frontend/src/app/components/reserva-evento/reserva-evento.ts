@@ -53,13 +53,11 @@ export class ReservaEventoComponent implements OnInit {
     };
 
     this.reservaEventoService.getReservas(filtros).subscribe({
-      next: data => (this.reservas = data),
-      error: () => this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar reservas' })
+      next: data => (this.reservas = data)
     });
 
     this.reservaEventoService.getEventos(filtros).subscribe({
-      next: data => (this.eventos = data),
-      error: () => this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar eventos' })
+      next: data => (this.eventos = data)
     });
   }
 

@@ -33,11 +33,8 @@ export class ChangePasswordComponent {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Senha alterada com sucesso' });
         setTimeout(() => this.router.navigate(['/dashboard']), 1000);
       },
-      error: (err) => {
+      error: () => {
         this.isLoading = false;
-        let msg = 'Erro ao trocar senha';
-        if (err.error?.error) { msg = err.error.error; }
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: msg });
       }
     });
   }
