@@ -16,3 +16,25 @@
   align-items: center;
   flex-wrap: wrap;
 }
+
+.layout {
+  display: flex;
+  gap: 2rem;
+}
+
+.left-column,
+.right-column {
+  flex: 1;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.save-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

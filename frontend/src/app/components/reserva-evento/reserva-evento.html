@@ -1,11 +1,13 @@
 <p-toast></p-toast>
 
-<div class="filters">
-  <p-select [(ngModel)]="filtroRestaurante" [options]="eventos" optionLabel="restaurante" optionValue="restaurante" placeholder="Restaurante"></p-select>
-  <p-select [(ngModel)]="filtroEvento" [options]="eventos" optionLabel="nome" optionValue="id" placeholder="Evento"></p-select>
-  <p-datepicker [(ngModel)]="filtroData" dateFormat="yy-mm-dd" placeholder="Data"></p-datepicker>
-  <button pButton type="button" label="Filtrar" (click)="aplicarFiltros()"></button>
-</div>
+<div class="layout">
+  <div class="left-column">
+    <div class="filters">
+      <p-select [(ngModel)]="filtroRestaurante" [options]="eventos" optionLabel="restaurante" optionValue="restaurante" placeholder="Restaurante"></p-select>
+      <p-select [(ngModel)]="filtroEvento" [options]="eventos" optionLabel="nome" optionValue="id" placeholder="Evento"></p-select>
+      <p-datepicker [(ngModel)]="filtroData" dateFormat="yy-mm-dd" placeholder="Data"></p-datepicker>
+      <button pButton type="button" label="Filtrar" (click)="aplicarFiltros()"></button>
+    </div>
 
 <div *ngIf="chartData" class="disponibilidade">
   <p-chart type="doughnut" [data]="chartData"></p-chart>

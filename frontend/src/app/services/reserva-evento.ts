@@ -73,12 +73,14 @@ export class ReservaEventoService {
     );
   }
 
-  getDisponibilidade(eventoId: number, data: string): Observable<Disponibilidade> {
+  /** Consulta a disponibilidade de um evento em uma data específica */
+  getDisponibilidadeEvento(eventoId: number, data: string): Observable<{ capacidade: number; ocupacao: number }> {
     return this.http
-      .get<Disponibilidade>(`${this.API_URL}/eventos/${eventoId}/disponibilidade`, { params: { data } })
+      .get<any>(`${this.API_URL}/eventos/${eventoId}/disponibilidade`, { params: { data } })
       .pipe(
+        map(res => res.data as { capacidade: number; ocupacao: number }),
         catchError(error => {
-          console.error('❌ Erro ao obter disponibilidade do evento:', error);
+          console.error('❌ Erro ao consultar disponibilidade do evento:', error);
           return throwError(() => error);
         })
       );
@@ -88,6 +90,16 @@ export class ReservaEventoService {
     return this.http.post(`${this.API_URL}/eventos/${eventoId}/reservas`, { reservaId }).pipe(
       catchError(error => {
         console.error('❌ Erro ao vincular reserva ao evento:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /** Salva uma nova reserva para o evento */
+  salvarReservaEvento(eventoId: number, payload: { informacoes: string; quantidade: number }): Observable<any> {
+    return this.http.post(`${this.API_URL}/eventos/${eventoId}/reservas`, payload).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao salvar reserva do evento:', error);
         return throwError(() => error);
       })
     );
