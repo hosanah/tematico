@@ -1,0 +1,26 @@
+<div class="voucher-container" *ngIf="voucher">
+  <h2>Voucher de Evento</h2>
+
+  <section class="reserva">
+    <h3>Reserva</h3>
+    <p><strong>Hóspede:</strong> {{ voucher.reserva.nome_hospede }}</p>
+    <p><strong>UH:</strong> {{ voucher.reserva.coduh }}</p>
+    <p><strong>Check-in:</strong> {{ voucher.reserva.data_checkin }}</p>
+    <p><strong>Check-out:</strong> {{ voucher.reserva.data_checkout }}</p>
+  </section>
+
+  <section class="evento">
+    <h3>Evento</h3>
+    <p><strong>Nome:</strong> {{ voucher.evento.nome }}</p>
+    <p><strong>Data:</strong> {{ voucher.evento.data | date: 'dd/MM/yyyy' }}</p>
+    <p><strong>Restaurante:</strong> {{ voucher.evento.restaurante }}</p>
+  </section>
+
+  <section class="status" *ngIf="voucher.status">
+    <h3>Status</h3>
+    <p><strong>Quantidade:</strong> {{ voucher.status.quantidade }}</p>
+    <p *ngIf="voucher.status.informacoes"><strong>Informações:</strong> {{ voucher.status.informacoes }}</p>
+  </section>
+
+  <button pButton type="button" label="Imprimir" icon="pi pi-print" (click)="imprimir()"></button>
+</div>
