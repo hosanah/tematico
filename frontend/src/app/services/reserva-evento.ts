@@ -39,23 +39,11 @@ export class ReservaEventoService {
 
   constructor(private http: HttpClient) {}
 
-  getReservas(params?: any): Observable<Reserva[]> {
-    return this.http.get<any>(`${this.API_URL}/reservas`, { params }).pipe(
-      map(res => res.data as Reserva[]),
-      catchError(error => {
-        console.error('❌ Erro ao listar reservas:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  buscarReserva(coduh: string, checkin: string, checkout: string): Observable<Reserva | null> {
-    const params = { coduh, checkin, checkout };
-    return this.http.get<any>(`${this.API_URL}/reservas`, { params }).pipe(
-      map(res => {
-        const data = res.data as Reserva[];
-        return data && data.length ? data[0] : null;
-      }),
+  /** Busca uma reserva válida pelo código da UH na data informada */
+  buscarReservaValida(codigoUH: string, hoje: string): Observable<Reserva | null> {
+    const params = { codigoUH, hoje };
+    return this.http.get<Reserva | null>(`${this.API_URL}/reservas`, { params }).pipe(
+      map(res => res || null),
       catchError(error => {
         console.error('❌ Erro ao buscar reserva:', error);
         return throwError(() => error);
@@ -63,9 +51,9 @@ export class ReservaEventoService {
     );
   }
 
-  getEventos(params?: any): Observable<Evento[]> {
-    return this.http.get<any>(`${this.API_URL}/eventos`, { params }).pipe(
-      map(res => res.data as Evento[]),
+  /** Lista eventos disponíveis para a data */
+  getEventosPorData(data: string): Observable<Evento[]> {
+    return this.http.get<Evento[]>(`${this.API_URL}/eventos`, { params: { data } }).pipe(
       catchError(error => {
         console.error('❌ Erro ao listar eventos:', error);
         return throwError(() => error);
@@ -73,33 +61,33 @@ export class ReservaEventoService {
     );
   }
 
-  /** Consulta a disponibilidade de um evento em uma data específica */
-  getDisponibilidadeEvento(eventoId: number, data: string): Observable<{ capacidade: number; ocupacao: number }> {
-    return this.http
-      .get<any>(`${this.API_URL}/eventos/${eventoId}/disponibilidade`, { params: { data } })
-      .pipe(
-        map(res => res.data as { capacidade: number; ocupacao: number }),
-        catchError(error => {
-          console.error('❌ Erro ao consultar disponibilidade do evento:', error);
-          return throwError(() => error);
-        })
-      );
-  }
-
-  vincular(reservaId: number, eventoId: number): Observable<any> {
-    return this.http.post(`${this.API_URL}/eventos/${eventoId}/reservas`, { reservaId }).pipe(
+  /** Obtém disponibilidade do evento */
+  getDisponibilidade(eventoId: number): Observable<Disponibilidade> {
+    return this.http.get<Disponibilidade>(`${this.API_URL}/eventos/${eventoId}/disponibilidade`).pipe(
       catchError(error => {
-        console.error('❌ Erro ao vincular reserva ao evento:', error);
+        console.error('❌ Erro ao consultar disponibilidade do evento:', error);
         return throwError(() => error);
       })
     );
   }
 
-  /** Salva uma nova reserva para o evento */
-  salvarReservaEvento(eventoId: number, payload: { informacoes: string; quantidade: number }): Observable<any> {
-    return this.http.post(`${this.API_URL}/eventos/${eventoId}/reservas`, payload).pipe(
+  /** Verifica marcações existentes para a reserva no evento */
+  getMarcacoes(eventoId: number, reservaId: number): Observable<any[]> {
+    return this.http
+      .get<any[]>(`${this.API_URL}/eventos/${eventoId}/marcacoes`, { params: { reservaId } })
+      .pipe(
+        catchError(error => {
+          console.error('❌ Erro ao obter marcações:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /** Realiza a marcação do evento */
+  marcar(eventoId: number, payload: { reservaId: number; informacoes: string; quantidade: number }): Observable<any> {
+    return this.http.post(`${this.API_URL}/eventos/${eventoId}/marcar`, payload).pipe(
       catchError(error => {
-        console.error('❌ Erro ao salvar reserva do evento:', error);
+        console.error('❌ Erro ao salvar marcação:', error);
         return throwError(() => error);
       })
     );

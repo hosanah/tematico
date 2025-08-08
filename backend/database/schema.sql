@@ -49,5 +49,7 @@ CREATE TABLE IF NOT EXISTS reservas (
 CREATE TABLE IF NOT EXISTS eventos_reservas (
   evento_id INTEGER NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
   reserva_id INTEGER NOT NULL REFERENCES reservas(id) ON DELETE CASCADE,
+  informacoes TEXT,
+  quantidade INTEGER DEFAULT 0,
   PRIMARY KEY (evento_id, reserva_id)
 );

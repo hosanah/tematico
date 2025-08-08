@@ -16,9 +16,33 @@ function isValidInt(value) {
   return Number.isInteger(Number(value));
 }
 
-// List all events with pagination
+// List all events with pagination or by specific date
 router.get('/', (req, res, next) => {
   const db = getDatabase();
+  const { data } = req.query;
+
+  // When a date is provided, return only events for that day
+  if (data) {
+    if (!isValidDate(data)) {
+      return next(new ApiError(400, 'Data inválida', 'INVALID_DATE'));
+    }
+    db.all(
+      `SELECT e.id, e.nome_evento AS nome, e.data_evento AS data, e.horario_evento AS hora, e.id_restaurante AS restaurante_id, r.nome AS restaurante
+         FROM eventos e
+         JOIN restaurantes r ON e.id_restaurante = r.id
+        WHERE e.data_evento = ?`,
+      [data],
+      (err, rows) => {
+        if (err) {
+          console.error('❌ Erro ao listar eventos:', err.message);
+          return next(new ApiError(500, 'Erro ao listar eventos', 'LIST_EVENTS_ERROR', err.message));
+        }
+        res.json(rows);
+      }
+    );
+    return;
+  }
+
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const offset = (page - 1) * limit;
@@ -60,23 +84,19 @@ router.get('/:id', (req, res, next) => {
   });
 });
 
-// Get event availability for a specific date
+// Get event availability
 router.get('/:id/disponibilidade', async (req, res, next) => {
   const { id } = req.params;
-  const { data } = req.query;
 
   if (!isValidInt(id)) {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
-  }
-  if (!data || !isValidDate(data)) {
-    return next(new ApiError(400, 'Data inválida', 'INVALID_DATE'));
   }
 
   try {
     const db = getDatabase();
 
     const { rows: [evento] } = await db.query(
-      `SELECT r.capacidade
+      `SELECT e.data_evento, r.capacidade
          FROM eventos e
          JOIN restaurantes r ON e.id_restaurante = r.id
         WHERE e.id = ?`,
@@ -88,12 +108,10 @@ router.get('/:id/disponibilidade', async (req, res, next) => {
     }
 
     const { rows: [sum] } = await db.query(
-      `SELECT COALESCE(SUM(res.qtd_hospedes),0) AS ocupacao
-         FROM eventos_reservas er
-         JOIN reservas res ON er.id_reserva = res.id_reserva
-        WHERE er.id_evento = ?
-          AND ? BETWEEN res.data_checkin AND res.data_checkout`,
-      [id, data]
+      `SELECT COALESCE(SUM(quantidade),0) AS ocupacao
+         FROM eventos_reservas
+        WHERE evento_id = ?`,
+      [id]
     );
 
     const capacidade = Number(evento.capacidade) || 0;
@@ -108,6 +126,132 @@ router.get('/:id/disponibilidade', async (req, res, next) => {
   } catch (error) {
     console.error('❌ Erro ao obter disponibilidade do evento:', error.message);
     next(new ApiError(500, 'Erro ao obter disponibilidade', 'GET_AVAILABILITY_ERROR', error.message));
+  }
+});
+
+// List markings for an event or check if a reservation already has one on the same day
+router.get('/:id/marcacoes', async (req, res, next) => {
+  const { id } = req.params;
+  const { reservaId } = req.query;
+
+  if (!isValidInt(id)) {
+    return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
+  }
+
+  const db = getDatabase();
+  try {
+    if (reservaId) {
+      if (!isValidInt(reservaId)) {
+        return next(new ApiError(400, 'reservaId inválido', 'INVALID_RESERVA_ID'));
+      }
+      const { rows } = await db.query(
+        `SELECT er.reserva_id, er.quantidade, er.informacoes
+           FROM eventos_reservas er
+          WHERE er.evento_id = ? AND er.reserva_id = ?`,
+        [id, reservaId]
+      );
+      return res.json(rows);
+    }
+
+    const { rows } = await db.query(
+      `SELECT er.reserva_id, er.quantidade, er.informacoes
+         FROM eventos_reservas er
+        WHERE er.evento_id = ?`,
+      [id]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('❌ Erro ao obter marcações do evento:', error.message);
+    next(new ApiError(500, 'Erro ao obter marcações', 'GET_MARCACOES_ERROR', error.message));
+  }
+});
+
+// Create a new mark for an event
+router.post('/:id/marcar', async (req, res, next) => {
+  const { id } = req.params;
+  const { reservaId, quantidade, informacoes } = req.body;
+
+  if (!isValidInt(id)) {
+    return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
+  }
+  if (!isValidInt(reservaId) || !isValidInt(quantidade)) {
+    return next(new ApiError(400, 'Dados inválidos', 'INVALID_FIELDS'));
+  }
+
+  try {
+    const db = getDatabase();
+
+    const { rows: [evento] } = await db.query(
+      `SELECT e.data_evento, e.id_restaurante, r.capacidade
+         FROM eventos e
+         JOIN restaurantes r ON e.id_restaurante = r.id
+        WHERE e.id = ?`,
+      [id]
+    );
+    if (!evento) {
+      return next(new ApiError(404, 'Evento não encontrado', 'EVENT_NOT_FOUND'));
+    }
+
+    const { rows: [reserva] } = await db.query(
+      'SELECT id, data_checkin, data_checkout FROM reservas WHERE id = ?',
+      [reservaId]
+    );
+    if (!reserva) {
+      return next(new ApiError(404, 'Reserva não encontrada', 'RESERVA_NOT_FOUND'));
+    }
+
+    // Rule 1: quantidade não pode ultrapassar vagas disponíveis
+    const { rows: [ocup] } = await db.query(
+      `SELECT COALESCE(SUM(quantidade),0) AS total
+         FROM eventos_reservas
+        WHERE evento_id = ?`,
+      [id]
+    );
+    const vagas = evento.capacidade - Number(ocup.total);
+    if (quantidade > vagas) {
+      return next(new ApiError(400, 'Capacidade do evento excedida', 'CAPACIDADE_EXCEDIDA'));
+    }
+
+    // Rule 2: mesma reserva não pode ser vinculada a mais de um evento no mesmo dia
+    const { rows: conflitos } = await db.query(
+      `SELECT 1
+         FROM eventos_reservas er
+         JOIN eventos e ON er.evento_id = e.id
+        WHERE er.reserva_id = ?
+          AND e.data_evento = ?`,
+      [reservaId, evento.data_evento]
+    );
+    if (conflitos.length > 0) {
+      return next(new ApiError(400, 'Reserva já vinculada a outro evento neste dia', 'RESERVA_DUPLICADA'));
+    }
+
+    // Rule 3: limite de marcações conforme duração da reserva
+    const checkin = new Date(reserva.data_checkin);
+    const checkout = new Date(reserva.data_checkout);
+    const diff = Math.max(1, Math.ceil((checkout - checkin) / (1000 * 60 * 60 * 24)));
+    let limite = 1;
+    if (diff >= 7) {
+      limite = 3;
+    } else if (diff >= 3) {
+      limite = 2;
+    }
+    const { rows: [countRes] } = await db.query(
+      'SELECT COUNT(*)::int AS count FROM eventos_reservas WHERE reserva_id = ?',
+      [reservaId]
+    );
+    if (countRes.count >= limite) {
+      return next(new ApiError(400, 'Limite de marcações atingido para a reserva', 'LIMITE_MARCACOES'));
+    }
+
+    await db.query(
+      'INSERT INTO eventos_reservas (evento_id, reserva_id, informacoes, quantidade) VALUES (?, ?, ?, ?)',
+      [id, reservaId, informacoes || null, quantidade]
+    );
+
+    res.status(201).json({ message: 'Marcação registrada com sucesso' });
+  } catch (error) {
+    console.error('❌ Erro ao salvar marcação:', error.message);
+    next(new ApiError(500, 'Erro ao salvar marcação', 'SAVE_MARCACAO_ERROR', error.message));
   }
 });
 
@@ -201,103 +345,5 @@ router.delete('/:id', (req, res, next) => {
   });
 });
   
-// Adicionar uma reserva a um evento
-router.post('/:id/reservas', async (req, res, next) => {
-  try {
-    const eventoId = req.params.id;
-    const { reservaId } = req.body;
-    if (!reservaId) {
-      return next(new ApiError(400, 'reservaId é obrigatório', 'MISSING_RESERVA_ID'));
-    }
-
-    const db = getDatabase();
-
-    const { rows: [evento] } = await db.query(
-      'SELECT id, id_restaurante AS restaurante_id, data_evento FROM eventos WHERE id = ?', [eventoId]
-    );
-    if (!evento) {
-      return next(new ApiError(404, 'Evento não encontrado', 'EVENTO_NOT_FOUND'));
-    }
-
-    const { rows: [reserva] } = await db.query(
-      'SELECT id_reserva AS id, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE id_reserva = ?', [reservaId]
-    );
-    if (!reserva) {
-      return next(new ApiError(404, 'Reserva não encontrada', 'RESERVA_NOT_FOUND'));
-    }
-
-    // Validar capacidade do restaurante
-    const { rows: [restaurante] } = await db.query(
-      'SELECT capacidade FROM restaurantes WHERE id = ?', [evento.restaurante_id]
-    );
-    if (!restaurante) {
-      return next(new ApiError(404, 'Restaurante não encontrado', 'RESTAURANTE_NOT_FOUND'));
-    }
-    const { rows: [soma] } = await db.query(
-      `SELECT COALESCE(SUM(r.qtd_hospedes),0) AS total
-         FROM eventos_reservas er
-         JOIN reservas r ON er.id_reserva = r.id_reserva
-         WHERE er.id_evento = ?`, [eventoId]
-    );
-    if ((soma.total + reserva.qtd_hospedes) > restaurante.capacidade) {
-      return next(new ApiError(400, 'Capacidade do restaurante excedida', 'CAPACIDADE_EXCEDIDA'));
-    }
-
-    // Verificar conflito de restaurante na mesma data
-    const { rows: conflitos } = await db.query(
-      `SELECT 1
-         FROM eventos_reservas er
-         JOIN eventos ev ON er.id_evento = ev.id
-         WHERE er.id_reserva = ?
-           AND ev.id_restaurante <> ?
-           AND ev.data_evento BETWEEN ? AND ?
-         LIMIT 1`,
-      [reservaId, evento.restaurante_id, reserva.data_checkin, reserva.data_checkout]
-    );
-    if (conflitos.length > 0) {
-      return next(new ApiError(400, 'Reserva vinculada a evento de outro restaurante na mesma data', 'RESERVA_CONFLITO'));
-    }
-
-    // Validar número máximo de eventos por duração
-    const { rows: [countRes] } = await db.query(
-      'SELECT COUNT(*)::int AS count FROM eventos_reservas WHERE id_reserva = ?', [reservaId]
-    );
-    const checkin = new Date(reserva.data_checkin);
-    const checkout = new Date(reserva.data_checkout);
-    const dias = Math.max(1, Math.ceil((checkout - checkin) / (1000 * 60 * 60 * 24)));
-    if (countRes.count >= dias) {
-      return next(new ApiError(400, 'Número máximo de eventos atingido para esta reserva', 'LIMITE_EVENTOS'));
-    }
-
-    // Inserir associação
-    await db.query(
-      'INSERT INTO eventos_reservas (id_evento, id_reserva) VALUES (?, ?)',
-      [eventoId, reservaId]
-    );
-    res.status(201).json({ message: 'Reserva associada ao evento com sucesso' });
-  } catch (error) {
-    console.error('Erro ao associar reserva ao evento:', error);
-    next(new ApiError(500, 'Erro ao associar reserva', 'ASSOCIAR_RESERVA_ERRO', error.message));
-  }
-});
-
-// Remover uma reserva de um evento
-router.delete('/:id/reservas/:reservaId', async (req, res, next) => {
-  try {
-    const { id: eventoId, reservaId } = req.params;
-    const db = getDatabase();
-    const result = await db.query(
-      'DELETE FROM eventos_reservas WHERE id_evento = ? AND id_reserva = ?',
-      [eventoId, reservaId]
-    );
-    if (result.rowCount === 0) {
-      return next(new ApiError(404, 'Associação não encontrada', 'ASSOCIACAO_NAO_ENCONTRADA'));
-    }
-    res.json({ message: 'Reserva removida do evento com sucesso' });
-  } catch (error) {
-    console.error('Erro ao remover reserva do evento:', error);
-    next(new ApiError(500, 'Erro ao remover reserva do evento', 'REMOVER_RESERVA_ERRO', error.message));
-  }
-});
 
 module.exports = router;

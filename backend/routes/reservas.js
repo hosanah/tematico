@@ -27,9 +27,42 @@ function getOverlaps(db, coduh, checkin, checkout, excludeId, callback) {
   db.all(sql, params, callback);
 }
 
-// List all reservations with pagination
+// List all reservations with pagination or fetch by codigoUH/hoje
 router.get('/', (req, res, next) => {
   const db = getDatabase();
+  const { codigoUH, hoje } = req.query;
+
+  // When codigoUH and hoje are provided, search for a valid reservation
+  if (codigoUH && hoje) {
+    if (!isValidString(codigoUH) || !isValidDate(hoje)) {
+      return next(new ApiError(400, 'Parâmetros inválidos', 'INVALID_SEARCH_PARAMS'));
+    }
+
+    db.all(
+      `SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes
+         FROM reservas
+        WHERE coduh = ?
+          AND data_checkin <= ?
+          AND data_checkout >= ?`,
+      [codigoUH, hoje, hoje],
+      (err, rows) => {
+        if (err) {
+          console.error('❌ Erro ao buscar reserva:', err.message);
+          return next(new ApiError(500, 'Erro ao buscar reserva', 'SEARCH_RESERVATION_ERROR', err.message));
+        }
+        if (rows.length === 0) {
+          return next(new ApiError(404, 'Reserva não encontrada', 'RESERVATION_NOT_FOUND'));
+        }
+        if (rows.length > 1) {
+          return next(new ApiError(409, 'Múltiplas reservas válidas para este código UH', 'MULTIPLE_RESERVATIONS'));
+        }
+        res.json(rows[0]);
+      }
+    );
+    return;
+  }
+
+  // Default listing with pagination
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
   const offset = (page - 1) * limit;
