@@ -6,8 +6,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, throwError, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { IdleService } from './idle.service';
 
 export interface User {
   id: number;
@@ -42,6 +43,7 @@ export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'auth_user';
   private refreshTokenTimeout: any;
+  private idleSubscription?: Subscription;
 
   // Estado de autenticação reativo
   private authStateSubject = new BehaviorSubject<AuthState>({
@@ -54,9 +56,13 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private idleService: IdleService
   ) {
-    // Verificar se há token salvo no localStorage ao inicializar
+    this.idleSubscription = this.idleService.timeout$.subscribe(() => {
+      console.log('⌛ Usuário inativo - realizando logout automático');
+      this.logout().subscribe();
+    });
     this.checkStoredAuth();
   }
 
@@ -72,6 +78,7 @@ export class AuthService {
         const user = JSON.parse(userStr);
         this.updateAuthState(true, user, token);
         this.startRefreshTokenTimer(token);
+        this.startInactivityTimer(token);
       } catch (error) {
         console.error('Erro ao parsear dados do usuário:', error);
         this.clearStoredAuth();
@@ -104,6 +111,7 @@ export class AuthService {
           // Atualizar estado
           this.updateAuthState(true, response.user, response.token);
           this.startRefreshTokenTimer(response.token);
+          this.startInactivityTimer(response.token);
 
           console.log('✅ Login realizado com sucesso:', response.user.username);
         }),
@@ -154,6 +162,7 @@ export class AuthService {
     this.clearStoredAuth();
     this.updateAuthState(false, null, null);
     this.stopRefreshTokenTimer();
+    this.idleService.stop();
     this.router.navigate(['/login']);
     console.log('✅ Logout local realizado');
   }
@@ -191,6 +200,22 @@ export class AuthService {
   }
 
   /**
+   * Iniciar monitoramento de inatividade do usuário
+   */
+  private startInactivityTimer(token: string): void {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const sessionDuration = (payload.exp - payload.iat) * 1000;
+      const idleTimeout = (sessionDuration * 2) / 3;
+      if (idleTimeout > 0) {
+        this.idleService.start(idleTimeout);
+      }
+    } catch (error) {
+      console.error('Erro ao configurar timer de inatividade:', error);
+    }
+  }
+
+  /**
    * Cancelar temporizador de refresh do token
    */
   private stopRefreshTokenTimer(): void {
@@ -215,6 +240,7 @@ export class AuthService {
           }
           this.updateAuthState(true, user, res.token);
           this.startRefreshTokenTimer(res.token);
+          this.startInactivityTimer(res.token);
           console.log('🔄 Token atualizado');
         }),
         catchError(error => {
