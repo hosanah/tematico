@@ -60,6 +60,57 @@ router.get('/:id', (req, res, next) => {
   });
 });
 
+// Get event availability for a specific date
+router.get('/:id/disponibilidade', async (req, res, next) => {
+  const { id } = req.params;
+  const { data } = req.query;
+
+  if (!isValidInt(id)) {
+    return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
+  }
+  if (!data || !isValidDate(data)) {
+    return next(new ApiError(400, 'Data inválida', 'INVALID_DATE'));
+  }
+
+  try {
+    const db = getDatabase();
+
+    const { rows: [evento] } = await db.query(
+      `SELECT r.capacidade
+         FROM eventos e
+         JOIN restaurantes r ON e.id_restaurante = r.id
+        WHERE e.id = ?`,
+      [id]
+    );
+
+    if (!evento) {
+      return next(new ApiError(404, 'Evento não encontrado', 'EVENT_NOT_FOUND'));
+    }
+
+    const { rows: [sum] } = await db.query(
+      `SELECT COALESCE(SUM(res.qtd_hospedes),0) AS ocupacao
+         FROM eventos_reservas er
+         JOIN reservas res ON er.id_reserva = res.id_reserva
+        WHERE er.id_evento = ?
+          AND ? BETWEEN res.data_checkin AND res.data_checkout`,
+      [id, data]
+    );
+
+    const capacidade = Number(evento.capacidade) || 0;
+    const ocupacao = Number(sum.ocupacao) || 0;
+    const vagas = capacidade - ocupacao;
+
+    res.json({
+      capacidade_total: capacidade,
+      ocupacao,
+      vagas_restantes: vagas
+    });
+  } catch (error) {
+    console.error('❌ Erro ao obter disponibilidade do evento:', error.message);
+    next(new ApiError(500, 'Erro ao obter disponibilidade', 'GET_AVAILABILITY_ERROR', error.message));
+  }
+});
+
 // Create event
 router.post('/', (req, res, next) => {
   const { nome, data, hora, restauranteId } = req.body;

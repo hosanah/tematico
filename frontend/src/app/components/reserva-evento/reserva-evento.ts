@@ -12,15 +12,16 @@ import { TableModule } from 'primeng/table';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { ChartModule } from 'primeng/chart';
 import { MessageService } from 'primeng/api';
 
-import { ReservaEventoService, Reserva, Evento } from '../../services/reserva-evento';
+import { ReservaEventoService, Reserva, Evento, Disponibilidade } from '../../services/reserva-evento';
 import { extractErrorMessage } from '../../utils';
 
 @Component({
   selector: 'app-reserva-evento',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, ButtonModule, ToastModule],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, ButtonModule, ToastModule, ChartModule],
   providers: [MessageService],
   templateUrl: './reserva-evento.html',
   styleUrls: ['./reserva-evento.scss']
@@ -28,6 +29,15 @@ import { extractErrorMessage } from '../../utils';
 export class ReservaEventoComponent implements OnInit {
   reservas: Reserva[] = [];
   eventos: Evento[] = [];
+
+  // filtros
+  filtroRestaurante?: number;
+  filtroEvento?: number;
+  filtroData?: Date | null;
+
+  // disponibilidade
+  disponibilidade?: Disponibilidade;
+  chartData?: any;
 
   // seleção para vinculação
   reservaSelecionada?: Reserva;
@@ -43,6 +53,8 @@ export class ReservaEventoComponent implements OnInit {
     this.reservaEventoService.getEventos().subscribe({
       next: data => (this.eventos = data)
     });
+
+    this.carregarDisponibilidade();
   }
 
   filtrarReserva(event: any): void {
@@ -62,6 +74,33 @@ export class ReservaEventoComponent implements OnInit {
       const r = this.reservaSelecionada;
       const detail = `Hóspede: ${r.nome_hospede} - Check-in: ${r.data_checkin} - Check-out: ${r.data_checkout}`;
       this.messageService.add({ severity: 'info', summary: 'Reserva selecionada', detail });
+    }
+  }
+
+  carregarDisponibilidade(): void {
+    if (this.filtroEvento && this.filtroData) {
+      const data = this.filtroData.toISOString().split('T')[0];
+      this.reservaEventoService.getDisponibilidade(this.filtroEvento, data).subscribe({
+        next: res => {
+          this.disponibilidade = res;
+          this.chartData = {
+            labels: ['Ocupado', 'Disponível'],
+            datasets: [
+              {
+                data: [res.ocupacao, res.vagas_restantes],
+                backgroundColor: ['#EF4444', '#10B981']
+              }
+            ]
+          };
+        },
+        error: () => {
+          this.disponibilidade = undefined;
+          this.chartData = undefined;
+        }
+      });
+    } else {
+      this.disponibilidade = undefined;
+      this.chartData = undefined;
     }
   }
 

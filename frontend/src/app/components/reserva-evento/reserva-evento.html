@@ -1,5 +1,47 @@
 <p-toast></p-toast>
 
+<div class="filters">
+  <p-select [(ngModel)]="filtroRestaurante" [options]="eventos" optionLabel="restaurante" optionValue="restaurante" placeholder="Restaurante"></p-select>
+  <p-select [(ngModel)]="filtroEvento" [options]="eventos" optionLabel="nome" optionValue="id" placeholder="Evento"></p-select>
+  <p-datepicker [(ngModel)]="filtroData" dateFormat="yy-mm-dd" placeholder="Data"></p-datepicker>
+  <button pButton type="button" label="Filtrar" (click)="aplicarFiltros()"></button>
+</div>
+
+<div *ngIf="chartData" class="disponibilidade">
+  <p-chart type="doughnut" [data]="chartData"></p-chart>
+  <div class="info">
+    <p>Capacidade: {{ disponibilidade?.capacidade_total }}</p>
+    <p>Ocupação: {{ disponibilidade?.ocupacao }}</p>
+    <p>Vagas: {{ disponibilidade?.vagas_restantes }}</p>
+  </div>
+</div>
+
+<div class="lists">
+  <h3>Reservas</h3>
+  <p-table [value]="reservas">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Id Reserva CM</th>
+        <th>Número Reserva CM</th>
+        <th>Código UH</th>
+        <th>Nome Hóspede</th>
+        <th>Check-in</th>
+        <th>Check-out</th>
+        <th>Qtd Hóspedes</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-reserva>
+      <tr>
+        <td>{{ reserva.idreservacm }}</td>
+        <td>{{ reserva.numeroreservacm }}</td>
+        <td>{{ reserva.coduh }}</td>
+        <td>{{ reserva.nome_hospede }}</td>
+        <td>{{ reserva.data_checkin }}</td>
+        <td>{{ reserva.data_checkout }}</td>
+        <td>{{ reserva.qtd_hospedes }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
 <div class="reserva-evento-container">
   <div class="col">
     <h3>Reserva</h3>
