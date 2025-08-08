@@ -67,15 +67,28 @@ router.post('/', (req, res, next) => {
     return next(new ApiError(400, 'Dados inválidos para criação de evento', 'INVALID_FIELDS'));
   }
   const db = getDatabase();
-  db.run(
-    'INSERT INTO eventos (nome_evento, data_evento, horario_evento, id_restaurante) VALUES (?, ?, ?, ?) RETURNING id',
-    [nome, data, hora, restauranteId],
-    function(err) {
+  db.get(
+    'SELECT id FROM eventos WHERE data_evento = ? AND horario_evento = ? AND id_restaurante = ?',
+    [data, hora, restauranteId],
+    (err, existing) => {
       if (err) {
-        console.error('❌ Erro ao criar evento:', err.message);
-        return next(new ApiError(500, 'Erro ao criar evento', 'CREATE_EVENT_ERROR', err.message));
+        console.error('❌ Erro ao verificar evento:', err.message);
+        return next(new ApiError(500, 'Erro ao verificar evento', 'CHECK_EVENT_ERROR', err.message));
       }
-      res.status(201).json({ id: this.lastID, nome, data, hora, restauranteId });
+      if (existing) {
+        return next(new ApiError(400, 'Já existe um evento para este restaurante neste dia e horário', 'EVENTO_DUPLICADO'));
+      }
+      db.run(
+        'INSERT INTO eventos (nome_evento, data_evento, horario_evento, id_restaurante) VALUES (?, ?, ?, ?) RETURNING id',
+        [nome, data, hora, restauranteId],
+        function(err) {
+          if (err) {
+            console.error('❌ Erro ao criar evento:', err.message);
+            return next(new ApiError(500, 'Erro ao criar evento', 'CREATE_EVENT_ERROR', err.message));
+          }
+          res.status(201).json({ id: this.lastID, nome, data, hora, restauranteId });
+        }
+      );
     }
   );
 });

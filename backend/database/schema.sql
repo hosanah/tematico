@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS eventos (
   nome_evento VARCHAR(255) NOT NULL,
   data_evento DATE NOT NULL,
   horario_evento TIME NOT NULL,
-  id_restaurante INTEGER NOT NULL REFERENCES restaurantes(id) ON DELETE CASCADE
+  id_restaurante INTEGER NOT NULL REFERENCES restaurantes(id) ON DELETE CASCADE,
+  UNIQUE (data_evento, horario_evento, id_restaurante)
 );
 
 CREATE TABLE IF NOT EXISTS reservas (
