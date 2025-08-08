@@ -9,68 +9,88 @@
       <button pButton type="button" label="Filtrar" (click)="aplicarFiltros()"></button>
     </div>
 
-    <div class="lists">
-      <h3>Reservas</h3>
-      <p-table [value]="reservas">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Id Reserva CM</th>
-            <th>Número Reserva CM</th>
-            <th>Código UH</th>
-            <th>Nome Hóspede</th>
-            <th>Check-in</th>
-            <th>Check-out</th>
-            <th>Qtd Hóspedes</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-reserva>
-          <tr>
-            <td>{{ reserva.idreservacm }}</td>
-            <td>{{ reserva.numeroreservacm }}</td>
-            <td>{{ reserva.coduh }}</td>
-            <td>{{ reserva.nome_hospede }}</td>
-            <td>{{ reserva.data_checkin }}</td>
-            <td>{{ reserva.data_checkout }}</td>
-            <td>{{ reserva.qtd_hospedes }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
+<div *ngIf="chartData" class="disponibilidade">
+  <p-chart type="doughnut" [data]="chartData"></p-chart>
+  <div class="info">
+    <p>Capacidade: {{ disponibilidade?.capacidade_total }}</p>
+    <p>Ocupação: {{ disponibilidade?.ocupacao }}</p>
+    <p>Vagas: {{ disponibilidade?.vagas_restantes }}</p>
+  </div>
+</div>
 
-      <h3>Eventos</h3>
-      <p-table [value]="eventos">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Nome</th>
-            <th>Restaurante</th>
-            <th>Data</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-evento>
-          <tr>
-            <td>{{ evento.nome }}</td>
-            <td>{{ evento.restaurante }}</td>
-            <td>{{ evento.data }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-
-    <div class="form">
-      <h3>Vincular Reserva a Evento</h3>
-      <p-select [(ngModel)]="reservaSelecionada" [options]="reservas" optionLabel="numeroreservacm" placeholder="Selecione a reserva" ></p-select>
-      <p-select [(ngModel)]="eventoSelecionado" [options]="eventos" optionLabel="nome" placeholder="Selecione o evento" ></p-select>
-      <button pButton type="button" label="Vincular" (click)="vincular()" [disabled]="!reservaSelecionada || !eventoSelecionado"></button>
-    </div>
+<div class="lists">
+  <h3>Reservas</h3>
+  <p-table [value]="reservas">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Id Reserva CM</th>
+        <th>Número Reserva CM</th>
+        <th>Código UH</th>
+        <th>Nome Hóspede</th>
+        <th>Check-in</th>
+        <th>Check-out</th>
+        <th>Qtd Hóspedes</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-reserva>
+      <tr>
+        <td>{{ reserva.idreservacm }}</td>
+        <td>{{ reserva.numeroreservacm }}</td>
+        <td>{{ reserva.coduh }}</td>
+        <td>{{ reserva.nome_hospede }}</td>
+        <td>{{ reserva.data_checkin }}</td>
+        <td>{{ reserva.data_checkout }}</td>
+        <td>{{ reserva.qtd_hospedes }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+<div class="reserva-evento-container">
+  <div class="col">
+    <h3>Reserva</h3>
+    <p-select
+      [(ngModel)]="reservaSelecionada"
+      [options]="reservas"
+      optionLabel="numeroreservacm"
+      placeholder="Buscar reserva"
+      [filter]="true"
+      (onFilter)="filtrarReserva($event)"
+      (onChange)="mostrarDetalhes()"
+    ></p-select>
   </div>
 
-  <div class="right-column">
-    <p-datepicker [(ngModel)]="dataReserva" (ngModelChange)="consultarDisponibilidade()" placeholder="Data"></p-datepicker>
-    <p-select [(ngModel)]="eventoSelecionado" [options]="eventos" optionLabel="nome" placeholder="Evento" (ngModelChange)="consultarDisponibilidade()"></p-select>
-    <p-chart *ngIf="chartData" type="pie" [data]="chartData"></p-chart>
-    <div class="save-form">
-      <input type="text" [(ngModel)]="informacoes" placeholder="Informações" />
-      <input type="number" [(ngModel)]="quantidade" placeholder="Quantidade de pessoas" />
-      <button pButton type="button" label="Salvar" (click)="salvar()"></button>
+  <div class="col">
+    <h3>Eventos</h3>
+    <p-table [value]="eventos">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nome</th>
+          <th>Restaurante</th>
+          <th>Data</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-evento>
+        <tr>
+          <td>{{ evento.nome }}</td>
+          <td>{{ evento.restaurante }}</td>
+          <td>{{ evento.data }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="form">
+      <p-select
+        [(ngModel)]="eventoSelecionado"
+        [options]="eventos"
+        optionLabel="nome"
+        placeholder="Selecione o evento"
+      ></p-select>
+      <button
+        pButton
+        type="button"
+        label="Vincular"
+        (click)="vincular()"
+        [disabled]="!reservaSelecionada || !eventoSelecionado"
+      ></button>
     </div>
   </div>
 </div>

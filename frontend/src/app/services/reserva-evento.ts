@@ -25,6 +25,12 @@ export interface Evento {
   data?: string;
 }
 
+export interface Disponibilidade {
+  capacidade_total: number;
+  ocupacao: number;
+  vagas_restantes: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -38,6 +44,20 @@ export class ReservaEventoService {
       map(res => res.data as Reserva[]),
       catchError(error => {
         console.error('❌ Erro ao listar reservas:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  buscarReserva(coduh: string, checkin: string, checkout: string): Observable<Reserva | null> {
+    const params = { coduh, checkin, checkout };
+    return this.http.get<any>(`${this.API_URL}/reservas`, { params }).pipe(
+      map(res => {
+        const data = res.data as Reserva[];
+        return data && data.length ? data[0] : null;
+      }),
+      catchError(error => {
+        console.error('❌ Erro ao buscar reserva:', error);
         return throwError(() => error);
       })
     );
