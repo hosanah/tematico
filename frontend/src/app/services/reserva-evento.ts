@@ -25,6 +25,12 @@ export interface Evento {
   data?: string;
 }
 
+export interface Disponibilidade {
+  capacidade_total: number;
+  ocupacao: number;
+  vagas_restantes: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -51,6 +57,17 @@ export class ReservaEventoService {
         return throwError(() => error);
       })
     );
+  }
+
+  getDisponibilidade(eventoId: number, data: string): Observable<Disponibilidade> {
+    return this.http
+      .get<Disponibilidade>(`${this.API_URL}/eventos/${eventoId}/disponibilidade`, { params: { data } })
+      .pipe(
+        catchError(error => {
+          console.error('❌ Erro ao obter disponibilidade do evento:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   vincular(reservaId: number, eventoId: number): Observable<any> {

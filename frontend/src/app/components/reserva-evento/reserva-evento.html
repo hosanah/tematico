@@ -7,6 +7,15 @@
   <button pButton type="button" label="Filtrar" (click)="aplicarFiltros()"></button>
 </div>
 
+<div *ngIf="chartData" class="disponibilidade">
+  <p-chart type="doughnut" [data]="chartData"></p-chart>
+  <div class="info">
+    <p>Capacidade: {{ disponibilidade?.capacidade_total }}</p>
+    <p>Ocupação: {{ disponibilidade?.ocupacao }}</p>
+    <p>Vagas: {{ disponibilidade?.vagas_restantes }}</p>
+  </div>
+</div>
+
 <div class="lists">
   <h3>Reservas</h3>
   <p-table [value]="reservas">
