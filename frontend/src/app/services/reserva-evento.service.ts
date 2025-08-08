@@ -4,7 +4,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, throwError, map } from 'rxjs';
+import { Observable, catchError, throwError, map, forkJoin } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Reserva {
@@ -42,6 +42,13 @@ export interface Marcacao {
   nome_hospede: string;
   status: string;
 }
+
+export interface Voucher {
+  reserva: Reserva;
+  evento: Evento;
+  status: any | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -99,6 +106,25 @@ export class ReservaEventoService {
     return this.http.get<any[]>(`${this.API_URL}/reservas/${reservaId}/marcacoes`).pipe(
       catchError(error => {
         console.error('❌ Erro ao obter marcações da reserva:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /** Obtém dados completos de reserva, evento e marcação para impressão */
+  getVoucher(reservaId: number, eventoId: number): Observable<Voucher> {
+    return forkJoin({
+      reserva: this.http.get<Reserva>(`${this.API_URL}/reservas/${reservaId}`),
+      evento: this.http.get<Evento>(`${this.API_URL}/eventos/${eventoId}`),
+      marcacoes: this.getMarcacoes(eventoId, reservaId)
+    }).pipe(
+      map(result => ({
+        reserva: result.reserva,
+        evento: result.evento,
+        status: result.marcacoes.length > 0 ? result.marcacoes[0] : null
+      })),
+      catchError(error => {
+        console.error('❌ Erro ao obter voucher:', error);
         return throwError(() => error);
       })
     );
