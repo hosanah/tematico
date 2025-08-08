@@ -43,6 +43,20 @@ export class ReservaEventoService {
     );
   }
 
+  buscarReserva(coduh: string, checkin: string, checkout: string): Observable<Reserva | null> {
+    const params = { coduh, checkin, checkout };
+    return this.http.get<any>(`${this.API_URL}/reservas`, { params }).pipe(
+      map(res => {
+        const data = res.data as Reserva[];
+        return data && data.length ? data[0] : null;
+      }),
+      catchError(error => {
+        console.error('❌ Erro ao buscar reserva:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   getEventos(params?: any): Observable<Evento[]> {
     return this.http.get<any>(`${this.API_URL}/eventos`, { params }).pipe(
       map(res => res.data as Evento[]),

@@ -10,7 +10,6 @@ import { FormsModule } from '@angular/forms';
 // PrimeNG
 import { TableModule } from 'primeng/table';
 import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -21,7 +20,7 @@ import { extractErrorMessage } from '../../utils';
 @Component({
   selector: 'app-reserva-evento',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, ButtonModule, ToastModule],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, ButtonModule, ToastModule],
   providers: [MessageService],
   templateUrl: './reserva-evento.html',
   styleUrls: ['./reserva-evento.scss']
@@ -30,11 +29,6 @@ export class ReservaEventoComponent implements OnInit {
   reservas: Reserva[] = [];
   eventos: Evento[] = [];
 
-  // filtros
-  filtroRestaurante?: number;
-  filtroEvento?: number;
-  filtroData?: Date | null;
-
   // seleção para vinculação
   reservaSelecionada?: Reserva;
   eventoSelecionado?: Evento;
@@ -42,27 +36,33 @@ export class ReservaEventoComponent implements OnInit {
   constructor(private reservaEventoService: ReservaEventoService, private messageService: MessageService) {}
 
   ngOnInit(): void {
-    this.carregarDados();
+    this.carregarEventos();
   }
 
-  carregarDados(): void {
-    const filtros: any = {
-      restaurante: this.filtroRestaurante,
-      evento: this.filtroEvento,
-      data: this.filtroData ? this.filtroData.toISOString().split('T')[0] : undefined
-    };
-
-    this.reservaEventoService.getReservas(filtros).subscribe({
-      next: data => (this.reservas = data)
-    });
-
-    this.reservaEventoService.getEventos(filtros).subscribe({
+  carregarEventos(): void {
+    this.reservaEventoService.getEventos().subscribe({
       next: data => (this.eventos = data)
     });
   }
 
-  aplicarFiltros(): void {
-    this.carregarDados();
+  filtrarReserva(event: any): void {
+    const coduh = event.filter;
+    if (!coduh) {
+      this.reservas = [];
+      return;
+    }
+    const hoje = new Date().toISOString().split('T')[0];
+    this.reservaEventoService
+      .buscarReserva(coduh, hoje, hoje)
+      .subscribe({ next: res => (this.reservas = res ? [res] : []) });
+  }
+
+  mostrarDetalhes(): void {
+    if (this.reservaSelecionada) {
+      const r = this.reservaSelecionada;
+      const detail = `Hóspede: ${r.nome_hospede} - Check-in: ${r.data_checkin} - Check-out: ${r.data_checkout}`;
+      this.messageService.add({ severity: 'info', summary: 'Reserva selecionada', detail });
+    }
   }
 
   vincular(): void {
@@ -72,7 +72,7 @@ export class ReservaEventoComponent implements OnInit {
       .subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Reserva vinculada ao evento' });
-          this.carregarDados();
+          this.carregarEventos();
         },
         error: err => {
           let detail = 'Falha ao vincular reserva';
