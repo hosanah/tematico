@@ -101,6 +101,9 @@ router.post('/', async (req, res, next) => {
 router.put('/:id', async (req, res, next) => {
   try {
     const { username, email, password, fullName, is_active } = req.body;
+    if (password) {
+      return next(new ApiError(400, 'Senha não pode ser alterada por este endpoint', 'PASSWORD_EDIT_FORBIDDEN'));
+    }
     const db = getDatabase();
     db.get('SELECT id FROM users WHERE id = ?', [req.params.id], async (err, user) => {
       if (err) {
@@ -119,11 +122,6 @@ router.put('/:id', async (req, res, next) => {
         const isActiveInt = (is_active === true || is_active === 'true' || is_active === 1 || is_active === '1') ? 1 : 0;
         fields.push('is_active = ?');
         values.push(isActiveInt);
-      }
-      if (password) {
-        const hashed = await bcrypt.hash(password, 12);
-        fields.push('password = ?');
-        values.push(hashed);
       }
       if (fields.length === 0) {
         return next(new ApiError(400, 'Nenhum dado para atualizar', 'NO_FIELDS_TO_UPDATE'));
