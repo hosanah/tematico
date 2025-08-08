@@ -13,6 +13,7 @@ import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { ChartModule } from 'primeng/chart';
 import { MessageService } from 'primeng/api';
 
 import { ReservaEventoService, Reserva, Evento } from '../../services/reserva-evento';
@@ -21,7 +22,7 @@ import { extractErrorMessage } from '../../utils';
 @Component({
   selector: 'app-reserva-evento',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, ButtonModule, ToastModule],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, ButtonModule, ToastModule, ChartModule],
   providers: [MessageService],
   templateUrl: './reserva-evento.html',
   styleUrls: ['./reserva-evento.scss']
@@ -38,6 +39,12 @@ export class ReservaEventoComponent implements OnInit {
   // seleção para vinculação
   reservaSelecionada?: Reserva;
   eventoSelecionado?: Evento;
+
+  // formulário direita
+  dataReserva?: Date | null;
+  informacoes = '';
+  quantidade?: number;
+  chartData: any;
 
   constructor(private reservaEventoService: ReservaEventoService, private messageService: MessageService) {}
 
@@ -87,6 +94,42 @@ export class ReservaEventoComponent implements OnInit {
           this.messageService.add({ severity: 'error', summary: 'Erro', detail });
         }
       });
+  }
+
+  consultarDisponibilidade(): void {
+    if (!this.eventoSelecionado?.id || !this.dataReserva) return;
+    const data = this.dataReserva.toISOString().split('T')[0];
+    this.reservaEventoService.getDisponibilidadeEvento(this.eventoSelecionado.id, data).subscribe({
+      next: info => {
+        const vagas = info.capacidade - info.ocupacao;
+        this.chartData = {
+          labels: ['Vagas', 'Ocupado'],
+          datasets: [
+            {
+              data: [vagas, info.ocupacao],
+              backgroundColor: ['#4CAF50', '#FF5252']
+            }
+          ]
+        };
+      }
+    });
+  }
+
+  salvar(): void {
+    if (!this.eventoSelecionado?.id) return;
+    const payload = {
+      informacoes: this.informacoes,
+      quantidade: this.quantidade ?? 0
+    };
+    this.reservaEventoService.salvarReservaEvento(this.eventoSelecionado.id, payload).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Reserva salva' });
+        this.informacoes = '';
+        this.quantidade = undefined;
+        this.chartData = undefined;
+      },
+      error: () => this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao salvar reserva' })
+    });
   }
 }
 
