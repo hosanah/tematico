@@ -14,6 +14,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ToolbarModule } from 'primeng/toolbar'
 
 import { RestauranteService, Restaurante } from '../../services/restaurantes';
 import { extractErrorMessage } from '../../utils';
@@ -21,7 +22,7 @@ import { extractErrorMessage } from '../../utils';
 @Component({
   selector: 'app-restaurante-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, CardModule, TableModule, PaginatorModule, ButtonModule, ToastModule],
+  imports: [CommonModule, RouterModule, CardModule, TableModule, PaginatorModule, ButtonModule, ToastModule, ToolbarModule],
   providers: [MessageService],
   templateUrl: './restaurante-list.html',
   styleUrls: ['./restaurante-list.scss']

@@ -55,7 +55,7 @@
 
 <div class="form">
   <h3>Vincular Reserva a Evento</h3>
-  <p-select [(ngModel)]="reservaSelecionada" [options]="reservas" optionLabel="numeroreservacm" placeholder="Selecione a reserva"></p-select>
-  <p-select [(ngModel)]="eventoSelecionado" [options]="eventos" optionLabel="nome" placeholder="Selecione o evento"></p-select>
+  <p-select [(ngModel)]="reservaSelecionada" [options]="reservas" optionLabel="numeroreservacm" placeholder="Selecione a reserva" ></p-select>
+  <p-select [(ngModel)]="eventoSelecionado" [options]="eventos" optionLabel="nome" placeholder="Selecione o evento" ></p-select>
   <button pButton type="button" label="Vincular" (click)="vincular()" [disabled]="!reservaSelecionada || !eventoSelecionado"></button>
 </div>

@@ -14,6 +14,10 @@ import { PaginatorModule } from 'primeng/paginator';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ToolbarModule } from 'primeng/toolbar';
+import { IconFieldModule } from 'primeng/iconfield'
+import { InputIconModule } from 'primeng/inputicon'
+import { TieredMenuModule } from 'primeng/tieredmenu'
 
 import { EventoService, Evento } from '../../services/eventos';
 import { extractErrorMessage } from '../../utils';
@@ -21,7 +25,7 @@ import { extractErrorMessage } from '../../utils';
 @Component({
   selector: 'app-evento-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, CardModule, TableModule, PaginatorModule, ButtonModule, ToastModule],
+  imports: [CommonModule, RouterModule, CardModule, TableModule, PaginatorModule, ButtonModule, ToastModule, ToolbarModule, IconFieldModule, InputIconModule, TieredMenuModule],
   providers: [MessageService],
   templateUrl: './evento-list.html',
   styleUrls: ['./evento-list.scss']

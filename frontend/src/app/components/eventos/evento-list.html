@@ -1,5 +1,14 @@
-<p-card header="Eventos">
-  <button pButton label="Novo" (click)="novo()" class="mb-3"></button>
+<p-card>
+  <div class="font-semibold text-xl mb-4">Eventos</div>
+    <p-toolbar>
+      <div class="p-toolbar-start">
+      </div>
+      <div class="p-toolbar-center">
+      </div>
+      <div class="p-toolbar-end">
+        <button pButton icon="pi pi-plus" label="Novo" class="p-button" (click)="novo()"></button>
+      </div>
+    </p-toolbar>
   <p-table
     [value]="eventos"
     [loading]="isLoading"
@@ -23,7 +32,7 @@
       <tr>
         <td>{{ e.nome }}</td>
         <td>{{ e.restaurante }}</td>
-        <td>{{ e.data }}</td>
+        <td>{{ e.data | date:'dd/MM/yyyy' }}</td>
         <td>{{ e.hora }}</td>
         <td>
           <button pButton icon="pi pi-pencil" class="p-button-text" (click)="editar(e.id)"></button>

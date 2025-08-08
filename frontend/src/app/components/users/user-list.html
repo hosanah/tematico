@@ -1,9 +1,14 @@
-<div class="user-list">
-  <p-toast></p-toast>
-  <div class="header">
-    <h2 class="title">Usuários</h2>
-    <p-button label="Novo" icon="pi pi-plus" (onClick)="createUser()"></p-button>
-  </div>
+<p-card>
+  <div class="font-semibold text-xl mb-4">Usuários</div>
+  <p-toolbar>
+    <div class="p-toolbar-start">
+      <!-- Você pode adicionar filtros aqui se quiser -->
+    </div>
+    <div class="p-toolbar-end">
+      <button pButton icon="pi pi-plus" label="Novo" class="p-button" (click)="createUser()"></button>
+    </div>
+  </p-toolbar>
+
   <p-table
     [value]="users"
     [loading]="isLoading"
@@ -32,11 +37,27 @@
           <p-tag [value]="user.is_active ? 'Ativo' : 'Inativo'" [severity]="user.is_active ? 'success' : 'danger'"></p-tag>
         </td>
         <td>
-          <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" (onClick)="editUser(user.id)"></p-button>
-          <p-button *ngIf="user.is_active" icon="pi pi-user-minus" [rounded]="true" [text]="true" severity="danger" (onClick)="toggleActive(user)"></p-button>
-          <p-button *ngIf="!user.is_active" icon="pi pi-user-plus" [rounded]="true" [text]="true" severity="success" (onClick)="toggleActive(user)"></p-button>
+          <button pButton icon="pi pi-pencil" class="p-button-text" (click)="editUser(user.id)"></button>
+
+          <button
+            *ngIf="user.is_active"
+            pButton
+            icon="pi pi-user-minus"
+            class="p-button-text p-button-danger"
+            (click)="toggleActive(user)"
+          ></button>
+
+          <button
+            *ngIf="!user.is_active"
+            pButton
+            icon="pi pi-user-plus"
+            class="p-button-text p-button-success"
+            (click)="toggleActive(user)"
+          ></button>
         </td>
       </tr>
     </ng-template>
   </p-table>
-</div>
+</p-card>
+
+<p-toast></p-toast>

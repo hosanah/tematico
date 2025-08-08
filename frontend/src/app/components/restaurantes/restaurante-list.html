@@ -1,5 +1,13 @@
-<p-card header="Restaurantes">
-  <button pButton label="Novo" (click)="novo()" class="mb-3"></button>
+<p-card>
+  <div class="font-semibold text-xl mb-4">Restaurantes</div>
+    <p-toolbar>
+      <div class="p-toolbar-start">
+      </div>
+      <div class="p-toolbar-end">
+        <button pButton icon="pi pi-plus" label="Novo" class="p-button" (click)="novo()"></button>
+      </div>
+    </p-toolbar>
+
   <p-table
     [value]="restaurantes"
     [loading]="isLoading"

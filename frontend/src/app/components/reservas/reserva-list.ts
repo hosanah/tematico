@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
+import { ToolbarModule } from 'primeng/toolbar';
 
 import { ReservaService, Reserva } from '../../services/reservas';
 import { extractErrorMessage } from '../../utils';
@@ -22,7 +23,7 @@ import { extractErrorMessage } from '../../utils';
 @Component({
   selector: 'app-reserva-list',
   standalone: true,
-  imports: [CommonModule, TableModule, PaginatorModule, ButtonModule, ToastModule, TagModule, CardModule],
+  imports: [CommonModule, TableModule, PaginatorModule, ButtonModule, ToastModule, TagModule, CardModule, ToolbarModule],
   providers: [MessageService],
   templateUrl: './reserva-list.html',
   styleUrls: ['./reserva-list.scss']

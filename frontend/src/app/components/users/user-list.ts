@@ -14,13 +14,15 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
+import { CardModule } from 'primeng/card';
+import { ToolbarModule } from 'primeng/toolbar'
 
 import { UserService, AppUser } from '../../services/users';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, TableModule, PaginatorModule, ButtonModule, ToastModule, TagModule],
+  imports: [CommonModule, TableModule, PaginatorModule, ButtonModule, ToastModule, TagModule, CardModule, ToolbarModule],
   providers: [MessageService],
   templateUrl: './user-list.html',
   styleUrls: ['./user-list.scss']
