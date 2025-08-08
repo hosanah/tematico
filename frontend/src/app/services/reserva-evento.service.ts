@@ -31,6 +31,17 @@ export interface Disponibilidade {
   vagas_restantes: number;
 }
 
+export interface Marcacao {
+  id: number;
+  evento_id: number;
+  evento_nome: string;
+  evento_data: string;
+  restaurante: string;
+  reserva_id: number;
+  numero_reserva: string;
+  nome_hospede: string;
+  status: string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -98,6 +109,26 @@ export class ReservaEventoService {
     return this.http.post(`${this.API_URL}/eventos/${eventoId}/marcar`, payload).pipe(
       catchError(error => {
         console.error('❌ Erro ao salvar marcação:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /** Lista todas as marcações com detalhes de evento e reserva */
+  getEventosReservas(): Observable<Marcacao[]> {
+    return this.http.get<Marcacao[]>(`${this.API_URL}/eventos-reservas`).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao listar marcações:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /** Atualiza o status da marcação */
+  updateMarcacaoStatus(id: number, status: string): Observable<any> {
+    return this.http.put(`${this.API_URL}/eventos-reservas/${id}`, { status }).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao atualizar marcação:', error);
         return throwError(() => error);
       })
     );
