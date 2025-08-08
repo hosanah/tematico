@@ -83,6 +83,16 @@ export class ReservaEventoService {
       );
   }
 
+  /** Obtém todas as marcações de uma reserva */
+  getMarcacoesDaReserva(reservaId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL}/reservas/${reservaId}/marcacoes`).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao obter marcações da reserva:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   /** Realiza a marcação do evento */
   marcar(eventoId: number, payload: { reservaId: number; informacoes: string; quantidade: number }): Observable<any> {
     return this.http.post(`${this.API_URL}/eventos/${eventoId}/marcar`, payload).pipe(
