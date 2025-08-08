@@ -52,6 +52,13 @@ export class ReservaEventoComponent {
   chartData?: any;
   marcacoesExistentes: any[] = [];
 
+  statusOptions = [
+    { label: 'Ativa', value: 'Ativa' },
+    { label: 'Finalizada', value: 'Finalizada' },
+    { label: 'Cancelada', value: 'Cancelada' },
+    { label: 'Não Compareceu', value: 'Não Compareceu' },
+  ];
+
   informacoes = '';
   quantidade?: number;
 
@@ -159,6 +166,25 @@ export class ReservaEventoComponent {
         this.message.add({ severity: 'error', summary: 'Erro', detail });
       },
     });
+  }
+
+  atualizarStatus(marcacao: any): void {
+    if (!marcacao?.evento_id || !marcacao?.reserva_id || !marcacao?.status) {
+      return;
+    }
+
+    this.service
+      .atualizarStatus(marcacao.evento_id, marcacao.reserva_id, marcacao.status)
+      .subscribe({
+        next: () => {
+          this.message.add({ severity: 'success', summary: 'Sucesso', detail: 'Status atualizado' });
+          this.carregarMarcacoesExistentes();
+        },
+        error: err => {
+          const detail = err.error?.error || 'Falha ao atualizar status';
+          this.message.add({ severity: 'error', summary: 'Erro', detail });
+        },
+      });
   }
 
   private validarRegrasNegocio(): { valido: boolean; mensagem: string } {

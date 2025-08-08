@@ -68,6 +68,13 @@
       <p-message severity="info" text="Marcações desta reserva:"></p-message>
       <div class="marcacao-item" *ngFor="let marcacao of marcacoesExistentes">
         <small>{{ marcacao.data_evento | date:'dd/MM/yyyy' }} - {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)</small>
+        <p-select
+          [(ngModel)]="marcacao.status"
+          [options]="statusOptions"
+          optionLabel="label"
+          (onChange)="atualizarStatus(marcacao)"
+          placeholder="Status"
+        ></p-select>
         <button pButton type="button" label="Imprimir Voucher" icon="pi pi-print" class="p-button-text" (click)="abrirVoucher(marcacao)"></button>
       </div>
     </div>

@@ -140,6 +140,15 @@ export class ReservaEventoService {
     );
   }
 
+  /** Atualiza o status de uma marcação */
+  atualizarStatus(eventoId: number, reservaId: number, status: string): Observable<any> {
+    return this.http.patch(`${this.API_URL}/eventos/${eventoId}/marcacoes/${reservaId}/status`, { status }).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao atualizar status:', error);
+        return throwError(() => error);
+      })
+    );
+  }
   /** Lista todas as marcações com detalhes de evento e reserva */
   getEventosReservas(): Observable<Marcacao[]> {
     return this.http.get<Marcacao[]>(`${this.API_URL}/eventos-reservas`).pipe(
