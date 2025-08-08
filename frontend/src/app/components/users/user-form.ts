@@ -18,7 +18,7 @@ import { UserService, AppUser } from '../../services/users';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule, // <- trocado FormsModule por ReactiveFormsModule
+    ReactiveFormsModule, 
     CardModule,
     InputTextModule,
     PasswordModule,
@@ -44,14 +44,14 @@ export class UserFormComponent implements OnInit {
     private router: Router,
     private messageService: MessageService
   ) {
-    // Inicializa o formulário com validações
+    
     this.form = this.fb.group({
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       fullName: [''],
       password: [''],
       is_active: [true],
-      qtd_hospedes: [null, [Validators.pattern(/^\d+$/)]] // <- exemplo se estiver usando qtd_hospedes no template
+      qtd_hospedes: [null, [Validators.pattern(/^\d+$/)]]
     });
   }
 
