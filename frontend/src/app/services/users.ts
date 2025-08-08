@@ -66,7 +66,8 @@ export class UserService {
   }
 
   updateUser(id: number, data: Partial<AppUser>): Observable<any> {
-    return this.http.put(`${this.API_URL}/users/${id}`, data).pipe(
+    const { password, ...payload } = data;
+    return this.http.put(`${this.API_URL}/users/${id}`, payload).pipe(
       catchError(error => {
         console.error('❌ Erro ao atualizar usuário:', error);
         return throwError(() => error);

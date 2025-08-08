@@ -50,11 +50,8 @@ export class ResetPasswordComponent {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Senha redefinida com sucesso' });
         setTimeout(() => this.router.navigate(['/login']), 1000);
       },
-      error: (err) => {
+      error: () => {
         this.isLoading = false;
-        let msg = 'Erro ao redefinir senha';
-        if (err.error?.error) { msg = err.error.error; }
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: msg });
       }
     });
   }

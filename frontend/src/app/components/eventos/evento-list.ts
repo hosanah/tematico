@@ -51,9 +51,8 @@ export class EventoListComponent implements OnInit {
         this.totalRecords = res.total;
         this.isLoading = false;
       },
-      error: err => {
+      error: () => {
         this.isLoading = false;
-        this.showError('Erro ao carregar eventos', err);
       }
     });
   }
@@ -80,8 +79,18 @@ export class EventoListComponent implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Evento removido' });
         this.load();
+      }
+    });
+  }
+
+  salvar(evento: Evento): void {
+    const { id, ...data } = evento;
+    this.service.createEvento(data).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Evento salvo' });
+        this.load();
       },
-      error: err => this.showError('Erro ao remover evento', err)
+      error: err => this.showError('Erro ao salvar evento', err)
     });
   }
 
