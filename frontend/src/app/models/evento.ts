@@ -8,4 +8,5 @@ export interface Evento {
   data: string; // ISO string
   hora: string;
   restauranteId: number;
+  restaurante?: string;
 }

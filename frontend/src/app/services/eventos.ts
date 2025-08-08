@@ -14,6 +14,7 @@ export interface Evento {
   data: string;
   hora: string;
   restauranteId: number;
+  restaurante?: string;
 }
 
 @Injectable({
@@ -32,7 +33,8 @@ export class EventoService {
           nome: e.nome,
           data: e.data,
           hora: e.hora,
-          restauranteId: e.restaurante_id
+          restauranteId: e.restaurante_id,
+          restaurante: e.restaurante
         } as Evento)),
         total: res.total
       })),
@@ -50,7 +52,8 @@ export class EventoService {
         nome: e.nome,
         data: e.data,
         hora: e.hora,
-        restauranteId: e.restaurante_id
+        restauranteId: e.restaurante_id,
+        restaurante: e.restaurante
       } as Evento)),
       catchError(error => {
         console.error('❌ Erro ao obter evento:', error);
