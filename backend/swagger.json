@@ -74,6 +74,36 @@
           "401": { "description": "Usuário não autorizado" }
         }
       }
+    },
+    "/reservas/buscar": {
+      "get": {
+        "summary": "Buscar reserva por coduh e período",
+        "parameters": [
+          {
+            "name": "coduh",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "checkin",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "name": "checkout",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Reserva encontrada" },
+          "404": { "description": "Reserva não encontrada" },
+          "409": { "description": "Múltiplas reservas sobrepostas" }
+        }
+      }
     }
   }
 }
