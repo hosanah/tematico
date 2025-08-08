@@ -6,5 +6,6 @@ export interface Evento {
   nome: string;
   descricao?: string;
   data: string; // ISO string
-  restauranteId?: number;
+  hora: string;
+  restauranteId: number;
 }

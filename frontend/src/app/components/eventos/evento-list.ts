@@ -83,6 +83,17 @@ export class EventoListComponent implements OnInit {
     });
   }
 
+  salvar(evento: Evento): void {
+    const { id, ...data } = evento;
+    this.service.createEvento(data).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Evento salvo' });
+        this.load();
+      },
+      error: err => this.showError('Erro ao salvar evento', err)
+    });
+  }
+
   private showError(summary: string, err: any): void {
     let detail = 'Falha na operação';
     if (err.status >= 400 && err.status < 500) {
