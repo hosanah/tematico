@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 // PrimeNG
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -54,7 +55,7 @@ export class ReservaEventoComponent {
   informacoes = '';
   quantidade?: number;
 
-  constructor(private service: ReservaEventoService, private message: MessageService) {}
+  constructor(private service: ReservaEventoService, private message: MessageService, private router: Router) {}
 
   buscarReserva(event: any): void {
     const codigo = event.query;
@@ -217,6 +218,13 @@ export class ReservaEventoComponent {
         this.marcacoesExistentes = [];
       }
     });
+  }
+
+  abrirVoucher(marcacao: any): void {
+    const eventoId = marcacao.evento_id || marcacao.eventoId;
+    if (this.reservaSelecionada?.id && eventoId) {
+      this.router.navigate(['/reserva-voucher', this.reservaSelecionada.id, eventoId]);
+    }
   }
 }
 
