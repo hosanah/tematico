@@ -22,15 +22,14 @@
 
   <div class="right">
     <h3>Evento</h3>
-    <p-datepicker [(ngModel)]="dataEvento" (onSelect)="selecionarData()" placeholder="Data do evento"></p-datepicker>
-    <p-dropdown
+    <p-select
       [(ngModel)]="eventoSelecionado"
       [options]="eventos"
       optionLabel="nome"
       optionValue="id"
       placeholder="Evento do dia"
       (onChange)="onEventoChange()"
-    ></p-dropdown>
+    ></p-select>
 
     <div *ngIf="disponibilidade" class="disponibilidade">
       <p-chart type="doughnut" [data]="chartData"></p-chart>
@@ -58,4 +57,3 @@
     </div>
   </div>
 </div>
-

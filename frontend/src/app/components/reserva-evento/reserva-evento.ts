@@ -4,9 +4,8 @@ import { FormsModule } from '@angular/forms';
 
 // PrimeNG
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { DropdownModule } from 'primeng/dropdown';
-import { DatePickerModule } from 'primeng/datepicker';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
@@ -14,7 +13,7 @@ import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 
-import { ReservaEventoService, Reserva, Evento, Disponibilidade } from '../../services/reserva-evento';
+import { ReservaEventoService, Reserva, Evento, Disponibilidade } from '../../services/reserva-evento.service';
 
 @Component({
   selector: 'app-reserva-evento',
@@ -22,10 +21,9 @@ import { ReservaEventoService, Reserva, Evento, Disponibilidade } from '../../se
   imports: [
     CommonModule,
     FormsModule,
+    SelectModule,
     AutoCompleteModule,
-    DropdownModule,
-    DatePickerModule,
-    InputTextareaModule,
+    TextareaModule,
     InputNumberModule,
     ButtonModule,
     ToastModule,
