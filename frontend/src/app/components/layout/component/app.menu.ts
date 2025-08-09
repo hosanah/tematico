@@ -25,19 +25,19 @@ export class AppMenu {
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
       },
       {
+        label: 'Operacional',
+        items: [
+            { label: 'Reserva Evento', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['/reserva-evento'] },
+            { label: 'Listar Reserva Evento', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['/reserva-evento-list'] },
+        ]
+      },
+      {
         label: 'Cadastros',
         items: [
             { label: 'Usuários', icon: 'pi pi-fw pi pi-user', routerLink: ['/users'] },
             { label: 'Restaurantes', icon: 'pi pi-fw pi-briefcase', routerLink: ['/restaurantes'] },
             { label: 'Eventos', icon: 'pi pi-fw pi-calendar-plus', routerLink: ['/eventos'] },
             { label: 'Reservas CM', icon: 'pi pi-fw pi-address-book', routerLink: ['/reservas'] },            
-        ]
-      },
-      {
-        label: 'Operacional',
-        items: [
-            { label: 'Reserva Evento', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['/reserva-evento'] },
-            { label: 'Listar Reserva Evento', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['/reserva-evento-list'] },
         ]
       },
     ];
