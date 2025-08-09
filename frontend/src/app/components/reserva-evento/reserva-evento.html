@@ -6,17 +6,24 @@
     <p-autoComplete
       [(ngModel)]="reservaSelecionada"
       [suggestions]="reservas"
-      field="coduh"
+      field="id"
+      optionLabel="coduh"
       (completeMethod)="buscarReserva($event)"
       (onSelect)="onReservaSelect()"
       placeholder="Código UH"
-    ></p-autoComplete>
+    >
+    <ng-template let-reserva pTemplate="item">
+    <div>
+      <span class="font-medium">{{ reserva.coduh }} - {{ reserva.nome_hospede }}</span>
+    </div>
+  </ng-template>
+  </p-autoComplete>
 
     <p-card *ngIf="reservaSelecionada !== undefined && (reservaSelecionada?.id ?? 0) > 0" class="reserva-info">
       <div>ID: {{ reservaSelecionada.id }}</div>
       <div>Hóspede: {{ reservaSelecionada.nome_hospede }}</div>
-      <div>Check-in: {{ reservaSelecionada.data_checkin }}</div>
-      <div>Check-out: {{ reservaSelecionada.data_checkout }}</div>
+      <div>Check-in: {{ reservaSelecionada.data_checkin | date:'dd/MM/yyyy'}}</div>
+      <div>Check-out: {{ reservaSelecionada.data_checkout | date:'dd/MM/yyyy'}}</div>
       <div>Hóspedes: {{ reservaSelecionada.qtd_hospedes }}</div>
     </p-card>
 
@@ -50,40 +57,11 @@
         (onChange)="onEventoChange()"
       ></p-select>
     </div>
-
-    <div *ngIf="disponibilidade" class="disponibilidade">
-      <div class="chart-container">
-        <p-chart type="doughnut" [data]="chartData" width="200" height="200"></p-chart>
-      </div>
-      <div class="info">
-        <h4>Disponibilidade</h4>
-        <p><strong>Capacidade Total:</strong> {{ disponibilidade.capacidade_total }}</p>
-        <p><strong>Já Reservado:</strong> {{ disponibilidade.ocupacao }}</p>
-        <p><strong>Vagas Restantes:</strong> 
-          <span [class.text-success]="disponibilidade.vagas_restantes > 0" 
-                [class.text-danger]="disponibilidade.vagas_restantes === 0">
-            {{ disponibilidade.vagas_restantes }}
-          </span>
-        </p>
-      </div>
-    </div>
-
-    <div *ngIf="marcacoesExistentes.length > 0" class="marcacoes-existentes">
-      <p-message severity="info" text="Marcações desta reserva:"></p-message>
-      <div class="marcacao-item" *ngFor="let marcacao of marcacoesExistentes">
-        <small>{{ marcacao.data_evento | date:'dd/MM/yyyy' }} - {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)</small>
-        <p-select
-          [(ngModel)]="marcacao.status"
-          [options]="statusOptions"
-          optionLabel="label"
-          (onChange)="atualizarStatus(marcacao)"
-          placeholder="Status"
-        ></p-select>
-        <button pButton type="button" label="Imprimir Voucher" icon="pi pi-print" class="p-button-text" (click)="abrirVoucher(marcacao)"></button>
-      </div>
-    </div>
-
-    <div class="save-form" *ngIf="eventoSelecionado && disponibilidade">
+  </div>
+</div>
+<div class="reserva-evento-layout">
+  <div class="left">
+   <div class="save-form" *ngIf="eventoSelecionado && disponibilidade">
       <h4>Formulário de Marcação</h4>
       
       <div class="form-field">
@@ -120,6 +98,40 @@
         [disabled]="!reservaSelecionada || !eventoSelecionado || !quantidade || !dataEvento"
         class="save-button"
       ></button>
+    </div>
+  </div>
+
+  <div class="right">
+    <div *ngIf="disponibilidade" class="disponibilidade">
+      <div class="chart-container">
+        <p-chart type="doughnut" [data]="chartData" width="200" height="200"></p-chart>
+      </div>
+      <div class="info">
+        <h4>Disponibilidade</h4>
+        <p><strong>Capacidade Total:</strong> {{ disponibilidade.capacidade_total }}</p>
+        <p><strong>Já Reservado:</strong> {{ disponibilidade.ocupacao }}</p>
+        <p><strong>Vagas Restantes:</strong> 
+          <span [class.text-success]="disponibilidade.vagas_restantes > 0" 
+                [class.text-danger]="disponibilidade.vagas_restantes === 0">
+            {{ disponibilidade.vagas_restantes }}
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div *ngIf="marcacoesExistentes.length > 0" class="marcacoes-existentes">
+      <p-message severity="info" text="Marcações desta reserva:"></p-message>
+      <div class="marcacao-item" *ngFor="let marcacao of marcacoesExistentes">
+        <small>{{ marcacao.data_evento | date:'dd/MM/yyyy' }} - {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)</small>
+        <p-select
+          [(ngModel)]="marcacao.status"
+          [options]="statusOptions"
+          optionLabel="label"
+          (onChange)="atualizarStatus(marcacao)"
+          placeholder="Status"
+        ></p-select>
+        <button pButton type="button" label="Imprimir Voucher" icon="pi pi-print" class="p-button-text" (click)="abrirVoucher(marcacao)"></button>
+      </div>
     </div>
   </div>
 </div>
