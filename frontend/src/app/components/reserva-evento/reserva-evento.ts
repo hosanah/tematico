@@ -182,13 +182,13 @@ export class ReservaEventoComponent {
   }
 
   getTagSeverity(status: string): string {
-    switch ((status || '').toLowerCase()) {
-      case 'finalizada':
+    switch (status) {
+      case 'Finalizada':
         return 'success';
-      case 'cancelada':
+      case 'Cancelada':
         return 'danger';
-      case 'não compareceu':
-      case 'nao compareceu':
+      case 'Não compareceu':
+      case 'Nao compareceu':
         return 'warning';
       default:
         return 'info';
