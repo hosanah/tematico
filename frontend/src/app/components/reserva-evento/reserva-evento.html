@@ -31,21 +31,56 @@
       Não foi encontrada nenhuma reserva ativa para o código da UH informado: <b>{{reservaSelecionada}}</b>.
     </p-message>
 
-     <div *ngIf="marcacoesExistentes.length > 0" class="marcacoes-existentes">
+    <div *ngIf="marcacoesExistentes.length > 0" class="marcacoes-existentes">
       <p-message severity="info" text="Marcações desta reserva:"></p-message>
-      <div class="marcacao-item" 
+      <div
+        class="marcacao-item"
         *ngFor="let marcacao of marcacoesExistentes"
       >
-        <small>{{ marcacao.data_evento | date:'dd/MM/yyyy' }} - {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)</small>
-        <p-select
-          [(ngModel)]="marcacao.status"
-          [options]="statusOptions"
-          optionLabel="label"
-          optionValue="value"
-          (onChange)="atualizarStatus(marcacao)"
-          placeholder="Status"
-        ></p-select>
-        <button pButton type="button" label="Imprimir Voucher" icon="pi pi-print" class="p-button-text" (click)="abrirVoucher(marcacao)"></button>
+        <div class="marcacao-info">
+          <small>
+            {{ marcacao.data_evento | date:'dd/MM/yyyy' }} -
+            {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)
+          </small>
+          <p-tag
+            [value]="marcacao.status"
+            [severity]="getTagSeverity(marcacao.status)"
+          ></p-tag>
+        </div>
+        <div class="marcacao-actions">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-check"
+            class="p-button-rounded p-button-success"
+            (click)="atualizarStatus(marcacao, 'Finalizada')"
+            title="Compareceu"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-times"
+            class="p-button-rounded p-button-danger"
+            (click)="atualizarStatus(marcacao, 'Cancelada')"
+            title="Cancelado"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-user-minus"
+            class="p-button-rounded p-button-warning"
+            (click)="atualizarStatus(marcacao, 'Não Compareceu')"
+            title="Não Compareceu"
+          ></button>
+          <button
+            pButton
+            type="button"
+            label="Imprimir Voucher"
+            icon="pi pi-print"
+            class="p-button-text"
+            (click)="abrirVoucher(marcacao)"
+          ></button>
+        </div>
       </div>
     </div>
   </div>
