@@ -5,12 +5,14 @@
 
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { LoadingComponent } from './components/loading/loading';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, LoadingComponent],
   template: `
+    <app-loading></app-loading>
     <router-outlet></router-outlet>
   `,
   styles: []
