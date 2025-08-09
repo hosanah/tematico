@@ -108,6 +108,29 @@ router.get('/buscar', (req, res, next) => {
   });
 });
 
+// Get marks for a reservation
+router.get('/:id/marcacoes', async (req, res, next) => {
+  const { id } = req.params;
+  if (!isValidInt(id)) {
+    return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
+  }
+  try {
+    const db = getDatabase();
+    const { rows } = await db.query(
+      `SELECT er.evento_id, er.reserva_id, er.quantidade, er.informacoes, er.status,
+              e.nome_evento AS evento_nome, e.data_evento
+         FROM eventos_reservas er
+         JOIN eventos e ON er.evento_id = e.id
+        WHERE er.reserva_id = ?`,
+      [id]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('❌ Erro ao obter marcações da reserva:', error.message);
+    next(new ApiError(500, 'Erro ao obter marcações', 'GET_MARCACOES_RESERVA_ERROR', error.message));
+  }
+});
+
 // Get single reservation
 router.get('/:id', (req, res, next) => {
   if (!isValidInt(req.params.id)) {
