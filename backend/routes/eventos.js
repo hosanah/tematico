@@ -193,14 +193,19 @@ router.post('/:id/marcar', async (req, res, next) => {
     }
 
     const { rows: [reserva] } = await db.query(
-      'SELECT id, data_checkin, data_checkout FROM reservas WHERE id = ?',
+      'SELECT id, nome_hospede, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE id = ?',
       [reservaId]
     );
     if (!reserva) {
       return next(new ApiError(404, 'Reserva não encontrada', 'RESERVA_NOT_FOUND'));
     }
 
-    // Rule 1: quantidade não pode ultrapassar vagas disponíveis
+    // Rule 1: quantidade não pode ultrapassar número de hóspedes da reserva
+    if (quantidade > reserva.qtd_hospedes) {
+      return next(new ApiError(400, 'Quantidade excede número de hóspedes da reserva', 'QUANTIDADE_EXCEDE_RESERVA'));
+    }
+
+    // Rule 2: total de hóspedes no evento não pode ultrapassar capacidade
     const { rows: [ocup] } = await db.query(
       `SELECT COALESCE(SUM(quantidade),0) AS total
          FROM eventos_reservas
@@ -212,7 +217,19 @@ router.post('/:id/marcar', async (req, res, next) => {
       return next(new ApiError(400, 'Capacidade do evento excedida', 'CAPACIDADE_EXCEDIDA'));
     }
 
-    // Rule 2: mesma reserva não pode ser vinculada a mais de um evento no mesmo dia
+    // Rule 3: não pode existir reserva do mesmo hóspede para o mesmo evento
+    const { rows: guestConflict } = await db.query(
+      `SELECT 1
+         FROM eventos_reservas er
+         JOIN reservas r ON er.reserva_id = r.id
+        WHERE er.evento_id = ? AND r.nome_hospede = ?`,
+      [id, reserva.nome_hospede]
+    );
+    if (guestConflict.length > 0) {
+      return next(new ApiError(400, 'Hóspede já possui reserva para este evento', 'HOSPEDE_DUPLICADO'));
+    }
+
+    // Rule 4: mesma reserva não pode ser vinculada a mais de um evento no mesmo dia
     const { rows: conflitos } = await db.query(
       `SELECT 1
          FROM eventos_reservas er
@@ -225,7 +242,7 @@ router.post('/:id/marcar', async (req, res, next) => {
       return next(new ApiError(400, 'Reserva já vinculada a outro evento neste dia', 'RESERVA_DUPLICADA'));
     }
 
-    // Rule 3: limite de marcações conforme duração da reserva
+    // Rule 5: limite de marcações conforme duração da reserva
     const checkin = new Date(reserva.data_checkin);
     const checkout = new Date(reserva.data_checkout);
     const diff = Math.max(1, Math.ceil((checkout - checkin) / (1000 * 60 * 60 * 24)));
