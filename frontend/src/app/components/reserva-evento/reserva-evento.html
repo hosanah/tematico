@@ -30,6 +30,24 @@
     <p-message *ngIf="reservaSelecionada !== undefined && reservas.length == 0" severity="warn">
       Não foi encontrada nenhuma reserva ativa para o código da UH informado: <b>{{reservaSelecionada}}</b>.
     </p-message>
+
+     <div *ngIf="marcacoesExistentes.length > 0" class="marcacoes-existentes">
+      <p-message severity="info" text="Marcações desta reserva:"></p-message>
+      <div class="marcacao-item" 
+        *ngFor="let marcacao of marcacoesExistentes"
+      >
+        <small>{{ marcacao.data_evento | date:'dd/MM/yyyy' }} - {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)</small>
+        <p-select
+          [(ngModel)]="marcacao.status"
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="atualizarStatus(marcacao)"
+          placeholder="Status"
+        ></p-select>
+        <button pButton type="button" label="Imprimir Voucher" icon="pi pi-print" class="p-button-text" (click)="abrirVoucher(marcacao)"></button>
+      </div>
+    </div>
   </div>
 
   <div class="right">
@@ -117,21 +135,6 @@
           </span>
         </p>
       </div>
-    </div>
-
-    <div *ngIf="marcacoesExistentes.length > 0" class="marcacoes-existentes">
-      <p-message severity="info" text="Marcações desta reserva:"></p-message>
-      <div class="marcacao-item" *ngFor="let marcacao of marcacoesExistentes">
-        <small>{{ marcacao.data_evento | date:'dd/MM/yyyy' }} - {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)</small>
-        <p-select
-          [(ngModel)]="marcacao.status"
-          [options]="statusOptions"
-          optionLabel="label"
-          (onChange)="atualizarStatus(marcacao)"
-          placeholder="Status"
-        ></p-select>
-        <button pButton type="button" label="Imprimir Voucher" icon="pi pi-print" class="p-button-text" (click)="abrirVoucher(marcacao)"></button>
-      </div>
-    </div>
+    </div>   
   </div>
 </div>
