@@ -16,6 +16,36 @@ function isValidInt(value) {
   return Number.isInteger(Number(value));
 }
 
+function buildPdf(lines) {
+  const header = '%PDF-1.1\n';
+  const objs = [
+    '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+    '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
+    '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n'
+  ];
+  const content =
+    'BT\n/F1 14 Tf\n72 720 Td\n' +
+    lines
+      .map((line, idx) => {
+        const text = line.replace(/[\\()]/g, m => '\\' + m);
+        return (idx ? '0 -20 Td\n' : '') + `(${text}) Tj\n`;
+      })
+      .join('') +
+    'ET';
+  objs.push(
+    `4 0 obj\n<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`
+  );
+  objs.push('5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n');
+  let xref = 'xref\n0 6\n0000000000 65535 f \n';
+  let offset = header.length;
+  for (const o of objs) {
+    xref += String(offset).padStart(10, '0') + ' 00000 n \n';
+    offset += o.length;
+  }
+  const trailer = `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${offset}\n%%EOF`;
+  return Buffer.from(header + objs.join('') + xref + trailer);
+}
+
 // List all events with pagination or by specific date
 router.get('/', (req, res, next) => {
   const db = getDatabase();
@@ -163,6 +193,46 @@ router.get('/:id/marcacoes', async (req, res, next) => {
   } catch (error) {
     console.error('❌ Erro ao obter marcações do evento:', error.message);
     next(new ApiError(500, 'Erro ao obter marcações', 'GET_MARCACOES_ERROR', error.message));
+  }
+});
+
+router.get('/:eventoId/marcacoes/:reservaId/voucher', async (req, res, next) => {
+  const { eventoId, reservaId } = req.params;
+  if (!isValidInt(eventoId) || !isValidInt(reservaId)) {
+    return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
+  }
+  try {
+    const db = getDatabase();
+    const { rows: [dados] } = await db.query(
+      `SELECT r.numeroreservacm, r.nome_hospede, e.nome_evento, e.data_evento,
+              e.horario_evento, rest.nome AS restaurante, er.status, er.quantidade
+         FROM eventos_reservas er
+         JOIN reservas r ON er.reserva_id = r.id
+         JOIN eventos e ON er.evento_id = e.id
+         JOIN restaurantes rest ON e.id_restaurante = rest.id
+        WHERE er.evento_id = ? AND er.reserva_id = ?`,
+      [eventoId, reservaId]
+    );
+    if (!dados) {
+      return next(new ApiError(404, 'Marcação não encontrada', 'MARCACAO_NOT_FOUND'));
+    }
+    const lines = [
+      'Voucher de Evento',
+      '',
+      `Reserva: ${dados.numeroreservacm} - ${dados.nome_hospede}`,
+      `Evento: ${dados.nome_evento}`,
+      `Data: ${dados.data_evento} ${dados.horario_evento}`,
+      `Restaurante: ${dados.restaurante}`,
+      `Quantidade: ${dados.quantidade}`,
+      `Status: ${dados.status}`
+    ];
+    const pdfBuffer = buildPdf(lines);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="voucher.pdf"');
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('❌ Erro ao gerar voucher:', error.message);
+    next(new ApiError(500, 'Erro ao gerar voucher', 'VOUCHER_ERROR', error.message));
   }
 });
 
