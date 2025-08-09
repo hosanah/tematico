@@ -28,7 +28,6 @@ export class AppMenu {
         label: 'Operacional',
         items: [
             { label: 'Reserva Evento', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['/reserva-evento'] },
-            { label: 'Listar Reserva Evento', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['/reserva-evento-list'] },
         ]
       },
       {
