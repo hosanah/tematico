@@ -85,7 +85,9 @@ router.post('/', async (req, res, next) => {
       `SELECT 1
          FROM eventos_reservas er
          JOIN reservas r ON er.reserva_id = r.id
-        WHERE er.evento_id = ? AND r.nome_hospede = ?`,
+        WHERE er.evento_id = ?
+          AND r.nome_hospede = ?
+          AND er.status <> 'Cancelada'`,
       [eventoId, reserva.nome_hospede]
     );
     if (guestConflict.length > 0) {
