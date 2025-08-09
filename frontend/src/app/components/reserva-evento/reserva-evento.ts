@@ -13,6 +13,7 @@ import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
 import { DatePickerModule } from 'primeng/datepicker';
 import { MessageModule } from 'primeng/message';
+import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 
 import { ReservaEventoService, Reserva, Evento, Disponibilidade } from '../../services/reserva-evento.service';
@@ -33,6 +34,7 @@ import { ReservaEventoService, Reserva, Evento, Disponibilidade } from '../../se
     CardModule,
     DatePickerModule,
     MessageModule,
+    TagModule,
   ],
   providers: [MessageService],
   templateUrl: './reserva-evento.html',
@@ -50,13 +52,6 @@ export class ReservaEventoComponent {
   disponibilidade?: Disponibilidade;
   chartData?: any;
   marcacoesExistentes: any[] = [];
-
-  statusOptions = [
-    { label: 'Ativa', value: 'Ativa' },
-    { label: 'Finalizada', value: 'Finalizada' },
-    { label: 'Cancelada', value: 'Cancelada' },
-    { label: 'Não Compareceu', value: 'Não Compareceu' },
-  ];
 
   informacoes = '';
   quantidade?: number;
@@ -167,13 +162,13 @@ export class ReservaEventoComponent {
     });
   }
 
-  atualizarStatus(marcacao: any): void {
-    if (!marcacao?.evento_id || !marcacao?.reserva_id || !marcacao?.status) {
+  atualizarStatus(marcacao: any, status: string): void {
+    if (!marcacao?.evento_id || !marcacao?.reserva_id) {
       return;
     }
 
     this.service
-      .atualizarStatus(marcacao.evento_id, marcacao.reserva_id, marcacao.status)
+      .atualizarStatus(marcacao.evento_id, marcacao.reserva_id, status)
       .subscribe({
         next: () => {
           this.message.add({ severity: 'success', summary: 'Sucesso', detail: 'Status atualizado' });
@@ -184,6 +179,20 @@ export class ReservaEventoComponent {
           this.message.add({ severity: 'error', summary: 'Erro', detail });
         },
       });
+  }
+
+  getTagSeverity(status: string): string {
+    switch ((status || '').toLowerCase()) {
+      case 'finalizada':
+        return 'success';
+      case 'cancelada':
+        return 'danger';
+      case 'não compareceu':
+      case 'nao compareceu':
+        return 'warning';
+      default:
+        return 'info';
+    }
   }
 
   private validarRegrasNegocio(): { valido: boolean; mensagem: string } {
