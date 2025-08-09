@@ -12,13 +12,17 @@
       placeholder="Código UH"
     ></p-autoComplete>
 
-    <p-card *ngIf="reservaSelecionada" class="reserva-info">
+    <p-card *ngIf="reservaSelecionada !== undefined && (reservaSelecionada?.id ?? 0) > 0" class="reserva-info">
       <div>ID: {{ reservaSelecionada.id }}</div>
       <div>Hóspede: {{ reservaSelecionada.nome_hospede }}</div>
       <div>Check-in: {{ reservaSelecionada.data_checkin }}</div>
       <div>Check-out: {{ reservaSelecionada.data_checkout }}</div>
       <div>Hóspedes: {{ reservaSelecionada.qtd_hospedes }}</div>
     </p-card>
+
+    <p-message *ngIf="reservaSelecionada !== undefined && reservas.length == 0" severity="warn">
+      Não foi encontrada nenhuma reserva ativa para o código da UH informado: <b>{{reservaSelecionada}}</b>.
+    </p-message>
   </div>
 
   <div class="right">
