@@ -22,8 +22,8 @@
     <p-card *ngIf="reservaSelecionada !== undefined && (reservaSelecionada?.id ?? 0) > 0" class="reserva-info">
       <div>ID: {{ reservaSelecionada.id }}</div>
       <div>Hóspede: {{ reservaSelecionada.nome_hospede }}</div>
-      <div>Check-in: {{ reservaSelecionada.data_checkin | date:'dd/MM/yyyy'}}</div>
-      <div>Check-out: {{ reservaSelecionada.data_checkout | date:'dd/MM/yyyy'}}</div>
+      <div>Check-in: {{ reservaSelecionada.data_checkin | date:'dd/MM/yyyy':'UTC' }}</div>
+      <div>Check-out: {{ reservaSelecionada.data_checkout | date:'dd/MM/yyyy':'UTC' }}</div>
       <div>Hóspedes: {{ reservaSelecionada.qtd_hospedes }}</div>
     </p-card>
 
@@ -39,7 +39,7 @@
       >
         <div class="marcacao-info">
           <small>
-            {{ marcacao.data_evento | date:'dd/MM/yyyy' }} -
+            {{ marcacao.data_evento | date:'dd/MM/yyyy':'UTC' }} -
             {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)
           </small>
           <p-tag

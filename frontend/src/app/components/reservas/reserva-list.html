@@ -35,8 +35,8 @@
         <td>{{ r.numeroreservacm }}</td>
         <td>{{ r.coduh }}</td>
         <td>{{ r.nome_hospede }}</td>
-        <td>{{ r.data_checkin | date:'dd/MM/yyyy' }}</td>
-        <td>{{ r.data_checkout | date:'dd/MM/yyyy' }}</td>
+        <td>{{ r.data_checkin | date:'dd/MM/yyyy':'UTC' }}</td>
+        <td>{{ r.data_checkout | date:'dd/MM/yyyy':'UTC' }}</td>
         <td>{{ r.qtd_hospedes }}</td>
         <td>
           <button pButton icon="pi pi-pencil" class="p-button-text" (click)="editar(r.id)"></button>
