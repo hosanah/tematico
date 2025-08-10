@@ -34,7 +34,7 @@ COPY --from=builder /backend/middleware ./middleware
 COPY --from=builder /backend/routes ./routes
 COPY --from=builder /backend/server.js ./
 COPY --from=builder /backend/swagger.json ./
-COPY --from=builder /backend/models ./
+COPY --from=builder /backend/models ./models
 
 # Variáveis de ambiente padrão (podem ser sobrescritas)
 ENV PORT=3001 \
