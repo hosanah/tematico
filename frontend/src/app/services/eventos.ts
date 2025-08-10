@@ -17,6 +17,10 @@ export interface Evento {
   restaurante?: string;
 }
 
+function toIsoDate(date: string): string {
+  return new Date(date).toISOString().split('T')[0];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -31,7 +35,7 @@ export class EventoService {
         data: res.data.map((e: any) => ({
           id: e.id,
           nome: e.nome,
-          data: e.data,
+          data: toIsoDate(e.data),
           hora: e.hora,
           restauranteId: e.restaurante_id,
           restaurante: e.restaurante
@@ -50,7 +54,7 @@ export class EventoService {
       map(e => ({
         id: e.id,
         nome: e.nome,
-        data: e.data,
+        data: toIsoDate(e.data),
         hora: e.hora,
         restauranteId: e.restaurante_id,
         restaurante: e.restaurante

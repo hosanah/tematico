@@ -17,7 +17,7 @@
     <ng-template pTemplate="body" let-m>
       <tr>
         <td>{{ m.evento_nome }}</td>
-        <td>{{ m.evento_data | date:'dd/MM/yyyy' }}</td>
+        <td>{{ m.evento_data | date:'dd/MM/yyyy':'UTC' }}</td>
         <td>{{ m.restaurante }}</td>
         <td>{{ m.nome_hospede }}</td>
         <td class="status-cell">
