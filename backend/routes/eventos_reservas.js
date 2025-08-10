@@ -36,6 +36,7 @@ router.get('/:eventoId/:reservaId', async (req, res, next) => {
   }
 });
 
+
 router.post('/', async (req, res, next) => {
   const { eventoId, reservaId, informacoes, quantidade, status } = req.body;
   if (!isValidInt(eventoId) || !isValidInt(reservaId) || !isValidInt(quantidade)) {
