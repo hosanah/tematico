@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const { getDatabase } = require('../config/database');
 const { generateToken, authenticateToken, verifyToken, generateRefreshToken, verifyRefreshToken } = require('../middleware/auth');
 const { ApiError } = require('../middleware/errorHandler');
+const { requireApiKey } = require('../middleware/apiKeyAuth');
 
 const router = express.Router();
 
@@ -89,7 +90,7 @@ router.post('/login', async (req, res, next) => {
  * POST /auth/refresh
  * Trocar refresh token válido por novo token de acesso
  */
-router.post('/refresh', async (req, res, next) => {
+router.post('/refresh', requireApiKey, async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
@@ -205,7 +206,7 @@ router.post('/validate', (req, res, next) => {
  * POST /auth/register
  * Registrar novo usuário (opcional)
  */
-router.post('/register', async (req, res, next) => {
+router.post('/register', requireApiKey, async (req, res, next) => {
   try {
     const { username, email, password, fullName } = req.body;
 
@@ -293,7 +294,7 @@ router.post('/register', async (req, res, next) => {
  * POST /auth/reset-password
  * Resetar senha do usuário através do email
  */
-router.post('/reset-password', async (req, res, next) => {
+router.post('/reset-password', requireApiKey, async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
