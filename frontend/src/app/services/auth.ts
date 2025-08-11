@@ -40,6 +40,7 @@ export interface AuthState {
 })
 export class AuthService {
   private readonly API_URL = environment.apiUrl;
+  private readonly API_KEY = environment.apiKey;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'auth_user';
   private refreshTokenTimeout: any;
@@ -229,7 +230,9 @@ export class AuthService {
    * Atualizar token
    */
   refreshToken(): Observable<any> {
-    return this.http.post<{ token: string }>(`${this.API_URL}/auth/refresh`, {})
+    return this.http.post<{ token: string }>(`${this.API_URL}/auth/refresh`, {}, {
+      headers: { 'x-api-key': this.API_KEY }
+    })
       .pipe(
         tap(res => {
           localStorage.setItem(this.TOKEN_KEY, res.token);
@@ -311,7 +314,9 @@ export class AuthService {
    * Registrar novo usuário (opcional)
    */
   register(userData: any): Observable<any> {
-    return this.http.post(`${this.API_URL}/auth/register`, userData)
+    return this.http.post(`${this.API_URL}/auth/register`, userData, {
+      headers: { 'x-api-key': this.API_KEY }
+    })
       .pipe(
         catchError(error => {
           console.error('❌ Erro no registro:', error);
@@ -324,7 +329,9 @@ export class AuthService {
    * Resetar senha do usuário através do email
    */
   resetPassword(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.API_URL}/auth/reset-password`, { email, password })
+    return this.http.post(`${this.API_URL}/auth/reset-password`, { email, password }, {
+      headers: { 'x-api-key': this.API_KEY }
+    })
       .pipe(
         catchError(error => {
           console.error('❌ Erro ao resetar senha:', error);
