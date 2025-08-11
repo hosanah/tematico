@@ -1399,6 +1399,37 @@
         ]
       }
     },
+    "/reservas/validate-coduh/{coduh}": {
+      "get": {
+        "summary": "Validar reserva ativa por coduh",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "coduh",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados da reserva e eventos relacionados"
+          },
+          "404": {
+            "description": "Reserva não encontrada"
+          }
+        },
+        "tags": [
+          "Reservas"
+        ]
+      }
+    },
     "/reservas/{id}/marcacoes": {
       "get": {
         "summary": "Listar marcações de uma reserva",
