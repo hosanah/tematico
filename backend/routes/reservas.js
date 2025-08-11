@@ -108,6 +108,39 @@ router.get('/buscar', (req, res, next) => {
   });
 });
 
+// Validate reservation by coduh and current date
+router.get('/validate-coduh/:coduh', async (req, res, next) => {
+  const { coduh } = req.params;
+  if (!isValidString(coduh)) {
+    return next(new ApiError(400, 'coduh inválido', 'INVALID_CODUH'));
+  }
+  try {
+    const db = getDatabase();
+    const { rows: [reserva] } = await db.query(
+      `SELECT id, nome_hospede, data_checkin, data_checkout, qtd_hospedes
+         FROM reservas
+        WHERE coduh = ?
+          AND data_checkin <= CURRENT_DATE
+          AND data_checkout >= CURRENT_DATE`,
+      [coduh]
+    );
+    if (!reserva) {
+      return next(new ApiError(404, 'Reserva não encontrada', 'RESERVATION_NOT_FOUND'));
+    }
+    const { rows: eventos } = await db.query(
+      `SELECT er.evento_id, e.nome_evento, er.status
+         FROM eventos_reservas er
+         JOIN eventos e ON er.evento_id = e.id
+        WHERE er.reserva_id = ?`,
+      [reserva.id]
+    );
+    res.json({ ...reserva, eventos });
+  } catch (err) {
+    console.error('❌ Erro ao validar coduh:', err.message);
+    next(new ApiError(500, 'Erro ao validar coduh', 'VALIDATE_CODUH_ERROR', err.message));
+  }
+});
+
 // Get marks for a reservation
 router.get('/:id/marcacoes', async (req, res, next) => {
   const { id } = req.params;
