@@ -73,7 +73,8 @@ router.post('/', async (req, res, next) => {
     const { rows: [ocup] } = await db.query(
       `SELECT COALESCE(SUM(quantidade),0) AS total
          FROM eventos_reservas
-        WHERE evento_id = ?`,
+        WHERE evento_id = ?
+          AND status <> 'Cancelada'`,
       [eventoId]
     );
     const vagas = evento.capacidade - Number(ocup.total);
@@ -106,7 +107,10 @@ router.post('/', async (req, res, next) => {
       limite = 2;
     }
     const { rows: [countRes] } = await db.query(
-      'SELECT COUNT(*)::int AS count FROM eventos_reservas WHERE reserva_id = ?',
+      `SELECT COUNT(*)::int AS count
+         FROM eventos_reservas
+        WHERE reserva_id = ?
+          AND status <> 'Cancelada'`,
       [reservaId]
     );
     if (countRes.count >= limite) {
