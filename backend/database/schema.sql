@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS reservas (
   numeroreservacm VARCHAR(255) NOT NULL,
   coduh VARCHAR(255) NOT NULL,
   nome_hospede VARCHAR(255) NOT NULL,
+  contato VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
   data_checkin DATE NOT NULL,
   data_checkout DATE NOT NULL,
   qtd_hospedes INTEGER NOT NULL

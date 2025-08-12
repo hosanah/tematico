@@ -37,6 +37,25 @@
     </div>
 
     <div class="flex flex-col gap-2">
+      <label for="contato">Contato</label>
+      <input id="contato" type="text" pInputText formControlName="contato" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('contato')?.hasError('required') && form.get('contato')?.touched">
+        Contato é obrigatório.
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="email">Email</label>
+      <input id="email" type="email" pInputText formControlName="email" class="p-inputtext p-inputtext-fluid" />
+      <div class="text-red-500 text-sm" *ngIf="form.get('email')?.hasError('required') && form.get('email')?.touched">
+        Email é obrigatório.
+      </div>
+      <div class="text-red-500 text-sm" *ngIf="form.get('email')?.hasError('email') && form.get('email')?.touched">
+        Email inválido.
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
       <label for="data_checkin">Data Check-in</label>
       <input id="data_checkin" type="date" pInputText formControlName="data_checkin" class="p-inputtext p-inputtext-fluid" />
       <div class="text-red-500 text-sm" *ngIf="form.get('data_checkin')?.hasError('required') && form.get('data_checkin')?.touched">

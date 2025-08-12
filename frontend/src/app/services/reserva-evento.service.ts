@@ -13,6 +13,8 @@ export interface Reserva {
   numeroreservacm?: string;
   coduh?: string;
   nome_hospede?: string;
+  contato?: string;
+  email?: string;
   data_checkin?: string;
   data_checkout?: string;
   qtd_hospedes?: number;

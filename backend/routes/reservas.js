@@ -16,9 +16,13 @@ function isValidDate(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
+function isValidEmail(value) {
+  return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 function getOverlaps(db, coduh, checkin, checkout, excludeId, callback) {
   let sql =
-    'SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE coduh = ? AND NOT (data_checkout <= ? OR data_checkin >= ?)';
+    'SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE coduh = ? AND NOT (data_checkout <= ? OR data_checkin >= ?)';
   const params = [coduh, checkin, checkout];
   if (excludeId !== undefined) {
     sql += ' AND id <> ?';
@@ -39,7 +43,7 @@ router.get('/', (req, res, next) => {
     }
 
     db.all(
-      `SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes
+      `SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes
          FROM reservas
         WHERE coduh = ?
           AND data_checkin <= ?
@@ -68,7 +72,7 @@ router.get('/', (req, res, next) => {
   const offset = (page - 1) * limit;
 
   db.all(
-    'SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes FROM reservas LIMIT ? OFFSET ?',
+    'SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes FROM reservas LIMIT ? OFFSET ?',
     [limit, offset],
     (err, rows) => {
       if (err) {
@@ -117,7 +121,7 @@ router.get('/validate-coduh/:coduh', async (req, res, next) => {
   try {
     const db = getDatabase();
     const { rows: [reserva] } = await db.query(
-      `SELECT id, nome_hospede, data_checkin, data_checkout, qtd_hospedes
+      `SELECT id, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes
          FROM reservas
         WHERE coduh = ?
           AND data_checkin <= CURRENT_DATE
@@ -170,7 +174,7 @@ router.get('/:id', (req, res, next) => {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
   const db = getDatabase();
-  db.get('SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE id = ?', [req.params.id], (err, row) => {
+  db.get('SELECT id, idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes FROM reservas WHERE id = ?', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter reserva:', err.message);
       return next(new ApiError(500, 'Erro ao obter reserva', 'GET_RESERVATION_ERROR', err.message));
@@ -184,12 +188,14 @@ router.get('/:id', (req, res, next) => {
 
 // Create reservation
 router.post('/', (req, res, next) => {
-  const { idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes } = req.body;
+  const { idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes } = req.body;
   if (
     !isValidInt(idreservacm) ||
     !isValidString(numeroreservacm) ||
     !isValidString(coduh) ||
     !isValidString(nome_hospede) ||
+    !isValidString(contato) ||
+    !isValidEmail(email) ||
     !isValidDate(data_checkin) ||
     !isValidDate(data_checkout) ||
     !isValidInt(qtd_hospedes)
@@ -206,14 +212,14 @@ router.post('/', (req, res, next) => {
       return next(new ApiError(409, 'Período já reservado para este coduh', 'RESERVATION_CONFLICT'));
     }
     db.run(
-      'INSERT INTO reservas (idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id',
-      [idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes],
+      'INSERT INTO reservas (idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id',
+      [idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes],
       function(err2) {
         if (err2) {
           console.error('❌ Erro ao criar reserva:', err2.message);
           return next(new ApiError(500, 'Erro ao criar reserva', 'CREATE_RESERVATION_ERROR', err2.message));
         }
-        res.status(201).json({ id: this.lastID, idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes });
+        res.status(201).json({ id: this.lastID, idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes });
       }
     );
   });
@@ -234,7 +240,7 @@ router.put('/:id', (req, res, next) => {
       return next(new ApiError(404, 'Reserva não encontrada', 'RESERVATION_NOT_FOUND'));
     }
 
-    const { idreservacm, numeroreservacm, coduh, nome_hospede, data_checkin, data_checkout, qtd_hospedes } = req.body;
+    const { idreservacm, numeroreservacm, coduh, nome_hospede, contato, email, data_checkin, data_checkout, qtd_hospedes } = req.body;
     const fields = [];
     const values = [];
 
@@ -257,6 +263,14 @@ router.put('/:id', (req, res, next) => {
     if (nome_hospede !== undefined) {
       if (!isValidString(nome_hospede)) return next(new ApiError(400, 'nome_hospede inválido', 'INVALID_NOME_HOSPEDE'));
       fields.push('nome_hospede = ?'); values.push(nome_hospede);
+    }
+    if (contato !== undefined) {
+      if (!isValidString(contato)) return next(new ApiError(400, 'contato inválido', 'INVALID_CONTATO'));
+      fields.push('contato = ?'); values.push(contato);
+    }
+    if (email !== undefined) {
+      if (!isValidEmail(email)) return next(new ApiError(400, 'email inválido', 'INVALID_EMAIL'));
+      fields.push('email = ?'); values.push(email);
     }
     if (data_checkin !== undefined) {
       if (!isValidDate(data_checkin)) return next(new ApiError(400, 'data_checkin inválida', 'INVALID_DATA_CHECKIN'));
