@@ -22,7 +22,6 @@
       <tr>
         <th>Nome</th>
         <th>Capacidade</th>
-        <th>Horário de Funcionamento</th>
         <th>Ações</th>
       </tr>
     </ng-template>
@@ -30,7 +29,6 @@
       <tr>
         <td>{{ r.nome }}</td>
         <td>{{ r.capacidade }}</td>
-        <td>{{ r.horarioFuncionamento }}</td>
         <td>
           <button pButton icon="pi pi-pencil" class="p-button-text" (click)="editar(r.id)"></button>
           <button pButton icon="pi pi-trash" class="p-button-text p-button-danger" (click)="excluir(r.id)"></button>

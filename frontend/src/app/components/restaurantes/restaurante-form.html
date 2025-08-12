@@ -29,20 +29,6 @@
       </div>
     </div>
 
-    <div class="flex flex-col gap-2">
-      <label for="horarioFuncionamento">Horário de Funcionamento</label>
-      <input
-        id="horarioFuncionamento"
-        type="text"
-        pInputText
-        formControlName="horarioFuncionamento"
-        class="p-inputtext p-inputtext-fluid"
-      />
-      <div class="text-red-500 text-sm" *ngIf="form.get('horarioFuncionamento')?.hasError('required') && form.get('horarioFuncionamento')?.touched">
-        Horário de funcionamento é obrigatório.
-      </div>
-    </div>
-
     <div class="flex gap-2 pt-2">
       <button pButton type="submit" label="Salvar" [disabled]="isLoading"></button>
       <button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="cancel()"></button>

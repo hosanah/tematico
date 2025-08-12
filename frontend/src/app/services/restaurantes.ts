@@ -12,7 +12,6 @@ export interface Restaurante {
   id?: number;
   nome: string;
   capacidade: number;
-  horarioFuncionamento: string;
 }
 
 @Injectable({
@@ -29,8 +28,7 @@ export class RestauranteService {
         data: res.data.map((r: any) => ({
           id: r.id,
           nome: r.nome,
-          capacidade: r.capacidade,
-          horarioFuncionamento: r.horario_funcionamento
+          capacidade: r.capacidade
         } as Restaurante)),
         total: res.total
       })),
@@ -46,8 +44,7 @@ export class RestauranteService {
       map(r => ({
         id: r.id,
         nome: r.nome,
-        capacidade: r.capacidade,
-        horarioFuncionamento: r.horario_funcionamento
+        capacidade: r.capacidade
       } as Restaurante)),
       catchError(error => {
         console.error('❌ Erro ao obter restaurante:', error);
@@ -59,8 +56,7 @@ export class RestauranteService {
   createRestaurante(data: Restaurante): Observable<any> {
     const payload = {
       nome: data.nome,
-      capacidade: data.capacidade,
-      horario_funcionamento: data.horarioFuncionamento
+      capacidade: data.capacidade
     };
     return this.http.post(`${this.API_URL}/restaurantes`, payload).pipe(
       catchError(error => {
@@ -72,10 +68,6 @@ export class RestauranteService {
 
   updateRestaurante(id: number, data: Partial<Restaurante>): Observable<any> {
     const payload: any = { ...data };
-    if (data.horarioFuncionamento !== undefined) {
-      payload.horario_funcionamento = data.horarioFuncionamento;
-      delete payload.horarioFuncionamento;
-    }
     return this.http.put(`${this.API_URL}/restaurantes/${id}`, payload).pipe(
       catchError(error => {
         console.error('❌ Erro ao atualizar restaurante:', error);
