@@ -56,6 +56,10 @@
     {
       "name": "Reservas",
       "description": "Gerenciamento de reservas"
+    },
+    {
+      "name": "Configurações",
+      "description": "Gerenciamento das configurações do sistema"
     }
   ],
   "paths": {
@@ -1661,6 +1665,47 @@
         "tags": [
           "Reservas"
         ]
+      }
+    }
+    ,
+    "/configuracoes": {
+      "get": {
+        "summary": "Obter configurações do sistema",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "responses": {
+          "200": { "description": "Configurações obtidas" }
+        },
+        "tags": [ "Configurações" ]
+      },
+      "put": {
+        "summary": "Atualizar configurações do sistema",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome_sistema": { "type": "string" },
+                  "webhook_whatsapp": { "type": "string" },
+                  "contato": { "type": "string" },
+                  "cnpj": { "type": "string" },
+                  "tempo_atualizacao_pms": { "type": "integer" },
+                  "nome_agenda_virtual": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Configurações atualizadas" }
+        },
+        "tags": [ "Configurações" ]
       }
     }
   }

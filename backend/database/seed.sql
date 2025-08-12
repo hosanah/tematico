@@ -21,3 +21,21 @@ INSERT INTO eventos_reservas (evento_id, reserva_id, voucher) VALUES
   (1, 1, 'VX00001'),
   (1, 2, 'VX00002')
 ON CONFLICT DO NOTHING;
+
+INSERT INTO configuracoes (
+  id,
+  nome_sistema,
+  webhook_whatsapp,
+  contato,
+  cnpj,
+  tempo_atualizacao_pms,
+  nome_agenda_virtual
+) VALUES (
+  1,
+  '',
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+) ON CONFLICT (id) DO NOTHING;
