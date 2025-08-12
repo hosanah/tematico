@@ -10,8 +10,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { InputSwitchModule } from 'primeng/inputswitch';
+import { TextareaModule } from 'primeng/textarea'
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -22,7 +22,7 @@ import { extractErrorMessage } from '../../utils';
 @Component({
   selector: 'app-diretriz-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, InputTextareaModule, InputSwitchModule, ButtonModule, ToastModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, TextareaModule, ToggleSwitchModule, ButtonModule, ToastModule],
   providers: [MessageService],
   templateUrl: './diretriz-form.html',
   styleUrls: ['./diretriz-form.scss']
