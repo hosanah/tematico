@@ -375,6 +375,49 @@ router.patch('/:eventoId/marcacoes/:reservaId/status', async (req, res, next) =>
   }
 });
 
+// Create events in bulk within a date range
+router.post('/em-massa', async (req, res, next) => {
+  const { nome, hora, restauranteId, dataInicio, dataFim } = req.body;
+  if (
+    !nome ||
+    !isValidTime(hora) ||
+    !isValidDate(dataInicio) ||
+    !isValidDate(dataFim) ||
+    !isValidInt(restauranteId)
+  ) {
+    return next(new ApiError(400, 'Dados inválidos para criação em massa', 'INVALID_FIELDS'));
+  }
+
+  const start = new Date(dataInicio);
+  const end = new Date(dataFim);
+  if (end < start) {
+    return next(new ApiError(400, 'Data final anterior à inicial', 'INVALID_DATE_RANGE'));
+  }
+
+  try {
+    const db = getDatabase();
+    const created = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const { rows } = await db.query(
+        'SELECT id FROM eventos WHERE data_evento = ? AND horario_evento = ? AND id_restaurante = ?',
+        [dateStr, hora, restauranteId]
+      );
+      if (rows.length === 0) {
+        const result = await db.query(
+          'INSERT INTO eventos (nome_evento, data_evento, horario_evento, id_restaurante) VALUES (?, ?, ?, ?) RETURNING id',
+          [nome, dateStr, hora, restauranteId]
+        );
+        created.push({ id: result.rows[0].id, nome, data: dateStr, hora, restauranteId });
+      }
+    }
+    res.status(201).json({ criados: created.length, eventos: created });
+  } catch (error) {
+    console.error('❌ Erro ao criar eventos em massa:', error.message);
+    next(new ApiError(500, 'Erro ao criar eventos em massa', 'CREATE_BULK_EVENTS_ERROR', error.message));
+  }
+});
+
 // Create event
 router.post('/', (req, res, next) => {
   const { nome, data, hora, restauranteId } = req.body;
