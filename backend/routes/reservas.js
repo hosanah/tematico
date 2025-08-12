@@ -154,7 +154,7 @@ router.get('/:id/marcacoes', async (req, res, next) => {
   try {
     const db = getDatabase();
     const { rows } = await db.query(
-      `SELECT er.evento_id, er.reserva_id, er.quantidade, er.informacoes, er.status,
+      `SELECT er.evento_id, er.reserva_id, er.quantidade, er.informacoes, er.status, er.voucher,
               e.nome_evento AS evento_nome, e.data_evento
          FROM eventos_reservas er
          JOIN eventos e ON er.evento_id = e.id

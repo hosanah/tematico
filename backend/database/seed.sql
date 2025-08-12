@@ -17,7 +17,7 @@ INSERT INTO reservas (id, idreservacm, numeroreservacm, coduh, nome_hospede, dat
   (2, 102, 'NR-002', 'UH02', 'Maria Souza', '2024-12-22', '2024-12-24', 3)
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO eventos_reservas (evento_id, reserva_id) VALUES
-  (1, 1),
-  (1, 2)
+INSERT INTO eventos_reservas (evento_id, reserva_id, voucher) VALUES
+  (1, 1, 'VX00001'),
+  (1, 2, 'VX00002')
 ON CONFLICT DO NOTHING;

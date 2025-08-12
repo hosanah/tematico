@@ -11,6 +11,7 @@
         <th>Data</th>
         <th>Restaurante</th>
         <th>Reserva</th>
+        <th>Voucher</th>
         <th>Status</th>
       </tr>
     </ng-template>
@@ -20,6 +21,7 @@
         <td>{{ m.evento_data | date:'dd/MM/yyyy':'UTC' }}</td>
         <td>{{ m.restaurante }}</td>
         <td>{{ m.nome_hospede }}</td>
+        <td>{{ m.voucher }}</td>
         <td class="status-cell">
           <p-tag [value]="m.status" [severity]="getStatusSeverity(m.status)"></p-tag>
           <p-select

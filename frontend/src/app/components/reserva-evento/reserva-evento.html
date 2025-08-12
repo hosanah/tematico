@@ -44,6 +44,7 @@
             {{ marcacao.data_evento | date:'dd/MM/yyyy':'UTC' }} -
             {{ marcacao.evento_nome }} ({{ marcacao.quantidade }} pessoas)
           </small>
+          <small>Voucher: {{ marcacao.voucher }}</small>
           <p-tag
             [value]="marcacao.status"
             [severity]="getTagSeverity(marcacao.status)"

@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS eventos_reservas (
   informacoes TEXT,
   quantidade INTEGER DEFAULT 0,
   status VARCHAR(20) DEFAULT 'Ativa',
+  voucher VARCHAR(10) UNIQUE NOT NULL,
   PRIMARY KEY (evento_id, reserva_id)
 );
 
