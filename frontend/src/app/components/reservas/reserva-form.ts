@@ -44,6 +44,8 @@ export class ReservaFormComponent implements OnInit {
       numeroreservacm: ['', Validators.required],
       coduh: ['', Validators.required],
       nome_hospede: ['', Validators.required],
+      contato: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
       data_checkin: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
       data_checkout: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
       qtd_hospedes: [null, [Validators.required, Validators.pattern(/^\d+$/)]]

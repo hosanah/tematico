@@ -25,6 +25,8 @@
       <div>Check-in: {{ reservaSelecionada.data_checkin | date:'dd/MM/yyyy':'UTC' }}</div>
       <div>Check-out: {{ reservaSelecionada.data_checkout | date:'dd/MM/yyyy':'UTC' }}</div>
       <div>Hóspedes: {{ reservaSelecionada.qtd_hospedes }}</div>
+      <div>Contato: {{ reservaSelecionada.contato }}</div>
+      <div>Email: {{ reservaSelecionada.email }}</div>
     </p-card>
 
     <p-message *ngIf="reservaSelecionada !== undefined && reservas.length == 0" severity="warn">
