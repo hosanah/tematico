@@ -19,6 +19,19 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+router.get('/voucher/:voucher', async (req, res, next) => {
+  try {
+    const row = await model.findByVoucher(req.params.voucher);
+    if (!row) {
+      return next(new ApiError(404, 'Marcação não encontrada', 'MARCACAO_NOT_FOUND'));
+    }
+    res.json(row);
+  } catch (err) {
+    console.error('❌ Erro ao obter marcação por voucher:', err.message);
+    next(new ApiError(500, 'Erro ao obter marcação', 'GET_MARCACAO_ERROR', err.message));
+  }
+});
+
 router.get('/:eventoId/:reservaId', async (req, res, next) => {
   const { eventoId, reservaId } = req.params;
   if (!isValidInt(eventoId) || !isValidInt(reservaId)) {

@@ -148,8 +148,9 @@ export class ReservaEventoComponent {
     };
     
     this.service.marcar(this.eventoSelecionado.id!, payload).subscribe({
-      next: () => {
-        this.message.add({ severity: 'success', summary: 'Sucesso', detail: 'Marcação salva' });
+      next: res => {
+        const voucherMsg = res?.voucher ? ` Voucher: ${res.voucher}` : '';
+        this.message.add({ severity: 'success', summary: 'Sucesso', detail: 'Marcação salva' + voucherMsg });
         this.informacoes = '';
         this.quantidade = undefined;
         this.onEventoChange();

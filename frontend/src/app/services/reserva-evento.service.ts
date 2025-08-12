@@ -43,6 +43,7 @@ export interface Marcacao {
   numero_reserva: string;
   nome_hospede: string;
   status: string;
+  voucher?: string;
 }
 
 @Injectable({

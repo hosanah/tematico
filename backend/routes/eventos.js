@@ -1,6 +1,7 @@
 const express = require('express');
 const { getDatabase } = require('../config/database');
 const { ApiError } = require('../middleware/errorHandler');
+const eventoReservaModel = require('../models/eventoReservaModel');
 
 const router = express.Router();
 
@@ -205,7 +206,7 @@ router.get('/:eventoId/marcacoes/:reservaId/voucher', async (req, res, next) => 
     const db = getDatabase();
     const { rows: [dados] } = await db.query(
       `SELECT r.numeroreservacm, r.nome_hospede, e.nome_evento, e.data_evento,
-              e.horario_evento, rest.nome AS restaurante, er.status, er.quantidade
+              e.horario_evento, rest.nome AS restaurante, er.status, er.quantidade, er.voucher
          FROM eventos_reservas er
          JOIN reservas r ON er.reserva_id = r.id
          JOIN eventos e ON er.evento_id = e.id
@@ -217,7 +218,7 @@ router.get('/:eventoId/marcacoes/:reservaId/voucher', async (req, res, next) => 
       return next(new ApiError(404, 'Marcação não encontrada', 'MARCACAO_NOT_FOUND'));
     }
     const lines = [
-      'Voucher de Evento',
+      `Voucher: ${dados.voucher}`,
       '',
       `Reserva: ${dados.numeroreservacm} - ${dados.nome_hospede}`,
       `Evento: ${dados.nome_evento}`,
@@ -337,12 +338,15 @@ router.post('/:id/marcar', async (req, res, next) => {
       return next(new ApiError(400, 'Limite de marcações atingido para a reserva', 'LIMITE_MARCACOES'));
     }
 
-    await db.query(
-      'INSERT INTO eventos_reservas (evento_id, reserva_id, informacoes, quantidade, status) VALUES (?, ?, ?, ?, ?)',
-      [id, reservaId, informacoes || null, quantidade, 'Ativa']
-    );
+    const created = await eventoReservaModel.create({
+      eventoId: id,
+      reservaId,
+      informacoes,
+      quantidade,
+      status: 'Ativa'
+    });
 
-    res.status(201).json({ message: 'Marcação registrada com sucesso' });
+    res.status(201).json(created);
   } catch (error) {
     console.error('❌ Erro ao salvar marcação:', error.message);
     next(new ApiError(500, 'Erro ao salvar marcação', 'SAVE_MARCACAO_ERROR', error.message));
