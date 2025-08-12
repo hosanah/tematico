@@ -3,9 +3,9 @@ INSERT INTO users (username, email, password, full_name)
 VALUES ('admin', 'admin@example.com', '$2a$12$.NifCEunTbm0Q7mpJmCS3OsKigZvlwWYNSIRn6lGfasceRI965Y6u', 'Administrador')
 ON CONFLICT (username) DO NOTHING;
 
-INSERT INTO restaurantes (id, nome, capacidade, horario_funcionamento) VALUES
-  (1, 'Restaurante Central', 100, '08:00-22:00'),
-  (2, 'Bistrô da Praça', 50, '10:00-20:00')
+INSERT INTO restaurantes (id, nome, capacidade) VALUES
+  (1, 'Restaurante Central', 100),
+  (2, 'Bistrô da Praça', 50)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO eventos (id, nome_evento, data_evento, horario_evento, id_restaurante) VALUES

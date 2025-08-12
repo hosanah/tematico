@@ -22,8 +22,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE TABLE IF NOT EXISTS restaurantes (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(255) NOT NULL,
-  capacidade INTEGER,
-  horario_funcionamento VARCHAR(255)
+  capacidade INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS eventos (

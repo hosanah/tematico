@@ -614,15 +614,11 @@
                   },
                   "capacidade": {
                     "type": "integer"
-                  },
-                  "horario_funcionamento": {
-                    "type": "string"
                   }
                 },
                 "required": [
                   "nome",
-                  "capacidade",
-                  "horario_funcionamento"
+                  "capacidade"
                 ]
               }
             }
@@ -697,9 +693,6 @@
                   },
                   "capacidade": {
                     "type": "integer"
-                  },
-                  "horario_funcionamento": {
-                    "type": "string"
                   }
                 }
               }
