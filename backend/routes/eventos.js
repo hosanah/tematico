@@ -279,7 +279,8 @@ router.post('/:id/marcar', async (req, res, next) => {
     const { rows: [ocup] } = await db.query(
       `SELECT COALESCE(SUM(quantidade),0) AS total
          FROM eventos_reservas
-        WHERE evento_id = ?`,
+        WHERE evento_id = ?
+          AND status <> 'Cancelada'`,
       [id]
     );
     const vagas = evento.capacidade - Number(ocup.total);
@@ -307,7 +308,8 @@ router.post('/:id/marcar', async (req, res, next) => {
          FROM eventos_reservas er
          JOIN eventos e ON er.evento_id = e.id
         WHERE er.reserva_id = ?
-          AND e.data_evento = ?`,
+          AND e.data_evento = ?
+          AND er.status <> 'Cancelada'`,
       [reservaId, evento.data_evento]
     );
     if (conflitos.length > 0) {
@@ -325,7 +327,10 @@ router.post('/:id/marcar', async (req, res, next) => {
       limite = 2;
     }
     const { rows: [countRes] } = await db.query(
-      'SELECT COUNT(*)::int AS count FROM eventos_reservas WHERE reserva_id = ?',
+      `SELECT COUNT(*)::int AS count
+         FROM eventos_reservas
+        WHERE reserva_id = ?
+          AND status <> 'Cancelada'`,
       [reservaId]
     );
     if (countRes.count >= limite) {
