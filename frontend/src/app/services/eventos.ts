@@ -17,6 +17,14 @@ export interface Evento {
   restaurante?: string;
 }
 
+export interface EventoMassa {
+  nome: string;
+  hora: string;
+  restauranteId: number;
+  dataInicio: string;
+  dataFim: string;
+}
+
 function toIsoDate(date: string): string {
   return new Date(date).toISOString().split('T')[0];
 }
@@ -70,6 +78,15 @@ export class EventoService {
     return this.http.post(`${this.API_URL}/eventos`, data).pipe(
       catchError(error => {
         console.error('❌ Erro ao criar evento:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  createEventosEmMassa(data: EventoMassa): Observable<any> {
+    return this.http.post(`${this.API_URL}/eventos/em-massa`, data).pipe(
+      catchError(error => {
+        console.error('❌ Erro ao criar eventos em massa:', error);
         return throwError(() => error);
       })
     );

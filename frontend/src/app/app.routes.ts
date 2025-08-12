@@ -36,6 +36,7 @@ export const routes: Routes = [
       { path: 'restaurantes/:id', loadComponent: () => import('./components/restaurantes/restaurante-form').then(m => m.RestauranteFormComponent) },
       { path: 'eventos', loadComponent: () => import('./components/eventos/evento-list').then(m => m.EventoListComponent) },
       { path: 'eventos/novo', loadComponent: () => import('./components/eventos/evento-form').then(m => m.EventoFormComponent) },
+      { path: 'eventos/em-massa', loadComponent: () => import('./components/eventos/evento-bulk-form').then(m => m.EventoBulkFormComponent) },
       { path: 'eventos/:id', loadComponent: () => import('./components/eventos/evento-form').then(m => m.EventoFormComponent) },
       { path: 'reservas', loadComponent: () => import('./components/reservas/reserva-list').then(m => m.ReservaListComponent) },
       { path: 'reservas/novo', loadComponent: () => import('./components/reservas/reserva-form').then(m => m.ReservaFormComponent) },

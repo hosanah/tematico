@@ -71,6 +71,10 @@ export class EventoListComponent implements OnInit {
     this.router.navigate(['/eventos/novo']);
   }
 
+  novoEmMassa(): void {
+    this.router.navigate(['/eventos/em-massa']);
+  }
+
   editar(id?: number): void {
     if (id) {
       this.router.navigate(['/eventos', id]);
