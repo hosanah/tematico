@@ -496,16 +496,44 @@ router.delete('/:id', (req, res, next) => {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
   const db = getDatabase();
-  db.run('DELETE FROM eventos WHERE id = ?', [req.params.id], function(err) {
-    if (err) {
-      console.error('❌ Erro ao deletar evento:', err.message);
-      return next(new ApiError(500, 'Erro ao deletar evento', 'DELETE_EVENT_ERROR', err.message));
+  db.get(
+    'SELECT 1 FROM eventos_reservas WHERE evento_id = ? AND status <> ? LIMIT 1',
+    [req.params.id, 'Cancelada'],
+    (err, row) => {
+      if (err) {
+        console.error('❌ Erro ao verificar reservas do evento:', err.message);
+        return next(
+          new ApiError(
+            500,
+            'Erro ao verificar reservas do evento',
+            'CHECK_EVENT_RESERVAS_ERROR',
+            err.message
+          )
+        );
+      }
+      if (row) {
+        return next(
+          new ApiError(
+            400,
+            'Evento possui reservas ativas e não pode ser excluído',
+            'EVENT_HAS_ACTIVE_RESERVAS'
+          )
+        );
+      }
+      db.run('DELETE FROM eventos WHERE id = ?', [req.params.id], function(err2) {
+        if (err2) {
+          console.error('❌ Erro ao deletar evento:', err2.message);
+          return next(
+            new ApiError(500, 'Erro ao deletar evento', 'DELETE_EVENT_ERROR', err2.message)
+          );
+        }
+        if (this.changes === 0) {
+          return next(new ApiError(404, 'Evento não encontrado', 'EVENT_NOT_FOUND'));
+        }
+        res.json({ message: 'Evento deletado com sucesso' });
+      });
     }
-    if (this.changes === 0) {
-      return next(new ApiError(404, 'Evento não encontrado', 'EVENT_NOT_FOUND'));
-    }
-    res.json({ message: 'Evento deletado com sucesso' });
-  });
+  );
 });
   
 

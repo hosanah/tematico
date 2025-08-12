@@ -936,6 +936,9 @@
           "200": {
             "description": "Evento deletado"
           },
+          "400": {
+            "description": "Evento possui reservas ativas"
+          },
           "404": {
             "description": "Evento não encontrado"
           }
