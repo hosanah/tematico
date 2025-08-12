@@ -22,6 +22,7 @@ const eventosRoutes = require('./routes/eventos');
 const reservasRoutes = require('./routes/reservas');
 const eventosReservasRoutes = require('./routes/eventos_reservas');
 const diretrizesRoutes = require('./routes/diretrizes');
+const configuracoesRoutes = require('./routes/configuracoes');
 
 // Importar middleware de autenticação
 const { authenticateToken } = require('./middleware/auth');
@@ -100,6 +101,7 @@ app.use('/eventos', authenticateToken, eventosRoutes);
 app.use('/reservas', authenticateToken, reservasRoutes);
 app.use('/eventos-reservas', authenticateToken, eventosReservasRoutes);
 app.use('/diretrizes', authenticateToken, diretrizesRoutes);
+app.use('/configuracoes', authenticateToken, configuracoesRoutes);
 
 // Rota para servir arquivos estáticos (se necessário)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -62,3 +62,31 @@ CREATE TABLE IF NOT EXISTS diretrizes (
   descricao TEXT NOT NULL,
   ativo BOOLEAN DEFAULT TRUE
 );
+
+CREATE TABLE IF NOT EXISTS configuracoes (
+  id SERIAL PRIMARY KEY,
+  nome_sistema VARCHAR(255) NOT NULL,
+  webhook_whatsapp VARCHAR(255),
+  contato VARCHAR(255),
+  cnpj VARCHAR(20),
+  tempo_atualizacao_pms INTEGER,
+  nome_agenda_virtual VARCHAR(255)
+);
+
+INSERT INTO configuracoes (
+  id,
+  nome_sistema,
+  webhook_whatsapp,
+  contato,
+  cnpj,
+  tempo_atualizacao_pms,
+  nome_agenda_virtual
+) VALUES (
+  1,
+  '',
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+) ON CONFLICT (id) DO NOTHING;
