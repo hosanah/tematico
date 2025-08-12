@@ -42,6 +42,10 @@
       "description": "Gerenciamento de restaurantes"
     },
     {
+      "name": "Diretrizes",
+      "description": "Gerenciamento de diretrizes"
+    },
+    {
       "name": "Eventos",
       "description": "Gerenciamento de eventos"
     },
@@ -739,6 +743,97 @@
         "tags": [
           "Restaurantes"
         ]
+      }
+    },
+    "/diretrizes": {
+      "get": {
+        "summary": "Listar diretrizes",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Lista de diretrizes" }
+        },
+        "tags": [ "Diretrizes" ]
+      },
+      "post": {
+        "summary": "Criar diretriz",
+        "security": [ { "bearerAuth": [] } ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "descricao": { "type": "string" },
+                  "ativo": { "type": "boolean" }
+                },
+                "required": ["descricao"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Diretriz criada" }
+        },
+        "tags": [ "Diretrizes" ]
+      }
+    },
+    "/diretrizes/{id}": {
+      "get": {
+        "summary": "Obter diretriz pelo ID",
+        "security": [ { "bearerAuth": [] } ],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Diretriz encontrada" },
+          "404": { "description": "Diretriz não encontrada" }
+        },
+        "tags": [ "Diretrizes" ]
+      },
+      "put": {
+        "summary": "Atualizar diretriz",
+        "security": [ { "bearerAuth": [] } ],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "descricao": { "type": "string" },
+                  "ativo": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Diretriz atualizada" },
+          "404": { "description": "Diretriz não encontrada" }
+        },
+        "tags": [ "Diretrizes" ]
+      },
+      "delete": {
+        "summary": "Deletar diretriz",
+        "security": [ { "bearerAuth": [] } ],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Diretriz deletada" },
+          "404": { "description": "Diretriz não encontrada" }
+        },
+        "tags": [ "Diretrizes" ]
       }
     },
     "/eventos": {

@@ -55,3 +55,9 @@ CREATE TABLE IF NOT EXISTS eventos_reservas (
   status VARCHAR(20) DEFAULT 'Ativa',
   PRIMARY KEY (evento_id, reserva_id)
 );
+
+CREATE TABLE IF NOT EXISTS diretrizes (
+  id SERIAL PRIMARY KEY,
+  descricao TEXT NOT NULL,
+  ativo BOOLEAN DEFAULT TRUE
+);
