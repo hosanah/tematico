@@ -94,7 +94,43 @@ router.get('/', (req, res, next) => {
         res.json({ data: rows, total: result.count });
       });
     }
-  );
+    );
+  });
+
+// List available events by date
+router.get('/disponiveis', async (req, res, next) => {
+  const { data } = req.query;
+  if (!data || !isValidDate(data)) {
+    return next(new ApiError(400, 'Data inválida', 'INVALID_DATE'));
+  }
+  try {
+    const db = getDatabase();
+    const { rows } = await db.query(
+      `SELECT e.id, e.nome_evento, r.nome AS restaurante, r.capacidade,
+              COALESCE(SUM(er.quantidade),0) AS ocupacao
+         FROM eventos e
+         JOIN restaurantes r ON e.id_restaurante = r.id
+    LEFT JOIN eventos_reservas er ON er.evento_id = e.id AND er.status <> 'Cancelada'
+        WHERE e.data_evento = ?
+        GROUP BY e.id, e.nome_evento, r.nome, r.capacidade
+       HAVING (r.capacidade - COALESCE(SUM(er.quantidade),0)) > 0`,
+      [data]
+    );
+    const result = rows.map(row => {
+      const vagas = Number(row.capacidade) - Number(row.ocupacao);
+      return {
+        disponibilidade: vagas > 0,
+        restaurante: row.restaurante,
+        vagas,
+        id: row.id,
+        nome: row.nome_evento
+      };
+    });
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Erro ao listar eventos disponíveis:', error.message);
+    next(new ApiError(500, 'Erro ao listar eventos disponíveis', 'LIST_AVAILABLE_EVENTS_ERROR', error.message));
+  }
 });
 
 // Get single event

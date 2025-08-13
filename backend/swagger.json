@@ -930,6 +930,30 @@
         ]
       }
     },
+    "/eventos/disponiveis": {
+      "get": {
+        "summary": "Listar eventos disponíveis por data",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de eventos disponíveis" },
+          "400": { "description": "Data inválida" }
+        },
+        "tags": [ "Eventos" ]
+      }
+    },
     "/eventos/{id}": {
       "get": {
         "summary": "Obter evento pelo ID",
