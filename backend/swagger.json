@@ -948,7 +948,30 @@
           }
         ],
         "responses": {
-          "200": { "description": "Lista de eventos disponíveis" },
+          "200": {
+            "description": "Lista de eventos disponíveis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "disponibilidade": { "type": "boolean" },
+                      "restaurante": { "type": "string" },
+                      "vagas": { "type": "integer" },
+                      "id": { "type": "integer" },
+                      "nome": { "type": "string" },
+                      "hora": {
+                        "type": "string",
+                        "pattern": "^\\\d{2}:\\\d{2}$"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "400": { "description": "Data inválida" }
         },
         "tags": [ "Eventos" ]

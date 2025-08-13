@@ -106,13 +106,17 @@ router.get('/disponiveis', async (req, res, next) => {
   try {
     const db = getDatabase();
     const { rows } = await db.query(
-      `SELECT e.id, e.nome_evento, r.nome AS restaurante, r.capacidade,
+      `SELECT e.id,
+              e.nome_evento,
+              e.horario_evento AS hora,
+              r.nome AS restaurante,
+              r.capacidade,
               COALESCE(SUM(er.quantidade),0) AS ocupacao
          FROM eventos e
          JOIN restaurantes r ON e.id_restaurante = r.id
     LEFT JOIN eventos_reservas er ON er.evento_id = e.id AND er.status <> 'Cancelada'
         WHERE e.data_evento = ?
-        GROUP BY e.id, e.nome_evento, r.nome, r.capacidade
+        GROUP BY e.id, e.nome_evento, e.horario_evento, r.nome, r.capacidade
        HAVING (r.capacidade - COALESCE(SUM(er.quantidade),0)) > 0`,
       [data]
     );
@@ -123,7 +127,8 @@ router.get('/disponiveis', async (req, res, next) => {
         restaurante: row.restaurante,
         vagas,
         id: row.id,
-        nome: row.nome_evento
+        nome: row.nome_evento,
+        hora: row.hora
       };
     });
     res.json(result);
