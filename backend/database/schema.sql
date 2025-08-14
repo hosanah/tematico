@@ -47,14 +47,16 @@ CREATE TABLE IF NOT EXISTS reservas (
   qtd_hospedes INTEGER NOT NULL
 );
 
+ALTER TABLE IF EXISTS eventos_reservas
+  DROP CONSTRAINT IF EXISTS eventos_reservas_pkey;
+
 CREATE TABLE IF NOT EXISTS eventos_reservas (
   evento_id INTEGER NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
   reserva_id INTEGER NOT NULL REFERENCES reservas(id) ON DELETE CASCADE,
   informacoes TEXT,
   quantidade INTEGER DEFAULT 0,
   status VARCHAR(20) DEFAULT 'Ativa',
-  voucher VARCHAR(10) UNIQUE NOT NULL,
-  PRIMARY KEY (evento_id, reserva_id)
+  voucher VARCHAR(10) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS diretrizes (
