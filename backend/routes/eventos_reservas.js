@@ -95,7 +95,22 @@ router.post('/', async (req, res, next) => {
       return next(new ApiError(400, 'Capacidade do evento excedida', 'CAPACIDADE_EXCEDIDA'));
     }
 
-    // Rule 3: não pode existir reserva do mesmo hóspede para o mesmo evento
+    // Rule 3: não pode existir mais de uma marcação ativa para o mesmo evento e reserva
+    if (!status || status === 'Ativa') {
+      const { rows: duplicated } = await db.query(
+        `SELECT 1
+           FROM eventos_reservas er
+          WHERE er.evento_id = ?
+            AND er.reserva_id = ?
+            AND er.status = 'Ativa'`,
+        [eventoId, reservaId]
+      );
+      if (duplicated.length > 0) {
+        return next(new ApiError(400, 'Marcação ativa já existe para este evento', 'MARCACAO_DUPLICADA'));
+      }
+    }
+
+    // Rule 4: não pode existir reserva do mesmo hóspede para o mesmo evento
     const { rows: guestConflict } = await db.query(
       `SELECT 1
          FROM eventos_reservas er
@@ -109,7 +124,7 @@ router.post('/', async (req, res, next) => {
       return next(new ApiError(400, 'Hóspede já possui reserva para este evento', 'HOSPEDE_DUPLICADO'));
     }
 
-    // Rule 4: limite de marcações conforme duração da reserva
+    // Rule 5: limite de marcações conforme duração da reserva
     const checkin = new Date(reserva.data_checkin);
     const checkout = new Date(reserva.data_checkout);
     const diff = Math.max(1, Math.ceil((checkout - checkin) / (1000 * 60 * 60 * 24)));
