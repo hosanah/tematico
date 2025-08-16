@@ -16,7 +16,7 @@ router.get('/', (req, res, next) => {
   const offset = (page - 1) * limit;
 
   db.all(
-    'SELECT id, nome, capacidade FROM restaurantes LIMIT ? OFFSET ?',
+    'SELECT id, nome, capacidade, descricao FROM restaurantes LIMIT ? OFFSET ?',
     [limit, offset],
     (err, rows) => {
       if (err) {
@@ -40,7 +40,7 @@ router.get('/:id', (req, res, next) => {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
   const db = getDatabase();
-  db.get('SELECT id, nome, capacidade FROM restaurantes WHERE id = ?', [req.params.id], (err, row) => {
+  db.get('SELECT id, nome, capacidade, descricao FROM restaurantes WHERE id = ?', [req.params.id], (err, row) => {
     if (err) {
       console.error('❌ Erro ao obter restaurante:', err.message);
       return next(new ApiError(500, 'Erro ao obter restaurante', 'GET_RESTAURANT_ERROR', err.message));
@@ -54,20 +54,20 @@ router.get('/:id', (req, res, next) => {
 
 // Create restaurant
 router.post('/', (req, res, next) => {
-  const { nome, capacidade } = req.body;
+  const { nome, capacidade, descricao } = req.body;
   if (!nome || !isValidInt(capacidade)) {
     return next(new ApiError(400, 'Nome e capacidade inteira são obrigatórios', 'MISSING_FIELDS'));
   }
   const db = getDatabase();
   db.run(
-    'INSERT INTO restaurantes (nome, capacidade) VALUES (?, ?) RETURNING id',
-    [nome, capacidade],
+    'INSERT INTO restaurantes (nome, capacidade, descricao) VALUES (?, ?, ?) RETURNING id',
+    [nome, capacidade, descricao || null],
     function(err) {
       if (err) {
         console.error('❌ Erro ao criar restaurante:', err.message);
         return next(new ApiError(500, 'Erro ao criar restaurante', 'CREATE_RESTAURANT_ERROR', err.message));
       }
-      res.status(201).json({ id: this.lastID, nome, capacidade });
+      res.status(201).json({ id: this.lastID, nome, capacidade, descricao: descricao || null });
     }
   );
 });
@@ -77,7 +77,7 @@ router.put('/:id', (req, res, next) => {
   if (!isValidInt(req.params.id)) {
     return next(new ApiError(400, 'ID inválido', 'INVALID_ID'));
   }
-  const { nome, capacidade } = req.body;
+  const { nome, capacidade, descricao } = req.body;
   const fields = [];
   const values = [];
   if (nome) { fields.push('nome = ?'); values.push(nome); }
@@ -88,6 +88,7 @@ router.put('/:id', (req, res, next) => {
     fields.push('capacidade = ?');
     values.push(capacidade);
   }
+  if (descricao !== undefined) { fields.push('descricao = ?'); values.push(descricao); }
   if (fields.length === 0) {
     return next(new ApiError(400, 'Nenhum dado para atualizar', 'NO_FIELDS_TO_UPDATE'));
   }
