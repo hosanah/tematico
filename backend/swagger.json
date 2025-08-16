@@ -622,6 +622,9 @@
                   },
                   "capacidade": {
                     "type": "integer"
+                  },
+                  "descricao": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -701,6 +704,9 @@
                   },
                   "capacidade": {
                     "type": "integer"
+                  },
+                  "descricao": {
+                    "type": "string"
                   }
                 }
               }

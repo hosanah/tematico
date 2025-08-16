@@ -12,6 +12,7 @@ export interface Restaurante {
   id?: number;
   nome: string;
   capacidade: number;
+  descricao?: string;
 }
 
 @Injectable({
@@ -28,7 +29,8 @@ export class RestauranteService {
         data: res.data.map((r: any) => ({
           id: r.id,
           nome: r.nome,
-          capacidade: r.capacidade
+          capacidade: r.capacidade,
+          descricao: r.descricao
         } as Restaurante)),
         total: res.total
       })),
@@ -44,7 +46,8 @@ export class RestauranteService {
       map(r => ({
         id: r.id,
         nome: r.nome,
-        capacidade: r.capacidade
+        capacidade: r.capacidade,
+        descricao: r.descricao
       } as Restaurante)),
       catchError(error => {
         console.error('❌ Erro ao obter restaurante:', error);
@@ -56,7 +59,8 @@ export class RestauranteService {
   createRestaurante(data: Restaurante): Observable<any> {
     const payload = {
       nome: data.nome,
-      capacidade: data.capacidade
+      capacidade: data.capacidade,
+      descricao: data.descricao
     };
     return this.http.post(`${this.API_URL}/restaurantes`, payload).pipe(
       catchError(error => {

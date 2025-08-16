@@ -21,6 +21,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Nome</th>
+        <th>Descrição</th>
         <th>Capacidade</th>
         <th>Ações</th>
       </tr>
@@ -28,6 +29,7 @@
     <ng-template pTemplate="body" let-r>
       <tr>
         <td>{{ r.nome }}</td>
+        <td>{{ r.descricao }}</td>
         <td>{{ r.capacidade }}</td>
         <td>
           <button pButton icon="pi pi-pencil" class="p-button-text" (click)="editar(r.id)"></button>

@@ -41,7 +41,8 @@ export class RestauranteFormComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       nome: ['', Validators.required],
-      capacidade: [null, Validators.required]
+      capacidade: [null, Validators.required],
+      descricao: ['']
     });
   }
 
