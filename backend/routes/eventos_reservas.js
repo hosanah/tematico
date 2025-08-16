@@ -110,18 +110,18 @@ router.post('/', async (req, res, next) => {
       }
     }
 
-    // Rule 4: não pode existir reserva do mesmo hóspede para o mesmo evento
+    // Rule 4: hóspede só pode ter uma marcação ativa para o mesmo evento
     const { rows: guestConflict } = await db.query(
       `SELECT 1
          FROM eventos_reservas er
          JOIN reservas r ON er.reserva_id = r.id
         WHERE er.evento_id = ?
           AND r.nome_hospede = ?
-          AND er.status <> 'Cancelada'`,
+          AND er.status = 'Ativa'`,
       [eventoId, reserva.nome_hospede]
     );
     if (guestConflict.length > 0) {
-      return next(new ApiError(400, 'Hóspede já possui reserva para este evento', 'HOSPEDE_DUPLICADO'));
+      return next(new ApiError(400, 'Hóspede já possui marcação ativa para este evento', 'HOSPEDE_DUPLICADO'));
     }
 
     // Rule 5: limite de marcações conforme duração da reserva
