@@ -18,6 +18,14 @@ function errorHandler(err, req, res, next) {
   }
 
   const status = err.statusCode || 500;
+
+  if (status === 400) {
+    const response = { success: false, errors: [err.message] };
+    if (err.code) response.code = err.code;
+    if (err.details) response.details = err.details;
+    return res.status(200).json(response);
+  }
+
   const response = { error: err.message || 'Erro interno do servidor' };
   if (err.code) response.code = err.code;
   if (err.details) response.details = err.details;
