@@ -15,7 +15,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { MessageModule } from 'primeng/message';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
-
+import { extractErrorMessage } from '../../utils';
 import { ReservaEventoService, Reserva, Evento, Disponibilidade } from '../../services/reserva-evento.service';
 
 @Component({
@@ -157,7 +157,7 @@ export class ReservaEventoComponent {
         this.carregarMarcacoesExistentes();
       },
       error: err => {
-        const detail = err.error?.error || 'Falha ao salvar marcação';
+        const detail = extractErrorMessage(err);
         this.message.add({ severity: 'error', summary: 'Erro', detail });
       },
     });
@@ -176,7 +176,7 @@ export class ReservaEventoComponent {
           this.carregarMarcacoesExistentes();
         },
         error: err => {
-          const detail = err.error?.error || 'Falha ao atualizar status';
+          const detail = extractErrorMessage(err);
           this.message.add({ severity: 'error', summary: 'Erro', detail });
         },
       });
@@ -264,7 +264,7 @@ export class ReservaEventoComponent {
           window.open(url, '_blank');
         },
         error: err => {
-          const detail = err.error?.error || 'Falha ao obter voucher';
+          const detail = extractErrorMessage(err);
           this.message.add({ severity: 'error', summary: 'Erro', detail });
         }
       });
