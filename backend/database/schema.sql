@@ -66,6 +66,22 @@ CREATE TABLE IF NOT EXISTS diretrizes (
   ativo BOOLEAN DEFAULT TRUE
 );
 
+CREATE TABLE IF NOT EXISTS regras_validacao (
+  id SERIAL PRIMARY KEY,
+  chave VARCHAR(50) UNIQUE NOT NULL,
+  descricao TEXT NOT NULL,
+  ativo BOOLEAN DEFAULT TRUE
+);
+
+INSERT INTO regras_validacao (chave, descricao, ativo) VALUES
+  ('QUANTIDADE_RESERVA', 'Quantidade não pode exceder número de hóspedes da reserva', TRUE),
+  ('CAPACIDADE_EVENTO', 'Total de participantes não pode ultrapassar capacidade do restaurante', TRUE),
+  ('MARCACAO_DUPLICADA_EVENTO_RESERVA', 'Não permitir mais de uma marcação ativa para o mesmo evento e reserva', TRUE),
+  ('HOSPEDE_DUPLICADO_EVENTO', 'Um hóspede não pode ter mais de uma marcação ativa para o mesmo evento', TRUE),
+  ('RESERVA_DUPLICADA_DIA', 'A reserva não pode ser vinculada a outro evento na mesma data', TRUE),
+  ('LIMITE_MARCACOES_ESTADIA', 'Limite de marcações conforme duração da estadia', TRUE)
+ON CONFLICT (chave) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS configuracoes (
   id SERIAL PRIMARY KEY,
   nome_sistema VARCHAR(255) NOT NULL,

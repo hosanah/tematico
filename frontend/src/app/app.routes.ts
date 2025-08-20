@@ -37,6 +37,7 @@ export const routes: Routes = [
       { path: 'diretrizes', loadComponent: () => import('./components/diretrizes/diretriz-list').then(m => m.DiretrizListComponent) },
       { path: 'diretrizes/novo', loadComponent: () => import('./components/diretrizes/diretriz-form').then(m => m.DiretrizFormComponent) },
       { path: 'diretrizes/:id', loadComponent: () => import('./components/diretrizes/diretriz-form').then(m => m.DiretrizFormComponent) },
+      { path: 'regras', loadComponent: () => import('./components/regras/regra-list').then(m => m.RegraListComponent) },
       { path: 'eventos', loadComponent: () => import('./components/eventos/evento-list').then(m => m.EventoListComponent) },
       { path: 'eventos/novo', loadComponent: () => import('./components/eventos/evento-form').then(m => m.EventoFormComponent) },
       { path: 'eventos/em-massa', loadComponent: () => import('./components/eventos/evento-bulk-form').then(m => m.EventoBulkFormComponent) },
